@@ -55,6 +55,7 @@
     slskd = {
       enable = true;
       settings = {
+        useSlskdn = true;
         shareFolders = ["[RAID]/srv/data/music"];
         domainName = "soulseek.doppel.moe";
         enableNginx = true;

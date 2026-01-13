@@ -48,23 +48,5 @@
     windowManager = "dwm";
   };
 
-  myModules.remoteBuilds.user = {
-    enable = true;
-    hosts = {
-      HAMUKO-NIXREMOTE = {
-        hostName = "192.168.1.20";
-        proxyJump = "doppel.moe";
-      };
-      NYANKO-NIXREMOTE = {
-        hostName = "192.168.1.30";
-        proxyJump = "doppel.moe";
-      };
-      HIME-NIXREMOTE = {
-        hostName = "192.168.1.40";
-        proxyJump = "doppel.moe";
-      };
-    };
-  };
-
   system.stateVersion = "25.11";
 }

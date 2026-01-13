@@ -39,11 +39,6 @@
         type = lib.types.str;
         default = "nixremote";
       };
-      proxyJump = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = "SSH jump host";
-      };
     };
   };
 
@@ -51,7 +46,6 @@
     Host ${name}
       HostName ${host.hostName}
       ${lib.optionalString host.identitiesOnly "IdentitiesOnly yes"}
-      ${lib.optionalString (host.proxyJump != null) "ProxyJump  ${host.proxyJump}"}
       IdentityFile ${host.identityFile}
       User ${host.sshUser}
   '';

@@ -8,6 +8,10 @@
     nvf.url = "github:notashelf/nvf";
     nvf.inputs.nixpkgs.follows = "nixpkgs";
     nixcord.url = "github:kaylorben/nixcord";
+    sana-website = {
+      url = "github:eightheve/sana-website";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {

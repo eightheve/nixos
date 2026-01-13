@@ -52,6 +52,8 @@
       openFirewall = true;
     };
 
+    sanaWebsite.enable = true;
+
     slskd = {
       enable = true;
       settings = {

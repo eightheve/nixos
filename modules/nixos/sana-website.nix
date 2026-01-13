@@ -22,7 +22,7 @@ in {
     };
   };
 
-  imports = lib.mkIf cfg.enable [
+  imports = [
     inputs.sana-website.nixosModules.default
   ];
 
@@ -30,7 +30,7 @@ in {
     services.sana-moe = {
       enable = true;
       envFile = cfg.settings.environmentFilePath;
-      localPort = cfg.settings.localport;
+      localPort = cfg.settings.localPort;
     };
   };
 }

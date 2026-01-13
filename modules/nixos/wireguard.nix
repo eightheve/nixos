@@ -108,8 +108,8 @@ in {
 
     networking.firewall.extraCommands = lib.mkIf (cfg.role == "server" && cfg.server.natForwardPorts) ''
       iptables -t nat -F PREROUTING
-      iptables -t nat -A PREROUTING -i ${cfg.server.externalInterface} -p tcp ! --dport ${toString cfg.server.sshPort} -j DNAT --to-destination ${lib.head (lib.head cfg.peers).allowedIPs}
-      iptables -t nat -A PREROUTING -i ${cfg.server.externalInterface} -p udp ! --dport ${toString cfg.server.sshPort} -j DNAT --to-destination ${lib.head (lib.head cfg.peers).allowedIPs}
+      iptables -t nat -A PREROUTING -i ${cfg.server.externalInterface} -p tcp ! --dport ${toString cfg.server.sshPort} -j DNAT --to-destination ${lib.removeSuffix "/32" (lib.head ((lib.head cfg.peers).allowedIPs))}
+      iptables -t nat -A PREROUTING -i ${cfg.server.externalInterface} -p udp ! --dport ${toString cfg.server.sshPort} -j DNAT --to-destination ${lib.removeSuffix "/32" (lib.head ((lib.head cfg.peers).allowedIPs))}
       iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE
     '';
   };

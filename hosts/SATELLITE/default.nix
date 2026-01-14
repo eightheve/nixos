@@ -48,6 +48,8 @@
     windowManager = "dwm";
   };
 
+  networking.firewall.enable = false;
+
   myModules.wireguard = {
     enable = true;
     interfaces.wg0 = {

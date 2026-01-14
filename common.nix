@@ -43,6 +43,9 @@
     };
   };
 
+  hardware.gpgSmartcards.enable = true;
+  services.udev.packages = [pkgs.yubikey-personalization];
+
   time.timeZone = lib.mkDefault "America/New_York";
   i18n = {
     defaultLocale = "en_US.UTF-8";

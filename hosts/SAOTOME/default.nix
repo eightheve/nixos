@@ -33,6 +33,8 @@
     fsType = "ext4";
   };
 
+  networking.firewall.allowedUDPPorts = [51821];
+
   myModules = {
     networking = {
       enable = true;
@@ -107,7 +109,7 @@
         };
       };
       server = {
-        externalInterface = "enp6s0"; # adjust to your interface
+        externalInterface = "eno3"; # adjust to your interface
         interfaces = ["wg1"];
       };
     };

@@ -4,8 +4,8 @@
     fsType = "ext4";
   };
   fileSystems."/boot" = {
-    device = "/dev/disk/by-label/boot";
-    fsType = "ext4";
+    device = "/dev/disk/by-label/BOOT";
+    fsType = "vfat";
   };
   swapDevices = [
     {

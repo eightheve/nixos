@@ -19,6 +19,11 @@
     sshAccessPermitted = true;
   };
 
+  myModules.networking = {
+    enable = true;
+    hostName = "KAZOOIE";
+  };
+
   myModules.wireguard = {
     enable = true;
     interfaces.wg0 = {

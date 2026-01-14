@@ -149,7 +149,7 @@ in {
     in ''
       iptables -t nat -F PREROUTING
       iptables -t nat -A PREROUTING -i ${cfg.server.externalInterface} -p tcp ! --dport ${toString cfg.server.sshPort} -j DNAT --to-destination ${targetIP}
-      iptables -t nat -A PREROUTING -i ${cfg.server.externalInterface} -p udp ! --dport ${toString cfg.server.sshPort} -j DNAT --to-destination ${targetIP}
+      iptables -t nat -A PREROUTING -i ${cfg.server.externalInterface} -p udp ! --dport 51820 -j DNAT --to-destination ${targetIP}
       iptables -t nat -A POSTROUTING -o ${firstInterface} -j MASQUERADE
     '');
   };

@@ -48,8 +48,10 @@
     windowManager = "dwm";
   };
 
+  networking.firewall.enable = false;
+
   myModules.wireguard = {
-    enable = true;
+    enable = false;
     interfaces.wg0 = {
       role = "client";
       ip = "10.100.1.2/24";

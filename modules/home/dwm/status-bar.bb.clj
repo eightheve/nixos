@@ -451,6 +451,19 @@
                   (when (>= percent threshold)
                     (str percent "%")))}
 
+     {:id :nowplaying
+      :enabled? true
+      :label "PLAYING: "
+      :interval (seconds 3)
+      :compute #(let [status (try
+                               (str (sh-out "playerctl" "status"))
+                               (catch Exception e nil))
+                      running? (contains? #{"Playing" "Paused"} status)]
+                  (when running?
+                    (str (sh-out "playerctl" "metadata" "artist")
+                         " - "
+                         (sh-out "playerctl" "metadata" "title"))))}
+
      (let [total-cpu-threshold 30
            sampling-period 5]
        {:id :cpu

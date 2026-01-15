@@ -371,19 +371,14 @@
                     out))}
 
      {:id :battery
-      :enabled? (path-exists? "/usr/bin/acpi")
+      :enabled? (path-exists? "/sys/class/power_supply/BAT0")
       :label "BATT: "
       :interval (seconds 10)
       :compute #(let [alert-threshold 15
                       off-threshold 5
-                      s (sh-out "acpi" "-b")
-                      ;; Acpi output samples:
-                      ;;   Battery 0: Charging, 85%, 00:15:35 until charged
-                      ;;   Battery 0: Discharging, 85%, 07:55:04 remaining
-                      ;;   Battery 0: Full, 100%
-                      matches (re-find #"Battery 0:\s+(\w+), (\d+)%(, +(\d\d:\d\d)(?::\d\d))?.*" s)
-                      [_ status percent _ duration] matches
-                      percent (Integer/parseInt percent)]
+                      status (-> "/sys/class/power_supply/BAT0/status" slurp str/trim)
+                      percent (-> "/sys/class/power_supply/BAT0/capacity" slurp str/trim Integer/parseInt)
+                      duration nil]
                   (if (= status "Discharging")
                     (if (< percent off-threshold)
                       (sh-or-throw "sudo" "poweroff")
@@ -450,6 +445,19 @@
                       percent (int (* (/ (- total available) total) 100))]
                   (when (>= percent threshold)
                     (str percent "%")))}
+
+     {:id :nowplaying
+      :enabled? true
+      :label "PLAYING: "
+      :interval (seconds 3)
+      :compute #(let [status (try
+                               (str (sh-out "playerctl" "status"))
+                               (catch Exception e nil))
+                      running? (contains? #{"Playing" "Paused"} status)]
+                  (when running?
+                    (str (sh-out "playerctl" "metadata" "artist")
+                         " - "
+                         (sh-out "playerctl" "metadata" "title"))))}
 
      (let [total-cpu-threshold 30
            sampling-period 5]

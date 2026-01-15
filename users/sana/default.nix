@@ -59,9 +59,16 @@
 
         programs.git = {
           enable = true;
-          settings.user = {
-            name = "doppelsana";
-            email = "sana@doppel.moe";
+          settings = {
+            gpg.program = "${pkgs.gnupg}/bin/gpg";
+            user = {
+              name = "doppelsana";
+              email = "sana@doppel.moe";
+            };
+          };
+          signing = {
+            key = "64E2D72FF5BA8BEE12C16A3D57096169F7C8117C";
+            signByDefault = true;
           };
         };
 

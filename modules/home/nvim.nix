@@ -2,6 +2,7 @@
   config,
   lib,
   inputs,
+  pkgs,
   ...
 }: let
   cfg = config.homeModules.nvim;
@@ -30,6 +31,10 @@ in {
         options = {
           shiftwidth = 2;
           expandtab = true;
+          tabstop = 2;
+          softtabstop = 2;
+          autoindent = true;
+          smartindent = true;
         };
 
         globals.maplocalleader = " ";
@@ -45,16 +50,38 @@ in {
           formatOnSave = true;
         };
 
+        treesitter = {
+          enable = true;
+          addDefaultGrammars = true;
+          indent.enable = false;
+        };
+
         languages = {
           enableDAP = true;
-          #enableTreesitter = true;
+          enableTreesitter = true;
           enableFormat = true;
 
-          nix.enable = true;
+          nix = {
+            enable = true;
+            treesitter.enable = true;
+          };
           bash.enable = true;
-          html.enable = true;
-          css.enable = true;
-          clojure.enable = true;
+          html = {
+            enable = true;
+            treesitter.enable = true;
+          };
+          css = {
+            enable = true;
+            treesitter.enable = true;
+          };
+          clang = {
+            enable = true;
+            treesitter.enable = true;
+          };
+          clojure = {
+            enable = true;
+            treesitter.enable = true;
+          };
         };
 
         repl.conjure.enable = true;

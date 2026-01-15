@@ -10,13 +10,18 @@
 
   networking = {
     hostName = "KAZOOIE";
-    firewall.allowedUDPPorts = [51820];
+    firewall.allowedUDPPorts = [51820 51821];
   };
 
   myUsers.sana = {
     enable = true;
     useHomeManager = false;
     sshAccessPermitted = true;
+  };
+
+  myModules.networking = {
+    enable = true;
+    hostName = "KAZOOIE";
   };
 
   myModules.wireguard = {

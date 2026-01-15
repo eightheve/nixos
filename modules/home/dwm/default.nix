@@ -85,8 +85,6 @@ in {
     systemd.user.services.babashka-status = lib.mkIf cfg.babashkaStatus.enable {
       Unit = {
         Description = "Babashka status bar for DWM";
-        After = ["graphical-session.target"];
-        PartOf = ["graphical-session.target"];
       };
 
       Service = {
@@ -99,8 +97,6 @@ in {
         ];
         BindReadOnlyPaths = ["/sys"];
       };
-
-      Install.WantedBy = ["graphical-session.target"];
     };
 
     services.playerctld.enable = cfg.babashkaStatus.enable;
@@ -113,6 +109,7 @@ in {
     };
 
     home.file.".xinitrc".text = lib.mkIf cfg.makeXinitrc ''
+      ${lib.optionalString cfg.babashkaStatus.enable "systemctl --user start babashka-status &"}
       ${lib.concatStringsSep "\n" cfg.additionalInitCommands}
       exec dwm
     '';

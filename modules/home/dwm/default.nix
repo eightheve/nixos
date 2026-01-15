@@ -80,9 +80,30 @@ in {
       dmenu
       st
       feh
-      acpi
-      iw
     ];
+
+    systemd.user.services.babashka-status = lib.mkIf cfg.babashkaStatus.enable {
+      Unit = {
+        Description = "Babashka status bar for DWM";
+        After = ["graphical-session.target"];
+        PartOf = ["graphical-session.target"];
+      };
+
+      Service = {
+        ExecStart = "${babashka-status-bar}/bin/babashka-status-bar run dwm ${cfg.babashkaStatus.monitors}";
+        Restart = "always";
+        Environment = [
+          "PATH=${pkgs.lib.makeBinPath [pkgs.toybox pkgs.iw pkgs.playerctl pkgs.xorg.xsetroot]}"
+          "DISPLAY=:0"
+          "XAUTHORITY=${config.home.homeDirectory}/.Xauthority"
+        ];
+        BindReadOnlyPaths = ["/sys"];
+      };
+
+      Install.WantedBy = ["graphical-session.target"];
+    };
+
+    services.playerctld.enable = cfg.babashkaStatus.enable;
 
     home.pointerCursor = {
       gtk.enable = true;
@@ -92,7 +113,6 @@ in {
     };
 
     home.file.".xinitrc".text = lib.mkIf cfg.makeXinitrc ''
-      ${lib.optionalString cfg.babashkaStatus.enable "${babashka-status-bar}/bin/babashka-status-bar run dwm ${cfg.babashkaStatus.monitors} &"}
       ${lib.concatStringsSep "\n" cfg.additionalInitCommands}
       exec dwm
     '';

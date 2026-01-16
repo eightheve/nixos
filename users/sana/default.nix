@@ -119,7 +119,7 @@
         home.file.".wallpaper.jpg".source = ./assets/wallpaper.jpg;
 
         homeModules = {
-          discord.enable = true;
+          discord.enable = lib.mkIf (config.networking.hostName != "BACTERIA") true;
           kitty.enable = true;
 
           fish = {
@@ -164,7 +164,7 @@
         colorScheme = {
           enable = true;
           path =
-            if (config.networking.hostName == "SATELLITE")
+            if (config.networking.hostName == "SATELLITE" || config.networking.hostName == "BACTERIA")
             then ../../colors/rin.nix
             else ../../colors/default.nix;
         };

@@ -77,16 +77,18 @@
           fastfetch.enable = true;
         };
 
-        home.packages = with pkgs; [
-          unar
-          xar
-          tree
-          file
-          xxd
-          python3
-          flavours
-          ffmpeg-full
-        ];
+        home.packages = with pkgs;
+          [
+            unar
+            xar
+            tree
+            file
+            xxd
+            python3
+            flavours
+            ffmpeg-full
+          ]
+          ++ (lib.optionals (config.networking.hostName == "SATELLITE") [brightnessctl]);
       };
     })
     (lib.mkIf (config.myUsers.sana.enable && config.myUsers.sana.useHomeManager && config.myUsers.sana.enableGraphics) {

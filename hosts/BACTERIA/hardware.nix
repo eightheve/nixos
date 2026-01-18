@@ -17,18 +17,35 @@
   boot.kernelModules = [];
   boot.extraModulePackages = [];
 
-  boot.tmpOnTmpfs = true;
+  boot.tmp.useTmpfs = true;
 
-  fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/ffaced95-fc8f-4cb0-8783-7a22dcbcb032";
-    fsType = "ext4";
-    options = ["noatime"];
+  fileSystems."/" = {
+    device = "none";
+    fsType = "tmpfs";
+    options = ["defaults" "size=2G" "mode=755"];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/B7F2-1475";
+    device = "/dev/disk/by-uuid/C25E-EC8A";
     fsType = "vfat";
     options = ["fmask=0022" "dmask=0022"];
+  };
+
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/23e9c551-40f0-4848-a353-c59b826c880f";
+    fsType = "ext4";
+  };
+
+  fileSystems."/iso" = {
+    device = "/dev/disk/by-uuid/1f99ef18-a1a1-4d44-b7cf-d339ed709e84";
+    fsType = "ext4";
+    options = ["ro"];
+  };
+
+  fileSystems."/etc/nixos" = {
+    device = "/nix/persist/etc/nixos";
+    fsType = "none";
+    options = ["bind"];
   };
 
   swapDevices = [];

@@ -5,7 +5,10 @@
   ...
 }: {
   config = lib.mkIf config.hardware.graphics.enable {
-    environment.systemPackages = [pkgs.xorg.xinit];
+    environment.systemPackages = with pkgs; [
+      xorg.xinit
+      pavucontrol
+    ];
 
     fonts = {
       packages = with pkgs; [

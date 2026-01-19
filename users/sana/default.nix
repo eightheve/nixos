@@ -77,16 +77,18 @@
           fastfetch.enable = true;
         };
 
-        home.packages = with pkgs; [
-          unar
-          xar
-          tree
-          file
-          xxd
-          python3
-          flavours
-          ffmpeg-full
-        ];
+        home.packages = with pkgs;
+          [
+            unar
+            xar
+            tree
+            file
+            xxd
+            python3
+            flavours
+            ffmpeg-full
+          ]
+          ++ (lib.optionals (config.networking.hostName == "SATELLITE") [brightnessctl]);
       };
     })
     (lib.mkIf (config.myUsers.sana.enable && config.myUsers.sana.useHomeManager && config.myUsers.sana.enableGraphics) {
@@ -119,7 +121,7 @@
         home.file.".wallpaper.jpg".source = ./assets/wallpaper.jpg;
 
         homeModules = {
-          discord.enable = true;
+          discord.enable = lib.mkIf (config.networking.hostName != "BACTERIA") true;
           kitty.enable = true;
 
           fish = {
@@ -164,7 +166,7 @@
         colorScheme = {
           enable = true;
           path =
-            if (config.networking.hostName == "SATELLITE")
+            if (config.networking.hostName == "SATELLITE" || config.networking.hostName == "BACTERIA")
             then ../../colors/rin.nix
             else ../../colors/default.nix;
         };

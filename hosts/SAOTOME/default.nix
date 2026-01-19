@@ -33,6 +33,7 @@
     fsType = "ext4";
   };
 
+  networking.firewall.allowedTCPPorts = [80 443];
   networking.firewall.allowedUDPPorts = [51821];
 
   myModules = {
@@ -46,6 +47,8 @@
         };
       };
     };
+
+    cloudflared.enable = true;
 
     forgejoRunner.enable = true;
 
@@ -80,7 +83,7 @@
     };
 
     wireguard = {
-      enable = true;
+      enable = false;
       interfaces = {
         wg0 = {
           role = "client";
@@ -128,6 +131,19 @@
         };
       };
     };
+  };
+
+  networking.wireguard.interfaces.wg0 = {
+    ips = ["10.100.0.2/24"];
+    privateKeyFile = "/etc/wireguard/privatekey";
+    peers = [
+      {
+        publicKey = "1I3PO1MgFdqffo816H34YalYgnCrwPo3ssBbsLTxzBg=";
+        allowedIPs = ["10.100.0.0/24"];
+        endpoint = "5.161.238.34:51820";
+        persistentKeepalive = 25;
+      }
+    ];
   };
 
   system.stateVersion = "25.11";

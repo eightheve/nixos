@@ -3,16 +3,16 @@
     * {
       font-family: monospace;
       font-weight: bold;
-      color = #${config.colorScheme.shade5};
+      color = #${config.colorScheme.colors.shade5};
     }
 
     #input {
-      background-color: #${config.colorScheme.shade1}EE;
+      background-color: #${config.colorScheme.colors.shade1}EE;
     }
 
     #outer-box {
-      background-color: #${config.colorScheme.shade0};
-      border: 1px solid #${config.colorScheme.shade2};
+      background-color: #${config.colorScheme.colors.shade0};
+      border: 1px solid #${config.colorScheme.colors.shade2};
 
       padding: 8px;
     }
@@ -26,8 +26,8 @@
       gaps_out = 0;
       border_size = 1;
       # https://wiki.hypr.land/Configuring/Variables/#variable-types for info about colors
-      "col.active_border" = "rgba(${config.colorScheme.accent4."1"}ee)";
-      "col.inactive_border" = "rgba(${config.colorScheme.accent4."0"}aa)";
+      "col.active_border" = "rgba(${config.colorScheme.colors.accent4."1"}ff)";
+      "col.inactive_border" = "rgba(${config.colorScheme.colors.accent4."0"}ff)";
       # Set to true enable resizing windows by clicking and dragging on borders and gaps
       resize_on_border = false;
       # Please see https://wiki.hypr.land/Configuring/Tearing/ before you turn this on

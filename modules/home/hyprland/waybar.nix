@@ -3,7 +3,7 @@
     height = 36;
     layer = "top";
     position = "top";
-    margin = "8 8 0";
+    margin = "0 0 0";
     spacing = 8;
   };
 in {
@@ -77,7 +77,6 @@ in {
           ];
           modules-right = [
             "network"
-            "hyprland/workspaces"
             "idle_inhibitor"
           ];
 
@@ -118,13 +117,6 @@ in {
             format = "{temperatureC}° ";
             tooltip = false;
           };
-          "hyprland/workspaces" = {
-            format = "{id}: {icon}";
-            format-icons = {
-              default = "󰍹";
-              active = "󱩛";
-            };
-          };
         };
     };
     style = ''
@@ -132,7 +124,7 @@ in {
         font-family: "JetBrainsMono Nerd Font";
         font-weight: bold;
         font-size: 14px;
-        color: #${config.colorScheme.shade4};
+        color: #${config.colorScheme.colors.shade5};
       }
 
       .modules-right {
@@ -143,8 +135,9 @@ in {
       }
 
       window {
-        background-color: #${config.colorScheme.shade0};
+        background-color: #${config.colorScheme.colors.shade0};
         border-radius: 0;
+        border-bottom: 2px solid #${config.colorScheme.colors.shade1};
       }
 
       .module {
@@ -159,10 +152,10 @@ in {
         min-width: 8px;
       }
       #pulseaudio-slider trough {
-        background-color: #${config.colorScheme.shade2};
+        background-color: #${config.colorScheme.colors.shade2};
       }
       #pulseaudio-slider highlight {
-        background-color: #${config.colorScheme.shade4};
+        background-color: #${config.colorScheme.colors.shade4};
       }
 
       #clock { min-width: 48px; }

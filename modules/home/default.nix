@@ -4,6 +4,7 @@
     ./colorscheme.nix
     ./discord.nix
     ./dwm
+    ./hyprland
     ./fastfetch.nix
     ./fish.nix
     ./kitty.nix

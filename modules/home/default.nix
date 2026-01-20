@@ -10,5 +10,6 @@
     ./kitty.nix
     ./nvim.nix
     ./supersonic.nix
+    ./xdg.nix
   ];
 }

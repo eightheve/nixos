@@ -23,6 +23,8 @@ in {
       wl-clipboard
     ];
 
+    homeModules.xdg.enable = true;
+
     programs.wofi.enable = true;
     services.mako = {
       enable = true;

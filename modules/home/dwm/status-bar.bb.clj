@@ -383,8 +383,8 @@
                     (if (< percent off-threshold)
                       (sh-or-throw "sudo" "poweroff")
                       (when (< percent alert-threshold)
-                        (add-alert "power")))
-                    (remove-alert "power"))
+                        (add-alert "POWER")))
+                    (remove-alert "POWER"))
                   (when (not= status "Full")
                     (let [last-section (if (nil? duration)
                                          ""

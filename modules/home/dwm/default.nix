@@ -48,7 +48,7 @@ in {
 
       monitors = lib.mkOption {
         type = lib.types.str;
-        default = "nowplaying memory wifi temperature battery time-with-compute";
+        default = "alert nowplaying memory wifi temperature battery time-with-compute";
       };
     };
 

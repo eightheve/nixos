@@ -393,7 +393,9 @@
                            "% "
                            (case status
                              "Charging" "C"
-                             "Discharging" "D")
+                             "Discharging" "D"
+                             "Full" "F"
+                             "?")
                            last-section))))}
 
      {:id :temperature

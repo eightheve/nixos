@@ -33,6 +33,7 @@
     fsType = "ext4";
   };
 
+  networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [80 443];
   networking.firewall.allowedUDPPorts = [51821];
 

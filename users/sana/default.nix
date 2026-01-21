@@ -190,8 +190,7 @@ in {
           };
 
           home.file.".wallpaper.jpg".source = currentWmConfig.wallpaper;
-          home.file.".wallpaper-color.jpg".source =
-            lib.mkIf (cfg.windowManager == "hyprland") ./assets/hyprland-color.jpg;
+          home.file.".wallpaper-color.jpg".source = ./assets/hyprland-color.jpg;
         }
 
         # Apply window manager specific config

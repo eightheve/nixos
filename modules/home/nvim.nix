@@ -15,6 +15,9 @@ in {
 
   config = lib.mkIf cfg.enable {
     home.sessionVariables.EDITOR = "nvim";
+    home.packages = [
+      pkgs.mitscheme
+    ];
 
     programs.nvf = {
       enable = true;
@@ -54,6 +57,7 @@ in {
           enable = true;
           addDefaultGrammars = true;
           indent.enable = false;
+          grammars = pkgs.vimPlugins.nvim-treesitter.allGrammars;
         };
 
         languages = {

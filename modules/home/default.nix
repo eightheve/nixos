@@ -10,6 +10,7 @@
     ./kitty.nix
     ./nvim.nix
     ./supersonic.nix
+    ./vintagestory.nix
     ./xdg.nix
   ];
 }

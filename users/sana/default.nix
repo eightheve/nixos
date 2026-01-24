@@ -148,6 +148,14 @@ in {
             discord.enable = lib.mkIf (config.networking.hostName != "BACTERIA") true;
             kitty.enable = true;
 
+            games.vintagestory = {
+              enable = config.networking.hostName == "PASSENGER";
+              versions = [
+                "latest"
+                "v1-20-12-net8"
+              ];
+            };
+
             fish = {
               enable = true;
               settings = {

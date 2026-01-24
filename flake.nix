@@ -13,6 +13,10 @@
       url = "github:eightheve/sana-website";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    vintagestory-nix = {
+      url = "github:PierreBorine/vintagestory-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {

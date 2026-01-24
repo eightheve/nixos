@@ -104,7 +104,10 @@ in {
         };
 
         homeModules = {
-          nvim.enable = true;
+          nvim = {
+            enable = true;
+            enableProseSupport = true;
+          };
           fastfetch.enable = true;
         };
 

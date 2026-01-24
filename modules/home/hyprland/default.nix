@@ -28,22 +28,25 @@ in {
     programs.wofi.enable = true;
     services.mako = {
       enable = true;
-      settings = {
-        on-button-left = "invoke-default-action";
-        on-button-right = "dismiss";
+      settings = lib.mkMerge [
+        {
+          on-button-left = "invoke-default-action";
+          on-button-right = "dismiss";
 
-        output = "HDMI-A-1";
+          output = "HDMI-A-1";
 
-        border-radius = 10;
-        padding = "8";
-        icon-border-radius = 8;
-        default-timeout = 10000;
-        outer-margin = 12;
-
-        background-color = "#${config.colorScheme.colors.shade0}";
-        text-color = "#${config.colorScheme.colors.shade5}";
-        border-color = "#${config.colorScheme.colors.shade1}";
-      };
+          border-radius = 10;
+          padding = "8";
+          icon-border-radius = 8;
+          default-timeout = 10000;
+          outer-margin = 12;
+        }
+        (lib.mkIf config.colorScheme.enable {
+          background-color = "#${config.colorScheme.colors.shade0}";
+          text-color = "#${config.colorScheme.colors.shade5}";
+          border-color = "#${config.colorScheme.colors.shade1}";
+        })
+      ];
     };
 
     home.pointerCursor = {

@@ -296,7 +296,8 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nvf": "nvf",
         "nvf-nixpkgs": "nvf-nixpkgs",
-        "sana-website": "sana-website"
+        "sana-website": "sana-website",
+        "vintagestory-nix": "vintagestory-nix"
       }
     },
     "sana-website": {
@@ -362,6 +363,26 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "vintagestory-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1767278770,
+        "narHash": "sha256-bvDJ2KqUxua5tEMDcwnwX5i4PDURSm4aawApy6ozPMw=",
+        "owner": "PierreBorine",
+        "repo": "vintagestory-nix",
+        "rev": "95a2d04b6301b8d11f304c60db5560c743d98892",
+        "type": "github"
+      },
+      "original": {
+        "owner": "PierreBorine",
+        "repo": "vintagestory-nix",
         "type": "github"
       }
     }

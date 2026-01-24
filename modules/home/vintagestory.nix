@@ -17,11 +17,17 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    overlays = [inputs.vintagestory-nix.overlays.default];
+    assertions = [
+      {
+        assertion = pkgs ? vintagestoryPackages;
+        message = "vintagestoryPackages not found in pkgs. Add the vintagestory-nix overlay to your nixpkgs.overlays";
+      }
+    ];
+    nixpkgs.overlays = [inputs.vintagestory-nix.overlays.default];
 
     programs.vs-launcher = {
       enable = true;
-      settings.gameVersions = map (v: pkgs.vintagestoryPackages.${v}) cfg.versions;
+      settings.gameVersions = map (v: config.nixpkgs.pkgs.vintagestoryPackages.${v}) cfg.versions;
     };
   };
 }

@@ -127,6 +127,7 @@ in {
     })
 
     (lib.mkIf (cfg.enable && cfg.useHomeManager && cfg.enableGraphics) {
+      myModules.vintagestoryOverlay.enable = config.networking.hostName == "PASSENGER";
       nixpkgs.config.allowUnfreePredicate = pkg:
         builtins.elem (lib.getName pkg) [
           "discord"

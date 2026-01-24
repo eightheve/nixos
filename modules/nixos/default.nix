@@ -10,5 +10,6 @@
     ./slskd.nix
     ./ssh.nix
     ./wireguard.nix
+    ./vs-overlay.nix
   ];
 }

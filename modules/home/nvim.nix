@@ -18,6 +18,9 @@ in {
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
       home.sessionVariables.EDITOR = "nvim";
+      home.packages = [
+        pkgs.mitscheme
+      ];
 
       programs.nvf = {
         enable = true;
@@ -57,6 +60,7 @@ in {
             enable = true;
             addDefaultGrammars = true;
             indent.enable = false;
+            grammars = pkgs.vimPlugins.nvim-treesitter.allGrammars;
           };
 
           languages = {
@@ -66,31 +70,70 @@ in {
 
             nix = {
               enable = true;
-              treesitter.enable = true;
+              providers.wl-copy.enable = true;
             };
-            bash.enable = true;
-            html = {
-              enable = true;
-              treesitter.enable = true;
-            };
-            css = {
-              enable = true;
-              treesitter.enable = true;
-            };
-            clang = {
-              enable = true;
-              treesitter.enable = true;
-            };
-            clojure = {
-              enable = true;
-              treesitter.enable = true;
-            };
-          };
 
-          repl.conjure.enable = true;
+            options = {
+              shiftwidth = 2;
+              expandtab = true;
+              tabstop = 2;
+              softtabstop = 2;
+              autoindent = true;
+              smartindent = true;
+            };
 
-          binds = {
-            whichKey.enable = true;
+            globals.maplocalleader = " ";
+            hideSearchHighlight = true;
+            git.enable = true;
+
+            statusline.lualine.enable = true;
+            telescope.enable = true;
+            autocomplete.nvim-cmp.enable = true;
+
+            lsp = {
+              enable = true;
+              formatOnSave = true;
+            };
+
+            treesitter = {
+              enable = true;
+              addDefaultGrammars = true;
+              indent.enable = false;
+            };
+
+            languages = {
+              enableDAP = true;
+              enableTreesitter = true;
+              enableFormat = true;
+
+              nix = {
+                enable = true;
+                treesitter.enable = true;
+              };
+              bash.enable = true;
+              html = {
+                enable = true;
+                treesitter.enable = true;
+              };
+              css = {
+                enable = true;
+                treesitter.enable = true;
+              };
+              clang = {
+                enable = true;
+                treesitter.enable = true;
+              };
+              clojure = {
+                enable = true;
+                treesitter.enable = true;
+              };
+            };
+
+            repl.conjure.enable = true;
+
+            binds = {
+              whichKey.enable = true;
+            };
           };
         };
       };

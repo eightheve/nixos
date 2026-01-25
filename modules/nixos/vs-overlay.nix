@@ -12,5 +12,8 @@ in {
 
   config = lib.mkIf cfg.enable {
     nixpkgs.overlays = [inputs.vintagestory-nix.overlays.default];
+    nixpkgs.config.permittedInsecurePackages = [
+      "dotnet-runtime-7.0.20"
+    ];
   };
 }

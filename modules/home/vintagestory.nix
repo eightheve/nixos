@@ -16,6 +16,8 @@ in {
     };
   };
 
+  imports = [inputs.vintagestory-nix.homeModules.default];
+
   config = lib.mkIf cfg.enable {
     assertions = [
       {
@@ -23,11 +25,10 @@ in {
         message = "vintagestoryPackages not found in pkgs. Add the vintagestory-nix overlay to your nixpkgs.overlays";
       }
     ];
-    nixpkgs.overlays = [inputs.vintagestory-nix.overlays.default];
 
     programs.vs-launcher = {
       enable = true;
-      settings.gameVersions = map (v: config.nixpkgs.pkgs.vintagestoryPackages.${v}) cfg.versions;
+      settings.gameVersions = map (v: pkgs.vintagestoryPackages.${v}) cfg.versions;
     };
   };
 }

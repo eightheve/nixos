@@ -153,7 +153,7 @@ in {
               enable = config.networking.hostName == "PASSENGER";
               versions = [
                 "latest"
-                "v1-20-12-net8"
+                "v1-20-12"
               ];
             };
 

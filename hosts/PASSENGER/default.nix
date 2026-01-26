@@ -19,6 +19,9 @@
     videoDrivers = ["nvidia"];
   };
 
+  services.ollama.enable = true;
+  services.ollama.package = pkgs.ollama-cuda;
+
   myModules = {
     ssh = {
       enable = true;
@@ -69,6 +72,8 @@
     gamescope
     prismlauncher
     ckan
+
+    ollama-cuda
   ];
 
   system.stateVersion = "25.05";

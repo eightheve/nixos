@@ -78,11 +78,13 @@
   '';
 
   screenshotAll = pkgs.writeShellScript "screenshot-all" ''
-    mkdir -p "${config.home.homeDirectory}/Resources/.screenshots" && ${pkgs.scrot}/bin/scrot "${config.home.homeDirectory}/Resources/.screenshots/%m-%d-%Y-%H%M%S.png"
+    mkdir -p "${config.home.homeDirectory}/Resources/.screenshots"
+    ${pkgs.scrot}/bin/scrot "/home/sana/Resources/.screenshots/%m-%d-%Y-%H%M%S.png" -e '${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -i $f'
   '';
 
   screenshotSelection = pkgs.writeShellScript "screenshot-selection" ''
-    mkdir -p "${config.home.homeDirectory}/Resources/.screenshots" $$ ${pkgs.scrot}/bin/scrot "${config.home.homeDirectory}/Resources/.screenshots/%m-%d-%Y-%H%M%S.png" --select --line mode=edge
+    mkdir -p "${config.home.homeDirectory}/Resources/.screenshots"
+    ${pkgs.scrot}/bin/scrot "/home/sana/Resources/.screenshots/%m-%d-%Y-%H%M%S.png" --select --line mode=edge -e '${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -i $f'
   '';
 in {
   options.homeModules.windowManagers.dwm = {

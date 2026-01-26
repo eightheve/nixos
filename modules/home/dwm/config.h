@@ -69,6 +69,8 @@ static const char *down_vol[] = { "@PACTL@", "set-sink-volume", "@DEFAULT_SINK@"
 static const char *mute_vol[] = { "@PACTL@", "set-sink-mute",   "@DEFAULT_SINK@", "toggle", NULL };
 static const char *brighter[] = { "@BRIGHTNESSCTL@", "set", "10%+", "-e", "-n", "10%", NULL };
 static const char *dimmer[]   = { "@BRIGHTNESSCTL@", "set", "10%-", "-e", "-n", "10%", NULL };
+static const char *ss_all[]   = { "@SCREENSHOT_ALL@", NULL };
+static const char *ss_sel[]   = { "@SCREENSHOT_SEL@", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -77,8 +79,8 @@ static const Key keys[] = {
   { 0, XF86XK_AudioRaiseVolume,  spawn, {.v = up_vol } },
   { 0, XF86XK_MonBrightnessDown, spawn, {.v = dimmer } },
   { 0, XF86XK_MonBrightnessUp,   spawn, {.v = brighter } },
-  { 0,         107, spawn, SHCMD("@SCREENSHOT_ALL@") },
-  { ShiftMask, 107, spawn, SHCMD("@SCREENSHOT_SEL@") },
+  { 0,           XK_Print,       spawn, {.v = ss_all } },
+  { ShiftMask,   XK_Print,       spawn, {.v = ss_sel } },
 
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },

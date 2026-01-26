@@ -64,6 +64,26 @@
       echo ""
     fi
   '';
+
+  getScreenBrightness = pkgs.writeShellScript "get-screen-brightness" ''
+    echo $(($(${pkgs.brightnessctl}/bin/brightnessctl g -e) * 100 / $(${pkgs.brightnessctl}/bin/brightnessctl m -e)))%
+  '';
+
+  getVolume = pkgs.writeShellScript "get-volume" ''
+    ${pkgs.pulseaudio}/bin/pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\d+%' | head -1
+  '';
+
+  checkForMute = pkgs.writeShellScript "check-for-mute" ''
+    [[ $(${pkgs.pulseaudio}/bin/pactl get-sink-mute @DEFAULT_SINK@) == "Mute: yes" ]] && echo " (M)" || echo ""
+  '';
+
+  screenshotAll = pkgs.writeShellScript "screenshot-all" ''
+    mkdir -p "${config.home.homeDirectory}/Resources/.screenshots" && ${pkgs.scrot}/bin/scrot "${config.home.homeDirectory}/Resources/.screenshots/%m-%d-%Y-%H%M%S.png"
+  '';
+
+  screenshotSelection = pkgs.writeShellScript "screenshot-selection" ''
+    mkdir -p "${config.home.homeDirectory}/Resources/.screenshots" $$ ${pkgs.scrot}/bin/scrot "${config.home.homeDirectory}/Resources/.screenshots/%m-%d-%Y-%H%M%S.png" --select --line mode=edge
+  '';
 in {
   options.homeModules.windowManagers.dwm = {
     enable = lib.mkEnableOption "dwm";
@@ -95,12 +115,17 @@ in {
             --replace-fail "@GRAY_3@" "${colors.gray3}" \
             --replace-fail "@GRAY_4@" "${colors.gray4}" \
             --replace-fail "@ACCENT1@" "${colors.accent1}" \
-            --replace-fail "@ACCENT2@" "${colors.accent2}"
+            --replace-fail "@ACCENT2@" "${colors.accent2}" \
+            --replace-fail "@BRIGHTNESSCTL@" "${pkgs.brightnessctl}/bin/brightnessctl" \
+            --replace-fail "@PACTL@" "${pkgs.pulseaudio}/bin/pactl" \
+            --replace-fail "@SCREENSHOT_ALL@" "${screenshotAll}" \
+            --replace-fail "@SCREENSHOT_SEL@" "${screenshotSelection}"
         '';
       }))
       dmenu
       st
       feh
+      pulseaudio
     ];
 
     systemd.user.services.slstatus = {
@@ -111,7 +136,7 @@ in {
       Service = {
         ExecStart = "${pkgs.slstatus.override {
           conf = mkSlstatusConfig {
-            interval = 1000;
+            interval = 500;
             unknown_str = "";
             modules = [
               {
@@ -150,6 +175,21 @@ in {
                 argument = "";
               }
               {
+                function = "run_command";
+                format = " B: %s";
+                argument = "${getScreenBrightness}";
+              }
+              {
+                function = "run_command";
+                format = " V: %s";
+                argument = "${getVolume}";
+              }
+              {
+                function = "run_command";
+                format = "%s |";
+                argument = "${checkForMute}";
+              }
+              {
                 function = "datetime";
                 format = " %s ";
                 argument = "%a %d %b %T";
@@ -159,6 +199,8 @@ in {
         }}/bin/slstatus";
         Restart = "always";
         Environment = [
+          "PATH=/run/current-system/sw/bin"
+          "XDG_RUNTIME_DIR=/run/user/1000"
           "DISPLAY=:0"
           "XAUTHORITY=${config.home.homeDirectory}/.Xauthority"
         ];

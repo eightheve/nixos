@@ -1,4 +1,6 @@
 /* See LICENSE file for copyright and license details. */
+#include <X11/XF86keysym.h>
+
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
@@ -62,9 +64,22 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_acc1, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "@TERMCMD@", NULL };
+static const char *up_vol[]   = { "@PACTL@", "set-sink-volume", "@DEFAULT_SINK@", "+10%",   NULL };
+static const char *down_vol[] = { "@PACTL@", "set-sink-volume", "@DEFAULT_SINK@", "-10%",   NULL };
+static const char *mute_vol[] = { "@PACTL@", "set-sink-mute",   "@DEFAULT_SINK@", "toggle", NULL };
+static const char *brighter[] = { "@BRIGHTNESSCTL@", "set", "10%+", "-e", "-n", "10%", NULL };
+static const char *dimmer[]   = { "@BRIGHTNESSCTL@", "set", "10%-", "-e", "-n", "10%", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
+  { 0, XF86XK_AudioMute,         spawn, {.v = mute_vol } },
+  { 0, XF86XK_AudioLowerVolume,  spawn, {.v = down_vol } },
+  { 0, XF86XK_AudioRaiseVolume,  spawn, {.v = up_vol } },
+  { 0, XF86XK_MonBrightnessDown, spawn, {.v = dimmer } },
+  { 0, XF86XK_MonBrightnessUp,   spawn, {.v = brighter } },
+  { 0,         107, spawn, SHCMD("@SCREENSHOT_ALL@") },
+  { ShiftMask, 107, spawn, SHCMD("@SCREENSHOT_SEL@") },
+
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },

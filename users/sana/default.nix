@@ -15,7 +15,6 @@
         homeModules.windowManagers.dwm = {
           enable = true;
           makeXinitrc = true;
-          babashkaStatus.enable = true;
           additionalInitCommands = [
             "feh --bg-fill /home/sana/.wallpaper.jpg"
           ];

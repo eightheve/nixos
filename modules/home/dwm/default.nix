@@ -6,10 +6,6 @@
 }: let
   cfg = config.homeModules.windowManagers.dwm;
 
-  babashka-status-bar = pkgs.writeShellScriptBin "babashka-status-bar" ''
-    ${pkgs.babashka}/bin/bb ${./status-bar.bb.clj} $@
-  '';
-
   terminal =
     if config.homeModules.kitty.enable
     then "${pkgs.kitty}/bin/kitty"
@@ -34,6 +30,40 @@
       accent1 = "222244";
       accent2 = "444477";
     };
+
+  mkSlstatusConfig = {
+    modules,
+    interval ? 1000,
+    unknown_str ? "n/a",
+  }: let
+    mkModule = {
+      function,
+      format,
+      argument,
+    }: ''{ ${function}, "${format}", "${argument}" }'';
+
+    modulesStr = lib.concatStringsSep ",\n\t" (map mkModule modules);
+  in ''
+    const unsigned int interval = ${toString interval};
+    static const char unknown_str[] = "${unknown_str}";
+    #define MAXLEN 2048
+
+    static const struct arg args[] = {
+    	${modulesStr}
+    };
+  '';
+
+  playerctlScript = pkgs.writeShellScript "get-current-media" ''
+    status=$(${pkgs.playerctl}/bin/playerctl status 2>/dev/null)
+
+    if [[ "$status" == "Playing" || "$status" == "Paused" ]]; then
+      artist=$(${pkgs.playerctl}/bin/playerctl metadata artist 2>/dev/null)
+      title=$(${pkgs.playerctl}/bin/playerctl metadata title 2>/dev/null)
+      echo " PLAY: $title - $artist |"
+    else
+      echo ""
+    fi
+  '';
 in {
   options.homeModules.windowManagers.dwm = {
     enable = lib.mkEnableOption "dwm";
@@ -41,15 +71,6 @@ in {
     makeXinitrc = lib.mkOption {
       type = lib.types.bool;
       default = true;
-    };
-
-    babashkaStatus = {
-      enable = lib.mkEnableOption "use the babashka-status-bar script";
-
-      monitors = lib.mkOption {
-        type = lib.types.str;
-        default = "alert nowplaying memory wifi temperature battery time-with-compute";
-      };
     };
 
     additionalInitCommands = lib.mkOption {
@@ -82,24 +103,68 @@ in {
       feh
     ];
 
-    systemd.user.services.babashka-status = lib.mkIf cfg.babashkaStatus.enable {
+    systemd.user.services.slstatus = {
       Unit = {
-        Description = "Babashka status bar for DWM";
+        Description = "slstatus for dwm";
       };
 
       Service = {
-        ExecStart = "${babashka-status-bar}/bin/babashka-status-bar run dwm ${cfg.babashkaStatus.monitors}";
+        ExecStart = "${pkgs.slstatus.override {
+          conf = mkSlstatusConfig {
+            interval = 1000;
+            unknown_str = "";
+            modules = [
+              {
+                function = "ipv4";
+                format = " NET: %s |";
+                argument = "wlp4s0";
+              }
+              {
+                function = "run_command";
+                format = "%s";
+                argument = "${playerctlScript}";
+              }
+              {
+                function = "ram_perc";
+                format = " MEM: %s%% |";
+                argument = "";
+              }
+              {
+                function = "temp";
+                format = " TMP: %s°C |";
+                argument = "/sys/class/thermal/thermal_zone0/temp";
+              }
+              {
+                function = "battery_perc";
+                format = " BAT: %s%% ";
+                argument = "BAT0";
+              }
+              {
+                function = "battery_state";
+                format = "%s |";
+                argument = "BAT0";
+              }
+              {
+                function = "keymap";
+                format = " %s |";
+                argument = "";
+              }
+              {
+                function = "datetime";
+                format = " %s ";
+                argument = "%a %d %b %T";
+              }
+            ];
+          };
+        }}/bin/slstatus";
         Restart = "always";
         Environment = [
-          "PATH=${pkgs.lib.makeBinPath [pkgs.toybox pkgs.iw pkgs.playerctl pkgs.xorg.xsetroot]}"
           "DISPLAY=:0"
           "XAUTHORITY=${config.home.homeDirectory}/.Xauthority"
         ];
         BindReadOnlyPaths = ["/sys"];
       };
     };
-
-    services.playerctld.enable = cfg.babashkaStatus.enable;
 
     home.pointerCursor = {
       gtk.enable = true;
@@ -109,7 +174,7 @@ in {
     };
 
     home.file.".xinitrc".text = lib.mkIf cfg.makeXinitrc ''
-      ${lib.optionalString cfg.babashkaStatus.enable "systemctl --user start babashka-status &"}
+      systemctl --user start slstatus &
       ${lib.concatStringsSep "\n" cfg.additionalInitCommands}
       exec dwm
     '';

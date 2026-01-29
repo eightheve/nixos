@@ -126,6 +126,7 @@ in {
     })
 
     (lib.mkIf (cfg.enable && cfg.useHomeManager && cfg.enableGraphics) {
+      myModules.vintagestoryOverlay.enable = config.networking.hostName == "PASSENGER";
       nixpkgs.config.allowUnfreePredicate = pkg:
         builtins.elem (lib.getName pkg) [
           "discord"
@@ -146,6 +147,14 @@ in {
           homeModules = {
             discord.enable = lib.mkIf (config.networking.hostName != "BACTERIA") true;
             kitty.enable = true;
+
+            games.vintagestory = {
+              enable = config.networking.hostName == "PASSENGER";
+              versions = [
+                "latest"
+                "v1-20-12"
+              ];
+            };
 
             fish = {
               enable = true;

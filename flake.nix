@@ -13,19 +13,34 @@
       url = "github:eightheve/sana-website";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    vintagestory-nix = {
+      url = "github:PierreBorine/vintagestory-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     nixpkgs,
+    nixpkgs-unstable,
     home-manager,
     ...
   } @ inputs: let
     hostNames = builtins.attrNames (builtins.readDir ./hosts);
 
+    system = "x86_64-linux";
+    pkgs-unstable = import nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+      config.cudaSupport = true;
+    };
+
     mkHost = hostname:
       nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = {inherit inputs;};
+        inherit system;
+        specialArgs = {
+          inherit inputs;
+          inherit pkgs-unstable;
+        };
         modules = [
           ./modules/nixos
           ./users

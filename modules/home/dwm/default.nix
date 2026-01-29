@@ -86,6 +86,18 @@
     mkdir -p "${config.home.homeDirectory}/Resources/.screenshots"
     ${pkgs.scrot}/bin/scrot "/home/sana/Resources/.screenshots/%m-%d-%Y-%H%M%S.png" --select --line mode=edge -e '${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -i $f'
   '';
+
+  alertFrameOne = "| *** POWER *** ";
+  alertFrameTwo = "|               ";
+  batteryAlert = pkgs.writeShellScript "battery-alert" ''
+    if [ "$(cat /sys/class/power_supply/BAT0/capacity)" -lt 15 ]; then
+      if (("$(date +%-S)" & 2)); then
+        echo "${alertFrameOne}"
+      else
+        echo "${alertFrameTwo}"
+      fi
+    fi
+  '';
 in {
   options.homeModules.windowManagers.dwm = {
     enable = lib.mkEnableOption "dwm";
@@ -195,6 +207,11 @@ in {
                 function = "datetime";
                 format = " %s ";
                 argument = "%a %d %b %T";
+              }
+              {
+                function = "run_command";
+                format = "%s";
+                argument = "${batteryAlert}";
               }
             ];
           };

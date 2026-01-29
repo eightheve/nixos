@@ -41,15 +41,15 @@
       fi
     '';
 
-    currentBrightness = pkgs.writeShellScript " " ''
+    currentBrightness = pkgs.writeShellScript "currentBrightness" ''
       echo $(($(${pkgs.brightnessctl}/bin/brightnessctl g -e) * 100 / $(${pkgs.brightnessctl}/bin/brightnessctl m -e)))%
     '';
 
-    currentVolume = pkgs.writeShellScript " " ''
-      ${pkgs.pulseaudio}/bin/pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\d+%' | head -1
+    currentVolume = pkgs.writeShellScript "currentVolume" ''
+      ${pkgs.pulseaudio}/bin/pactl get-sink-volume @DEFAULT_SINK@ | ${pkgs.gnugrep}/bin/grep -oP '\d+%' | ${pkgs.coreutils}/bin/head -1
     '';
 
-    muteStatus = pkgs.writeShellScript " " ''
+    muteStatus = pkgs.writeShellScript "muteStatus" ''
       [[ $(${pkgs.pulseaudio}/bin/pactl get-sink-mute @DEFAULT_SINK@) == "Mute: yes" ]] && echo " (M)" || echo ""
     '';
 
@@ -75,9 +75,9 @@ in {
       type = with lib.types;
         listOf (submodule {
           options = {
-            function = mkOption {type = str;};
-            format = mkOption {type = str;};
-            argument = mkOption {type = str;};
+            function = lib.mkOption {type = str;};
+            format = lib.mkOption {type = str;};
+            argument = lib.mkOption {type = str;};
           };
         });
       default = [

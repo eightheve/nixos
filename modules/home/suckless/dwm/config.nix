@@ -85,8 +85,8 @@ with lib; let
     mkColorArray = colors: ''
       static const char *colors[][3]      = {
       	/*               fg         bg         border   */
-      	[SchemeNorm] = { ${colors.norm.fg}, ${colors.norm.bg}, ${colors.norm.border} },
-      	[SchemeSel]  = { ${colors.sel.fg}, ${colors.sel.bg}, ${colors.sel.border} },
+      	[SchemeNorm] = { "${colors.norm.fg}", "${colors.norm.bg}", "${colors.norm.border}" },
+      	[SchemeSel]  = { "${colors.sel.fg}", "${colors.sel.bg}", "${colors.sel.border}" },
       };
     '';
 
@@ -206,7 +206,7 @@ with lib; let
 
     /* commands */
     static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-    static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+    static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", "${colors.norm.bg}", "-nf", "${colors.norm.fg}", "-sb", "${colors.norm.border}", "-sf", "${colors.sel.fg}", NULL };
     static const char *termcmd[]  = { ${concatMapStringsSep ", " (c: ''"${c}"'') termcmd}, NULL };
     ${extraCommands}
 

@@ -8,27 +8,27 @@
 
   terminal =
     if config.homeModules.kitty.enable
-    then "${pkgs.kitty}/bin/kitty"
-    else "${pkgs.st}/bin/st";
+    then ["${pkgs.kitty}/bin/kitty"]
+    else ["${pkgs.st}/bin/st"];
 
   colorCfg = config.colorScheme;
   colors =
     if colorCfg.enable
     then {
-      gray1 = "${colorCfg.colors.shade0}";
-      gray2 = "${colorCfg.colors.shade2}";
-      gray3 = "${colorCfg.colors.shade3}";
-      gray4 = "${colorCfg.colors.shade5}";
-      accent1 = "${colorCfg.colors.accent4."0"}";
-      accent2 = "${colorCfg.colors.accent4."1"}";
+      gray1 = "#${colorCfg.colors.shade0}";
+      gray2 = "#${colorCfg.colors.shade2}";
+      gray3 = "#${colorCfg.colors.shade3}";
+      gray4 = "#${colorCfg.colors.shade5}";
+      accent1 = "#${colorCfg.colors.accent4."0"}";
+      accent2 = "#${colorCfg.colors.accent4."1"}";
     }
     else {
-      gray1 = "000000";
-      gray2 = "181818";
-      gray3 = "e1e1e1";
-      gray4 = "ffffff";
-      accent1 = "222244";
-      accent2 = "444477";
+      gray1 = "#000000";
+      gray2 = "#181818";
+      gray3 = "#e1e1e1";
+      gray4 = "#ffffff";
+      accent1 = "#222244";
+      accent2 = "#444477";
     };
 
   screenshotAll = pkgs.writeShellScript "screenshot-all" ''

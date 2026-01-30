@@ -143,6 +143,17 @@ in {
         }
       ];
     };
+
+    package = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.slstatus.override {
+        conf = mkSlstatusConfig {
+          interval = 1000;
+          unknown_str = "";
+          modules = cfg.modules;
+        };
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -152,13 +163,7 @@ in {
       };
 
       Service = {
-        ExecStart = "${pkgs.slstatus.override {
-          conf = mkSlstatusConfig {
-            interval = 500;
-            unknown_str = "";
-            modules = cfg.modules;
-          };
-        }}/bin/slstatus";
+        ExecStart = "${cfg.package}/bin/slstatus";
         Restart = "always";
         Environment = [
           "XDG_RUNTIME_DIR=/run/user/1000"

@@ -41,6 +41,23 @@
     ${pkgs.scrot}/bin/scrot "/home/sana/Resources/.screenshots/%m-%d-%Y-%H%M%S.png" --select --line mode=edge -e '${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -i $f'
   '';
 
+  volumeCtrl = pkgs.writeShellScript "volume-control" ''
+    case "$1" in
+      1)  ${pkgs.pulseaudio}/bin/pactl set-sink-volume @DEFAULT_SINK@ +10%; ${pkgs.pulseaudio}/bin/pactl set-sink-mute @DEFAULT_SINK@ 0;;
+      -1) ${pkgs.pulseaudio}/bin/pactl set-sink-volume @DEFAULT_SINK@ -10%;;
+      *)  ${pkgs.pulseaudio}/bin/pactl set-sink-mute @DEFAULT_SINK@ toggle;;
+    esac
+    ${lib.optionalString (config.homeModules.suckless.slstatus.enable) "xsetroot -name \"$(${config.homeModules.suckless.slstatus.package}/bin/slstatus -1)\""}
+  '';
+
+  brightnessCtrl = pkgs.writeShellScript "brightness-control" ''
+    case "$1" in
+      1) ${pkgs.brightnessctl}/bin/brightnessctl set 10%+ -e -n 10%;;
+      -1) ${pkgs.brightnessctl}/bin/brightnessctl set 10%- -e -n 10%;;
+    esac
+    ${lib.optionalString (config.homeModules.suckless.slstatus.enable) "xsetroot -name \"$(${config.homeModules.suckless.slstatus.package}/bin/slstatus -1)\""}
+  '';
+
   dwmConfig = import ./config.nix {inherit (pkgs) lib;};
 in {
   options.homeModules.windowManagers.dwm = {
@@ -83,11 +100,11 @@ in {
               };
             };
             extraCommands = ''
-              static const char *up_vol[]   = { "${pkgs.pulseaudio}/bin/pactl", "set-sink-volume", "@DEFAULT_SINK@", "+10%",   NULL };
-              static const char *down_vol[] = { "${pkgs.pulseaudio}/bin/pactl", "set-sink-volume", "@DEFAULT_SINK@", "-10%",   NULL };
-              static const char *mute_vol[] = { "${pkgs.pulseaudio}/bin/pactl", "set-sink-mute",   "@DEFAULT_SINK@", "toggle", NULL };
-              static const char *brighter[] = { "${pkgs.brightnessctl}/bin/brightnessctl", "set", "10%+", "-e", "-n", "10%", NULL };
-              static const char *dimmer[]   = { "${pkgs.brightnessctl}/bin/brightnessctl", "set", "10%-", "-e", "-n", "10%", NULL };
+              static const char *up_vol[]   = { "${volumeCtrl}", "1", NULL};
+              static const char *down_vol[] = { "${volumeCtrl}", "-1", NULL};
+              static const char *mute_vol[] = { "${volumeCtrl}", "0", NULL};
+              static const char *brighter[] = { "${brightnessCtrl}", "1", NULL};
+              static const char *dimmer[]   = { "${brightnessCtrl}", "-1", NULL};
               static const char *ss_all[]   = { "${screenshotAll}", NULL };
               static const char *ss_sel[]   = { "${screenshotSelection}", NULL };
             '';

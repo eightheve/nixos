@@ -54,12 +54,12 @@
     '';
 
     batteryAlert = let
-      alertFrameOne = " ";
-      alertFrameTwo = " ";
+      alertFrameOne = "|             ";
+      alertFrameTwo = "| ***POWER*** ";
     in
-      pkgs.writeShellScript " " ''
-        if [ "$(cat /sys/class/power_supply/BAT0/capacity)" -lt 15 ]; then
-          if (("$(date +%-S)" & 2)); then
+      pkgs.writeShellScript "batteryAlert" ''
+        if [ "$(${pkgs.coreutils}/bin/cat /sys/class/power_supply/BAT0/capacity)" -lt 15 ]; then
+          if (("$(${pkgs.coreutils}/bin/date +%-S)" & 2)); then
             echo "${alertFrameOne}"
           else
             echo "${alertFrameTwo}"

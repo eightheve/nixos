@@ -108,6 +108,11 @@ in {
             enableProseSupport = true;
           };
           fastfetch.enable = true;
+
+          beets = lib.mkIf (config.networking.hostName == "SAOTOME") {
+            enable = true;
+            settings.musicPath = "/srv/data/music/";
+          };
         };
 
         home.packages = with pkgs;
@@ -137,11 +142,6 @@ in {
           programs.mpv = {
             enable = true;
             defaultProfiles = ["gpu-hq"];
-          };
-
-          homeModules.beets = lib.mkIf (config.networking.hostName == "SAOTOME") {
-            enable = true;
-            settings.musicPath = "/srv/data/music/";
           };
 
           homeModules = {

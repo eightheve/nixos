@@ -26,7 +26,6 @@
       enable = true;
       settings = {
         cue = true;
-        prompt = "touch yo thingy";
       };
     };
   };

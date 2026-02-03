@@ -49,7 +49,7 @@
       };
     };
 
-    cloudflared.enable = true;
+    cloudflared.enable = false;
 
     forgejoRunner.enable = true;
 

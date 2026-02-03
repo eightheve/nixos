@@ -17,14 +17,8 @@
   boot.kernelModules = [];
   boot.extraModulePackages = [];
   boot.initrd.luks.devices."crypted" = {
-    device = "wwn-0x50000000000027e5";
-    gpgCard = {
-      encryptedPass = "/boot/keyfile.key.gpg";
-      publicKey = "/boot/pubkey.asc";
-    };
-    crypttabExtraOpts = [
-      "fido2-device=auto"
-    ];
+    device = "/dev/disk/by-id/wwn-0x50000000000027e5";
+    header = "/dev/disk/by-uuid/cf964d7f-e6e2-4bd6-b866-4fb64246a9de";
   };
 
   fileSystems."/" = {
@@ -38,8 +32,19 @@
     options = ["defaults" "size=1G" "mode=777"];
   };
 
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-label/nix";
+    fsType = "ext4";
+  };
+
+  fileSystems."/crypt" = {
+    device = "/dev/disk/by-label/cryptinfo";
+    fsType = "vfat";
+    options = ["fmask=0022" "dmask=0022"];
+  };
+
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/12CE-A600";
+    device = "/dev/disk/by-label/boot";
     fsType = "vfat";
     options = ["fmask=0022" "dmask=0022"];
   };

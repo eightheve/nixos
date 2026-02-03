@@ -63,6 +63,10 @@ in {
             grammars = pkgs.vimPlugins.nvim-treesitter.allGrammars;
           };
 
+          binds.whichKey.enable = true;
+
+          repl.conjure.enable = true;
+
           languages = {
             enableDAP = true;
             enableTreesitter = true;

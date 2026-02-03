@@ -12,12 +12,17 @@
       colorScheme = ../../colors/rin.nix;
       wallpaper = ./assets/dwm-wallpaper.jpg;
       homeModules = {
-        homeModules.windowManagers.dwm = {
-          enable = true;
-          makeXinitrc = true;
-          additionalInitCommands = [
-            "feh --bg-fill /home/sana/.wallpaper.jpg"
-          ];
+        homeModules = {
+          windowManagers.dwm = {
+            enable = true;
+            additionalInitCommands = [
+              "systemctl --user start slstatus &"
+              "feh --bg-fill /home/sana/.wallpaper.jpg &"
+            ];
+          };
+          suckless.slstatus = {
+            enable = true;
+          };
         };
       };
     };

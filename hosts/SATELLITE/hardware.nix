@@ -23,6 +23,12 @@
     fsType = "ext4";
   };
 
+  fileSystems."/tmp" = {
+    device = "none";
+    fsType = "tmpfs";
+    options = ["defaults" "size=1G" "mode=777"];
+  };
+
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/3006-C199";
     fsType = "vfat";

@@ -14,44 +14,37 @@
 
   boot.initrd.availableKernelModules = ["ehci_pci" "ahci" "xhci_pci" "usb_storage" "usbhid" "sd_mod" "sdhci_pci"];
   boot.initrd.kernelModules = ["dm-snapshot"];
+  boot.initrd.systemd.enable = true;
   boot.kernelModules = [];
   boot.extraModulePackages = [];
-  boot.initrd.luks.devices."crypted" = {
-    device = "/dev/disk/by-id/wwn-0x50000000000027e5";
-    header = "/dev/disk/by-uuid/cf964d7f-e6e2-4bd6-b866-4fb64246a9de";
-  };
 
   fileSystems."/" = {
-    device = "/dev/mapper/vg-nixos";
-    fsType = "ext4";
-  };
-
-  fileSystems."/tmp" = {
     device = "none";
     fsType = "tmpfs";
-    options = ["defaults" "size=1G" "mode=777"];
-  };
-
-  fileSystems."/nix" = {
-    device = "/dev/disk/by-label/nix";
-    fsType = "ext4";
-  };
-
-  fileSystems."/crypt" = {
-    device = "/dev/disk/by-label/cryptinfo";
-    fsType = "vfat";
-    options = ["fmask=0022" "dmask=0022"];
+    options = ["defaults" "size=4G" "mode=755"];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-label/boot";
+    device = "/dev/disk/by-uuid/62D5-77E0";
     fsType = "vfat";
     options = ["fmask=0022" "dmask=0022"];
   };
 
-  swapDevices = [
-    {device = "/dev/mapper/vg-swap";}
-  ];
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/4db595d3-8db5-4ccb-be6a-10ec1e2b5cbc";
+    fsType = "ext4";
+  };
+
+  fileSystems."/etc/nixos" = {
+    device = "/nix/persist/etc/nixos";
+    fsType = "none";
+    options = ["bind"];
+  };
+
+  fileSystems."/home" = {
+    device = "/dev/disk/by-label/home";
+    fsType = "ext4";
+  };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

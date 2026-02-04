@@ -13,7 +13,7 @@
     mdadmConf = ''
       MAILADDR root
       DEVICE /dev/disk/by-id/scsi-35000c*
-      ARRAY /dev/md0 level=5 num-devices=12 UUID=86d3d56d:a781c339:a7c90d5d:b252403a;
+      ARRAY /dev/md0 level=5 num-devices=12 UUID=86d3d56d:a781c339:a7c90d5d:b252403a
     '';
   };
 

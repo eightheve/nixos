@@ -1,4 +1,4 @@
-{...}: {
+{pkgs, ...}: {
   imports = [
     ./hardware.nix
   ];
@@ -18,10 +18,20 @@
     sensor.iio.enable = true;
   };
 
-  services.xserver = {
-    enable = true;
-    displayManager.startx.enable = true;
-    videoDrivers = ["modesetting"];
+  environment.systemPackages = [
+    pkgs.libimobiledevice
+  ];
+
+  services = {
+    xserver = {
+      enable = true;
+      displayManager.startx.enable = true;
+      videoDrivers = ["modesetting"];
+    };
+    usbmuxd = {
+      enable = true;
+      package = pkgs.usbmuxd2;
+    };
   };
 
   myModules.networking = {

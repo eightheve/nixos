@@ -22,12 +22,12 @@ in {
       settings = {
         directory = cfg.settings.musicPath;
         import = {
-          move = "yes";
+          move = true;
         };
-        original_date = "yes";
-        plugins = "scrub missing ftintitle";
+        original_date = true;
+        plugins = "musicbrainz scrub missing ftintitle";
         ftintitle = {
-          auto = "yes";
+          auto = true;
         };
       };
     };

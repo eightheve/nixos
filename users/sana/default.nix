@@ -8,9 +8,27 @@
 
   # Window manager specific configurations
   wmConfigs = {
-    dwm = {
+    dwmSatellite = {
       colorScheme = ../../colors/rin.nix;
       wallpaper = ./assets/dwm-wallpaper.jpg;
+      homeModules = {
+        homeModules = {
+          windowManagers.dwm = {
+            enable = true;
+            additionalInitCommands = [
+              "systemctl --user start slstatus &"
+              "feh --bg-fill /home/sana/.wallpaper.jpg &"
+            ];
+          };
+          suckless.slstatus = {
+            enable = true;
+          };
+        };
+      };
+    };
+    dwmCastle = {
+      colorScheme = ../../colors/castle.nix;
+      wallpaper = ./assets/castle-wallpaper.jpg;
       homeModules = {
         homeModules = {
           windowManagers.dwm = {
@@ -56,8 +74,8 @@ in {
     };
 
     windowManager = lib.mkOption {
-      type = lib.types.enum ["hyprland" "niri" "dwm"];
-      default = "dwm";
+      type = lib.types.enum ["hyprland" "niri" "dwmSatellite" "dwmCastle"];
+      default = "dwmSatellite";
     };
 
     enableGraphics = lib.mkOption {

@@ -46,7 +46,7 @@
   myUsers.sana = {
     enable = true;
     useHomeManager = true;
-    windowManager = "dwm";
+    windowManager = "dwmCastle";
   };
 
   networking.firewall.enable = false;

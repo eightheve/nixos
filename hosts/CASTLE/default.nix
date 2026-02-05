@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ./hardware.nix
   ];
@@ -46,6 +50,12 @@
   };
 
   networking.firewall.enable = false;
+  networking.enableB43Firmware = true;
+
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (lib.getName pkg) [
+      "b43-firmware"
+    ];
 
   system.stateVersion = "25.11";
 }

@@ -27,7 +27,7 @@
       };
     };
     dwmCastle = {
-      colorScheme = ../../colors/castle.nix;
+      colorScheme = ../../colors/castle-dark.nix;
       wallpaper = ./assets/castle-wallpaper.jpg;
       homeModules = {
         homeModules = {

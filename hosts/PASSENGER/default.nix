@@ -62,8 +62,14 @@
 
   myUsers.sana = {
     enable = true;
-    useHomeManager = true;
-    windowManager = "hyprland";
+    homeManager = {
+      enable = true;
+      windowManagers = ["hyprland"];
+      colorScheme = ../../colors/madoka.nix;
+      wallpaper = ../../assets/wallpapers/madoka.jpg;
+      enableDiscord = true;
+      enableVintageStory = true;
+    };
   };
 
   programs.steam.enable = true;

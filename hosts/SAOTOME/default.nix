@@ -20,7 +20,10 @@
 
   myUsers.sana = {
     enable = true;
-    useHomeManager = true;
+    homeManager = {
+      enable = true;
+      beets.enable = true;
+    };
   };
 
   myUsers.cyanobacteria = {

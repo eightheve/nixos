@@ -41,9 +41,13 @@
 
   myUsers.sana = {
     enable = true;
-    useHomeManager = true;
-    sshAccessPermitted = true;
-    windowManager = "dwm";
+    homeManager = {
+      enable = true;
+      enableLaptopSupport = true;
+      windowManagers = ["dwm"];
+      colorScheme = ../../colors/rin.nix;
+      wallpaper = ../../assets/wallpapers/rin.jpg;
+    };
   };
 
   networking.firewall.enable = false;

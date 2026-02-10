@@ -47,8 +47,13 @@
 
   myUsers.sana = {
     enable = true;
-    useHomeManager = true;
-    windowManager = "dwmCastle";
+    homeManager = {
+      enable = true;
+      enableLaptopSupport = true;
+      windowManagers = ["dwm"];
+      colorScheme = ../../colors/castle-dark.nix;
+      wallpaper = ../../assets/wallpapers/glt.jpg;
+    };
   };
 
   networking.firewall.enable = false;

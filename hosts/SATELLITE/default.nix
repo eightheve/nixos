@@ -45,7 +45,7 @@
     enable = true;
     useHomeManager = true;
     sshAccessPermitted = true;
-    windowManager = "dwm";
+    windowManager = "dwmSatellite";
   };
 
   networking.firewall.enable = false;

@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ./hardware.nix
   ];
@@ -20,6 +24,8 @@
 
   environment.systemPackages = [
     pkgs.libimobiledevice
+    pkgs.sshuttle
+    pkgs.unixtools.netstat
   ];
 
   services = {
@@ -42,10 +48,16 @@
   myUsers.sana = {
     enable = true;
     useHomeManager = true;
-    windowManager = "dwm";
+    windowManager = "dwmCastle";
   };
 
   networking.firewall.enable = false;
+  networking.enableB43Firmware = true;
+
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (lib.getName pkg) [
+      "b43-firmware"
+    ];
 
   system.stateVersion = "25.11";
 }

@@ -50,22 +50,5 @@
 
   networking.firewall.enable = false;
 
-  myModules.wireguard = {
-    enable = false;
-    interfaces.wg0 = {
-      role = "client";
-      ip = "10.100.1.2/24";
-      privateKeyFile = "/etc/wireguard/privatekey";
-      peers = [
-        {
-          publicKey = "1lD/5+I/v9LRxOjRhxI/b8HSpT8gnsJNB5mq/YfbaFE=";
-          allowedIPs = ["0.0.0.0/0"]; # route all traffic through SAOTOME
-          endpoint = "5.161.238.34:51821"; # KAZOOIE's IP, forwarded to SAOTOME
-          persistentKeepalive = 25;
-        }
-      ];
-    };
-  };
-
   system.stateVersion = "25.11";
 }

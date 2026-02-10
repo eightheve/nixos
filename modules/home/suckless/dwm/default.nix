@@ -58,6 +58,33 @@
     ${lib.optionalString (config.homeModules.suckless.slstatus.enable) "xsetroot -name \"$(${config.homeModules.suckless.slstatus.package}/bin/slstatus -1)\""}
   '';
 
+  rotatePointerDevices = pkgs.writeShellScript "rotate-pointer-devices" ''
+    MATRIX="$1"
+    ${pkgs.xorg.xinput}/bin/xinput list --id-only | while read -r id; do
+        ${pkgs.xorg.xinput}/bin/xinput set-prop "$id" "Coordinate Transformation Matrix" $MATRIX 2>/dev/null || true
+    done
+  '';
+
+  rotationMonitor = pkgs.writeShellScript "rotation-monitor" ''
+    ${pkgs.iio-sensor-proxy}/bin/monitor-sensor --accel | while read -r line; do
+      echo "$line"
+      if echo "$line" | ${pkgs.gnugrep}/bin/grep -q "Accelerometer orientation changed"; then
+        orientation=$(echo "$line" | awk '{print $NF}')
+
+        case "$orientation" in
+          normal)
+            ${pkgs.xorg.xrandr}/bin/xrandr --output ${cfg.autoRotate.display} --rotate normal
+            ${rotatePointerDevices} "1 0 0 0 1 0 0 0 1"
+            ;;
+          bottom-up)
+            ${pkgs.xorg.xrandr}/bin/xrandr --output ${cfg.autoRotate.display} --rotate inverted
+            ${rotatePointerDevices} "-1 0 1 0 -1 1 0 0 1"
+            ;;
+        esac
+      fi
+    done
+  '';
+
   dwmConfig = import ./config.nix {inherit (pkgs) lib;};
 in {
   options.homeModules.windowManagers.dwm = {
@@ -72,6 +99,14 @@ in {
       type = lib.types.listOf lib.types.str;
       default = [];
       description = "A list of additional commands to write to ~/.xinitrc";
+    };
+
+    autoRotate = {
+      enable = lib.mkEnableOption "screen autorotation with monitor-sensor";
+      display = lib.mkOption {
+        type = lib.types.str;
+        default = "eDP-1";
+      };
     };
   };
 
@@ -135,6 +170,7 @@ in {
 
     home.file.".xinitrc".text = lib.mkIf cfg.makeXinitrc ''
       ${lib.concatStringsSep "\n" cfg.additionalInitCommands}
+      ${lib.optionalString cfg.autoRotate.enable "${rotationMonitor} &"}
       exec dwm
     '';
   };

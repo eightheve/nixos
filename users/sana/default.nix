@@ -19,6 +19,7 @@
               "systemctl --user start slstatus &"
               "feh --bg-fill /home/sana/.wallpaper.jpg &"
             ];
+            autoRotate.enable = config.networking.hostName == "SATELLITE" || config.networking.hostName == "GARDEN";
           };
           suckless.slstatus = {
             enable = true;

@@ -1,4 +1,4 @@
-{...}: {
+{pkgs, ...}: {
   imports = [
     ./hardware.nix
   ];
@@ -6,20 +6,7 @@
   boot.loader = {
     efi.canTouchEfiVariables = false;
     systemd-boot.enable = true;
-    grub = {
-      enable = false;
-      device = "nodev";
-      efiSupport = true;
-      configurationLimit = 1;
-      extraEntries = ''
-        menuentry "NixOS Yubikey Handler" {
-          insmod iso9660
-          set isofile="/iso/nixos-yubikey.iso"
-          loopback loop (hd0,gpt3)$isofile
-          configfile (loop)/boot/grub/loopback.cfg
-        }
-      '';
-    };
+    systemd-boot.configurationLimit = 3;
   };
 
   users.mutableUsers = false;
@@ -31,6 +18,15 @@
     enable = true;
     displayManager.startx.enable = true;
     videoDrivers = ["modesetting"];
+  };
+
+  environment.systemPackages = with pkgs; [
+    libimobiledevice
+  ];
+
+  services.usbmuxd = {
+    enable = true;
+    package = pkgs.usbmuxd2;
   };
 
   myModules.networking = {

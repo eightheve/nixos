@@ -6,56 +6,29 @@
 }: let
   cfg = config.myUsers.sana;
 
-  # Window manager specific configurations
-  wmConfigs = {
-    dwmSatellite = {
-      colorScheme = ../../colors/rin.nix;
-      wallpaper = ./assets/dwm-wallpaper.jpg;
+  windowManagerConfigs = {
+    dwm = {
       homeModules = {
-        homeModules = {
-          windowManagers.dwm = {
-            enable = true;
-            additionalInitCommands = [
-              "systemctl --user start slstatus &"
-              "feh --bg-fill /home/sana/.wallpaper.jpg &"
-            ];
-            autoRotate.enable = config.networking.hostName == "SATELLITE" || config.networking.hostName == "GARDEN";
-          };
-          suckless.slstatus = {
-            enable = true;
-          };
+        windowManagers.dwm = {
+          enable = true;
+          additionalInitCommands = [
+            "systemctl --user start slstatus &"
+            "feh --bg-fill /home/sana/.wallpaper.jpg &"
+          ];
+          autoRotate.enable = cfg.homeManager.enableLaptopSupport;
         };
-      };
-    };
-    dwmCastle = {
-      colorScheme = ../../colors/castle-dark.nix;
-      wallpaper = ./assets/castle-wallpaper.jpg;
-      homeModules = {
-        homeModules = {
-          windowManagers.dwm = {
-            enable = true;
-            additionalInitCommands = [
-              "systemctl --user start slstatus &"
-              "feh --bg-fill /home/sana/.wallpaper.jpg &"
-            ];
-          };
-          suckless.slstatus = {
-            enable = true;
-          };
+        suckless.slstatus = {
+          enable = true;
         };
       };
     };
 
     hyprland = {
-      colorScheme = ../../colors/madoka.nix;
-      wallpaper = ./assets/hyprland-wallpaper.jpg;
-      homeModules = {
-        homeModules.windowManagers.hyprland.enable = true;
-      };
+      homeModules.windowManagers.hyprland.enable = true;
     };
   };
 
-  currentWmConfig = wmConfigs.${cfg.windowManager};
+  availableWindowManagers = builtins.attrNames windowManagerConfigs;
 in {
   options.myUsers.sana = {
     enable = lib.mkOption {
@@ -69,19 +42,40 @@ in {
       default = true;
     };
 
-    useHomeManager = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-    };
-
-    windowManager = lib.mkOption {
-      type = lib.types.enum ["hyprland" "niri" "dwmSatellite" "dwmCastle"];
-      default = "dwmSatellite";
-    };
-
     enableGraphics = lib.mkOption {
       type = lib.types.bool;
-      default = config.hardware.graphics.enable;
+      default = cfg.homeManager.windowManagers != [];
+    };
+
+    homeManager = {
+      enable = lib.mkEnableOption "home manager for sana";
+
+      enableLaptopSupport = lib.mkEnableOption "laptop features (brightnessctl, autorotate for x11, etc)";
+
+      windowManagers = lib.mkOption {
+        type = lib.types.listOf (lib.types.enum availableWindowManagers);
+        default = [];
+      };
+
+      colorScheme = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+      };
+
+      wallpaper = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+      };
+
+      enableDiscord = lib.mkEnableOption "equibop discord client";
+      enableVintageStory = lib.mkEnableOption "vintagestory game";
+      beets = {
+        enable = lib.mkEnableOption "beets music library manager";
+        libraryPath = lib.mkOption {
+          type = lib.types.str;
+          default = "/srv/data/music/";
+        };
+      };
     };
   };
 
@@ -94,7 +88,6 @@ in {
         extraGroups = ["wheel" "networkmanager" "slskd" "input"];
         hashedPassword = "$y$j9T$aqLJPq7sjoh7G60UN.4dd1$Deb/3ODxhVw.Qd2uN.A0.QvOH8Oel9BF.ukD/aXnNd8";
         shell = pkgs.fish;
-
         openssh.authorizedKeys.keys = lib.mkIf cfg.sshAccessPermitted [
           "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC1Mbo28yG2Oln+KLKYp84MI/4t8ImUBPtEN1sym9OVz0pRGtBAhjaF5DYVpLUm0D7+cyuA4G/yKmjN7AEtvxDsr7t9aZaGII16p1WX5KU+A9o8aldRJPZEqCKTNY/+mYpHOEj9p1L8PE7AymXMlPGhfL1xpwrApaO9gk9eIQkO2mbe9xE8HZKeJ/WPLDhoVI/yOn1Ulof2k2QvvrqHc78e28ieqk5lcmBn1apZe4IMVBfhK9Gtc4Wtmaga1Dya2YP7j5qc0I0vFXERI9Lr2wMHDHRy85nS5qzLFBMSc+OYVW1s0xn2u3XMeldyWcWWrCbOsY/W/V7Ojv0pwEAVfUTCjxEExjerGj9r78LZA9ICy+0j3+hTzn1D+b3LZkKPl1AXq4MI320YAo4M4nHtvpaaUsI/+6g0YBq+zpga8AoESyIyCtouY8nnTBraEcHBmoUK0ly1VBrBKMUB/sGe8xjOMmfxNwHSNEY6CqhGtf3UTXLq7NWuIHkKVmjIYtVbbsc0YWiovVT2hHsfLGVG5JYrTH/+vN7fDVq7VwMQnVQBXtzBmmntwmdSpeWU0w1x8mLWgMiGbLQxDJn2ee3p4C5ub0NPgCXsMbxEbsjC2eeRUMaKcyJS0LuSPkDlzk5Z9P05HkemaPfBNvnV1JwQ9kaT7Otvj7Ynr1OoXFZTgokPHw== cardno:24_483_552"
         ];
@@ -103,7 +96,7 @@ in {
       programs.fish.enable = true;
     })
 
-    (lib.mkIf (cfg.enable && cfg.useHomeManager) {
+    (lib.mkIf (cfg.enable && cfg.homeManager.enable) {
       home-manager.users.sana = {
         home = {
           username = "sana";
@@ -133,9 +126,9 @@ in {
           };
           fastfetch.enable = true;
 
-          beets = lib.mkIf (config.networking.hostName == "SAOTOME") {
-            enable = true;
-            settings.musicPath = "/srv/data/music/";
+          beets = {
+            enable = cfg.homeManager.beets.enable;
+            settings.musicPath = cfg.homeManager.beets.libraryPath;
           };
         };
 
@@ -150,87 +143,76 @@ in {
             flavours
             ffmpeg-full
           ]
-          ++ (lib.optionals (config.networking.hostName == "SATELLITE") [brightnessctl]);
+          ++ (lib.optionals (cfg.homeManager.enableLaptopSupport) [brightnessctl]);
       };
     })
 
-    (lib.mkIf (cfg.enable && cfg.useHomeManager && cfg.enableGraphics) {
-      myModules.vintagestoryOverlay.enable = config.networking.hostName == "PASSENGER";
+    (lib.mkIf (cfg.enable && cfg.homeManager.enable && cfg.enableGraphics) {
+      myModules.vintagestoryOverlay.enable = cfg.homeManager.enableVintageStory;
       nixpkgs.config.allowUnfreePredicate = pkg:
         builtins.elem (lib.getName pkg) [
           "discord"
         ];
 
-      home-manager.users.sana = lib.mkMerge [
-        {
-          programs.mpv = {
-            enable = true;
-            defaultProfiles = ["gpu-hq"];
-          };
-
-          homeModules = {
-            discord.enable = lib.mkIf (config.networking.hostName != "BACTERIA") true;
-            kitty.enable = true;
-
-            games.vintagestory = {
-              enable = config.networking.hostName == "PASSENGER";
-              versions = [
-                "latest"
-                "v1-20-12"
-              ];
+      home-manager.users.sana = lib.mkMerge ([
+          {
+            programs.mpv = {
+              enable = true;
+              defaultProfiles = ["gpu-hq"];
             };
 
-            fish = {
-              enable = true;
-              settings = {
-                useGitStatus = false;
-                promptColors = lib.mkIf (cfg.windowManager == "hyprland") (let
-                  colors = config.home-manager.users.sana.colorScheme.colors;
-                in {
-                  userName = colors.accent3."1";
-                  filePath = colors.accent3."0";
-                  remoteHost = colors.accent4."0";
-                });
+            homeModules = {
+              discord.enable = cfg.homeManager.enableDiscord;
+              kitty.enable = true;
+
+              games.vintagestory = {
+                enable = cfg.homeManager.enableVintageStory;
+                versions = [
+                  "latest"
+                  "v1-20-12"
+                ];
               };
-            };
 
-            supersonic = {
-              enable = true;
-              settings = {
-                useCustomTheme = true;
-                fontPaths = {
-                  normal = "${pkgs.migmix}/share/fonts/truetype/migmix/migmix-1p-regular.ttf";
-                  bold = "${pkgs.migmix}/share/fonts/truetype/migmix/migmix-1p-bold.ttf";
+              fish = {
+                enable = true;
+                settings.useGitStatus = false;
+              };
+
+              supersonic = {
+                enable = true;
+                settings = {
+                  useCustomTheme = true;
+                  fontPaths = {
+                    normal = "${pkgs.migmix}/share/fonts/truetype/migmix/migmix-1p-regular.ttf";
+                    bold = "${pkgs.migmix}/share/fonts/truetype/migmix/migmix-1p-bold.ttf";
+                  };
                 };
               };
             };
-          };
 
-          home.packages = with pkgs; [
-            librewolf
-            audacity
-            openutau
-            krita
-            gimp
-            inkscape
-            imv
-            wine
-            winetricks
-            mupdf
-          ];
+            home.packages = with pkgs; [
+              librewolf
+              audacity
+              openutau
+              krita
+              gimp
+              inkscape
+              imv
+              wine
+              winetricks
+              mupdf
+            ];
 
-          colorScheme = {
-            enable = true;
-            path = currentWmConfig.colorScheme;
-          };
+            colorScheme = {
+              enable = true;
+              path = cfg.homeManager.colorScheme;
+            };
 
-          home.file.".wallpaper.jpg".source = currentWmConfig.wallpaper;
-          home.file.".wallpaper-color.jpg".source = ./assets/hyprland-color.jpg;
-        }
-
-        # Apply window manager specific config
-        currentWmConfig.homeModules
-      ];
+            home.file.".wallpaper.jpg".source = cfg.homeManager.wallpaper;
+            home.file.".wallpaper-color.jpg".source = ./assets/hyprland-color.jpg;
+          }
+        ]
+        ++ (map (wm: windowManagerConfigs.${wm}) cfg.homeManager.windowManagers));
     })
   ];
 }

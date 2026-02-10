@@ -4,11 +4,11 @@
     style = "light";
   };
 
-  shade0 = "100e0c";
-  shade1 = "35322e";
-  shade2 = "5f5c55";
-  shade3 = "8c8980";
-  shade4 = "bcb9ad";
+  shade0 = "18110b";
+  shade1 = "2b2520";
+  shade2 = "413a34";
+  shade3 = "6f6860";
+  shade4 = "a09a8f";
   shade5 = "efebdc";
 
   accent0 = {

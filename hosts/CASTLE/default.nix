@@ -24,6 +24,8 @@
 
   environment.systemPackages = [
     pkgs.libimobiledevice
+    pkgs.sshuttle
+    pkgs.unixtools.netstat
   ];
 
   services = {

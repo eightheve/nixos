@@ -15,10 +15,19 @@
   };
 
   security.sudo.wheelNeedsPassword = false;
-  security.pam.yubico = {
-    enable = true;
-    mode = "challenge-response";
-    id = ["24483552"];
+  security.pam = {
+    services.login.u2fAuth = true;
+    yubico = {
+      enable = true;
+      mode = "challenge-response";
+      id = ["24483552"];
+    };
+    u2f = {
+      enable = true;
+      settings = {
+        cue = true;
+      };
+    };
   };
 
   programs.gnupg.agent = {

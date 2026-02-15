@@ -1,29 +1,18 @@
-{...}: {
+{pkgs, ...}: {
   imports = [
-    ../../users/sana
-
     ./hardware.nix
   ];
 
   boot.loader = {
-    efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot";
-    };
-    systemd-boot = {
-      enable = true;
-      configurationLimit = 10;
-    };
+    efi.canTouchEfiVariables = false;
+    systemd-boot.enable = true;
+    systemd-boot.configurationLimit = 3;
   };
 
-  boot.initrd.kernelModules = ["ideapad_laptop"];
-  hardware = {
-    bluetooth.enable = true;
-    sensor.iio.enable = true;
-    trackpoint = {
-      enable = true;
-    };
-  };
+  users.mutableUsers = false;
+  services.getty.autologinUser = "sana";
+
+  hardware.bluetooth.enable = true;
 
   services.xserver = {
     enable = true;
@@ -31,9 +20,18 @@
     videoDrivers = ["modesetting"];
   };
 
+  environment.systemPackages = with pkgs; [
+    libimobiledevice
+  ];
+
+  services.usbmuxd = {
+    enable = true;
+    package = pkgs.usbmuxd2;
+  };
+
   myModules.networking = {
     enable = true;
-    hostName = "SATELLITE";
+    hostName = "BACTERIA";
   };
 
   myModules.ssh = {
@@ -49,7 +47,6 @@
       windowManagers = ["dwm"];
       colorScheme = ../../colors/rin.nix;
       wallpaper = ../../assets/wallpapers/rin.jpg;
-      enableDiscord = true;
     };
   };
 

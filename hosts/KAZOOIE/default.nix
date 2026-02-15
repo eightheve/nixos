@@ -14,12 +14,6 @@
     firewall.allowedUDPPorts = [51820 51821 2086];
   };
 
-  myUsers.sana = {
-    enable = true;
-    useHomeManager = false;
-    sshAccessPermitted = true;
-  };
-
   myModules.networking = {
     enable = true;
     hostName = "KAZOOIE";

@@ -12,46 +12,39 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  boot.initrd.availableKernelModules = ["xhci_pci" "nvme" "usb_storage" "usbhid" "sd_mod" "rtsx_pci_sdmmc"];
-  boot.initrd.kernelModules = [];
+  boot.initrd.availableKernelModules = ["ehci_pci" "ahci" "xhci_pci" "usb_storage" "usbhid" "sd_mod" "sdhci_pci"];
+  boot.initrd.kernelModules = ["dm-snapshot"];
   boot.initrd.systemd.enable = true;
   boot.kernelModules = [];
   boot.extraModulePackages = [];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/5326bb23-7944-4120-b758-5a656f43e389";
-    fsType = "ext4";
-  };
-
-  fileSystems."/tmp" = {
     device = "none";
     fsType = "tmpfs";
-    options = ["defaults" "size=1G" "mode=777"];
+    options = ["defaults" "size=4G" "mode=755"];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/3006-C199";
+    device = "/dev/disk/by-uuid/62D5-77E0";
     fsType = "vfat";
     options = ["fmask=0022" "dmask=0022"];
   };
 
-  fileSystems."/home" = {
-    device = "/dev/mapper/home";
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/4db595d3-8db5-4ccb-be6a-10ec1e2b5cbc";
     fsType = "ext4";
   };
 
-  boot.initrd.luks.devices."home" = {
-    device = "/dev/disk/by-uuid/bc595b08-03e2-4698-adc1-a019ec5b421d";
-    gpgCard = {
-      encryptedPass = "/boot/keyfile.bin.gpg";
-      publicKey = "/boot/pubkey.asc";
-    };
-    crypttabExtraOpts = [
-      "fido2-device=auto"
-    ];
+  fileSystems."/etc/nixos" = {
+    device = "/nix/persist/etc/nixos";
+    fsType = "none";
+    options = ["bind"];
   };
 
-  swapDevices = [];
+  fileSystems."/home" = {
+    device = "/dev/disk/by-label/home";
+    fsType = "ext4";
+  };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

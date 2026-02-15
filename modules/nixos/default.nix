@@ -1,5 +1,6 @@
 {
   imports = [
+    ./cloudflared.nix
     ./graphics.nix
     ./forgejo-runner.nix
     ./navidrome.nix
@@ -9,5 +10,6 @@
     ./slskd.nix
     ./ssh.nix
     ./wireguard.nix
+    ./vs-overlay.nix
   ];
 }

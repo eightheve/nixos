@@ -16,6 +16,8 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    networking.firewall.trustedInterfaces = ["br-+" "docker*"];
+
     virtualisation.docker.enable = true;
 
     services.gitea-actions-runner = {

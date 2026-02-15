@@ -20,7 +20,10 @@
 
   myUsers.sana = {
     enable = true;
-    useHomeManager = true;
+    homeManager = {
+      enable = true;
+      beets.enable = true;
+    };
   };
 
   myUsers.cyanobacteria = {
@@ -33,6 +36,10 @@
     fsType = "ext4";
   };
 
+  networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [80 443];
+  networking.firewall.allowedUDPPorts = [51821];
+
   myModules = {
     networking = {
       enable = true;
@@ -44,6 +51,8 @@
         };
       };
     };
+
+    cloudflared.enable = false;
 
     forgejoRunner.enable = true;
 
@@ -78,7 +87,7 @@
     };
 
     wireguard = {
-      enable = true;
+      enable = false;
       interfaces = {
         wg0 = {
           role = "client";
@@ -107,7 +116,7 @@
         };
       };
       server = {
-        externalInterface = "enp6s0"; # adjust to your interface
+        externalInterface = "eno3"; # adjust to your interface
         interfaces = ["wg1"];
       };
     };
@@ -126,6 +135,19 @@
         };
       };
     };
+  };
+
+  networking.wireguard.interfaces.wg0 = {
+    ips = ["10.100.0.2/24"];
+    privateKeyFile = "/etc/wireguard/privatekey";
+    peers = [
+      {
+        publicKey = "1I3PO1MgFdqffo816H34YalYgnCrwPo3ssBbsLTxzBg=";
+        allowedIPs = ["10.100.0.0/24"];
+        endpoint = "5.161.238.34:51820";
+        persistentKeepalive = 25;
+      }
+    ];
   };
 
   system.stateVersion = "25.11";

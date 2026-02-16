@@ -85,7 +85,7 @@ in {
         isNormalUser = true;
         createHome = true;
         description = "二葉さな";
-        extraGroups = ["wheel" "networkmanager" "slskd" "input"];
+        extraGroups = ["wheel" "networkmanager" "slskd" "input" "gnunet"];
         hashedPassword = "$y$j9T$aqLJPq7sjoh7G60UN.4dd1$Deb/3ODxhVw.Qd2uN.A0.QvOH8Oel9BF.ukD/aXnNd8";
         shell = pkgs.fish;
         openssh.authorizedKeys.keys = lib.mkIf cfg.sshAccessPermitted [

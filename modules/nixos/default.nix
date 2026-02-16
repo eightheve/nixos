@@ -1,6 +1,7 @@
 {
   imports = [
     ./cloudflared.nix
+    ./gnunet.nix
     ./graphics.nix
     ./forgejo-runner.nix
     ./navidrome.nix

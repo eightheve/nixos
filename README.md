@@ -23,9 +23,8 @@ Currently there are two WMs offered, Hyprland and DWM. Both are offered as user-
 | Host      | Role                | Location    | Model                   |
 | :-------- | :-----------------: | :---------: | :---------------------: |
 | PASSENGER | Desktop/Workstation | Home        | Custom Build            |
-| SATELLITE | Laptop Workstation  | Mobile      | ThinkPad Yoga 260       |
+| SATELLITE | Laptop Workstation  | Mobile      | ThinkPad X1 Yoga        |
 | CASTLE    | Laptop              | Mobile      | Dell Latitude E6420-XFR |
-| GARDEN    | Digital Art         | Mobile      | ThinkPad X1 Yoga        |
 | SAOTOME   | Home Server/NAS     | Home        | Dell R720               |
 | KAZOOIE   | Proxy for SAOTOME   | VA (VPS)    | N/A                     |
 | HAMUKO    | Build Server        | Home        | HP ProLiant DL360P Gen8 |

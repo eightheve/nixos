@@ -13,6 +13,7 @@
 
   myModules.networking = {
     enable = true;
+    hostName = "WINDOW";
   };
 
   myUsers.sana = {

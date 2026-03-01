@@ -29,6 +29,7 @@
       upstream = "http://10.100.0.2:5030";
     };
     sanaWebsite.enable = true;
+    matrix.synapse.enable = true;
   };
 
   networking.wireguard.interfaces.wg0 = {

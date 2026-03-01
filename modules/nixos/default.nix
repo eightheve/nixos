@@ -2,6 +2,7 @@
   imports = [
     ./graphics.nix
     ./forgejo-runner.nix
+    ./matrix.nix
     ./navidrome.nix
     ./networking.nix
     ./remote-builds.nix

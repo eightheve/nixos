@@ -36,6 +36,8 @@
     defaults.email = "sana@doppel.moe";
   };
 
+  documentation.man.generateCaches = lib.mkForce false;
+
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;

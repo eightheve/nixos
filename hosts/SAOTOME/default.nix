@@ -37,8 +37,6 @@
   };
 
   networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [80 443];
-  networking.firewall.allowedUDPPorts = [51821];
 
   myModules = {
     networking = {
@@ -59,15 +57,11 @@
       openFirewall = true;
     };
 
-    sanaWebsite.enable = true;
-
     slskd = {
       enable = true;
       settings = {
         useSlskdn = true;
         shareFolders = ["[RAID]/srv/data/music"];
-        domainName = "soulseek.doppel.moe";
-        enableNginx = true;
         localPort = "5030";
         environmentFilePath = "/var/lib/slskd/.env";
       };
@@ -78,9 +72,6 @@
       settings = {
         musicFolder = "/srv/data/music";
         environmentFilePath = "/var/lib/navidrome/.env";
-        enableNginx = true;
-        domainName = "navi.doppel.moe";
-        localPort = "4533";
       };
     };
 

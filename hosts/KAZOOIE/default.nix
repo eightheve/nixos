@@ -8,12 +8,6 @@
     device = "/dev/sda";
   };
 
-  networking = {
-    hostName = "KAZOOIE";
-    firewall.allowedTCPPorts = [443 80 2086];
-    firewall.allowedUDPPorts = [51820 51821 2086];
-  };
-
   myModules.networking = {
     enable = true;
     hostName = "KAZOOIE";
@@ -23,6 +17,18 @@
     enable = true;
     openFirewall = true;
     ports = [2222];
+  };
+
+  myModules = {
+    navidrome.nginx = {
+      enable = true;
+      upstream = "10.100.0.2:4533";
+    };
+    slskd.nginx = {
+      enable = true;
+      upstream = "10.100.0.2:5030";
+    };
+    sanaWebsite.enable = true;
   };
 
   networking.wireguard.interfaces.wg0 = {
@@ -37,25 +43,16 @@
     ];
   };
 
-  networking.enableIPv6 = true;
+  networking.firewall = {
+    allowedTCPPorts = [443 80];
+    allowedUDPPorts = [51820];
+    extraCommands = ''
+      iptables -t nat -A PREROUTING -i enp1s0 -p tcp --dport 22 -j DNAT --to-destination 10.100.0.2:22
+    '';
+  };
+
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = true;
-    "net.ipv6.conf.all.forwarding" = true;
-  };
-
-  networking.nat = {
-    enable = true;
-    externalInterface = "enp1s0";
-    internalInterfaces = ["wg0"];
-  };
-
-  networking.firewall = {
-    extraCommands = ''
-      iptables -t nat -F PREROUTING
-      iptables -t nat -A PREROUTING -i enp1s0 -p tcp ! --dport 2222 -j DNAT --to-destination 10.100.0.2
-      iptables -t nat -A PREROUTING -i enp1s0 -p udp ! --dport 51820 -j DNAT --to-destination 10.100.0.2
-      iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE
-    '';
   };
 
   system.stateVersion = "25.05";

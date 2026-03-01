@@ -15,6 +15,7 @@
   };
 
   security.sudo.wheelNeedsPassword = false;
+
   security.pam = {
     services.login.u2fAuth = true;
     yubico = {
@@ -28,6 +29,11 @@
         cue = true;
       };
     };
+  };
+
+  security.acme = {
+    acceptTerms = true;
+    defaults.email = "sana@doppel.moe";
   };
 
   programs.gnupg.agent = {

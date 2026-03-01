@@ -1,4 +1,4 @@
-{...}: {
+{pkgs, ...}: {
   imports = [
     ../../users/sana
 
@@ -53,7 +53,18 @@
     };
   };
 
-  networking.firewall.enable = false;
+  networking = {
+    firewall.enable = true;
+    modemmanager = {
+      enable = true;
+      fccUnlockScripts = [
+        {
+          id = "1199:9079";
+          path = "${pkgs.modemmanager}/share/ModemManager/fcc-unlock.available.d/1199:9079";
+        }
+      ];
+    };
+  };
 
   system.stateVersion = "25.11";
 }

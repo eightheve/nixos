@@ -14,44 +14,40 @@
 
   boot.initrd.availableKernelModules = ["xhci_pci" "nvme" "usb_storage" "usbhid" "sd_mod" "rtsx_pci_sdmmc"];
   boot.initrd.kernelModules = [];
-  boot.initrd.systemd.enable = true;
-  boot.kernelModules = [];
+  boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/5326bb23-7944-4120-b758-5a656f43e389";
+    device = "tmpfs";
+    fsType = "tmpfs";
+    options = ["defaults" "size=4G" "mode=755"];
+  };
+
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/1b3af422-089d-4064-8ad4-bc84bc4790a0";
     fsType = "ext4";
   };
 
-  fileSystems."/tmp" = {
-    device = "none";
-    fsType = "tmpfs";
-    options = ["defaults" "size=1G" "mode=777"];
+  fileSystems."/home" = {
+    device = "/dev/disk/by-uuid/c3c80d5f-93d2-4729-a62b-296b58a9cbf4";
+    fsType = "ext4";
+  };
+
+  fileSystems."/etc/nixos" = {
+    device = "/nix/persist/etc/nixos";
+    fsType = "none";
+    options = ["bind"];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/3006-C199";
+    device = "/dev/disk/by-uuid/ED03-64BA";
     fsType = "vfat";
     options = ["fmask=0022" "dmask=0022"];
   };
 
-  fileSystems."/home" = {
-    device = "/dev/mapper/home";
-    fsType = "ext4";
-  };
-
-  boot.initrd.luks.devices."home" = {
-    device = "/dev/disk/by-uuid/bc595b08-03e2-4698-adc1-a019ec5b421d";
-    gpgCard = {
-      encryptedPass = "/boot/keyfile.bin.gpg";
-      publicKey = "/boot/pubkey.asc";
-    };
-    crypttabExtraOpts = [
-      "fido2-device=auto"
-    ];
-  };
-
-  swapDevices = [];
+  swapDevices = [
+    {device = "/dev/disk/by-uuid/ca3e6d29-8682-4605-99ff-f023958625a1";}
+  ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

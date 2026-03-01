@@ -1,6 +1,5 @@
 {
   imports = [
-    ./cloudflared.nix
     ./graphics.nix
     ./forgejo-runner.nix
     ./navidrome.nix

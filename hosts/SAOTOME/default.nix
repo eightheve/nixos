@@ -52,8 +52,6 @@
       };
     };
 
-    cloudflared.enable = false;
-
     forgejoRunner.enable = true;
 
     ssh = {

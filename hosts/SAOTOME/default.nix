@@ -84,41 +84,6 @@
       };
     };
 
-    wireguard = {
-      enable = false;
-      interfaces = {
-        wg0 = {
-          role = "client";
-          ip = "10.100.0.2/24";
-          privateKeyFile = "/etc/wireguard/wg0-privatekey";
-          peers = [
-            {
-              publicKey = "1I3PO1MgFdqffo816H34YalYgnCrwPo3ssBbsLTxzBg=";
-              allowedIPs = ["10.100.0.0/24"];
-              endpoint = "5.161.238.34:51820";
-              persistentKeepalive = 25;
-            }
-          ];
-        };
-        wg1 = {
-          role = "server";
-          ip = "10.100.1.1/24";
-          listenPort = 51821;
-          privateKeyFile = "/etc/wireguard/wg1-privatekey";
-          peers = [
-            {
-              publicKey = "DCuEo+o8/17IxumbKmHDYP8Ewt6EMv4LUMqjoDgmjGs=";
-              allowedIPs = ["10.100.1.2/32"];
-            }
-          ];
-        };
-      };
-      server = {
-        externalInterface = "eno3"; # adjust to your interface
-        interfaces = ["wg1"];
-      };
-    };
-
     remoteBuilds.user = {
       enable = true;
       hosts = {

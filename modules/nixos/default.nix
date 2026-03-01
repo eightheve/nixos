@@ -8,7 +8,6 @@
     ./sana-website.nix
     ./slskd.nix
     ./ssh.nix
-    ./wireguard.nix
     ./vs-overlay.nix
   ];
 }

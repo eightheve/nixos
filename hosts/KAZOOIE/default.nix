@@ -19,27 +19,6 @@
     hostName = "KAZOOIE";
   };
 
-  myModules.wireguard = {
-    enable = false;
-    interfaces.wg0 = {
-      role = "server";
-      ip = "10.100.0.1/24";
-      listenPort = 51820;
-      privateKeyFile = "/etc/wireguard/privatekey";
-      peers = [
-        {
-          publicKey = "0hrwVOfaPGTs2bfHoGrHroHGqG2aJiiu8JO9o5/K0xg=";
-          allowedIPs = ["10.100.0.2/32"];
-        }
-      ];
-    };
-    server = {
-      externalInterface = "enp1s0";
-      interfaces = ["wg0"];
-      natForwardPorts = true;
-    };
-  };
-
   myModules.ssh = {
     enable = true;
     openFirewall = true;
@@ -47,13 +26,13 @@
   };
 
   networking.wireguard.interfaces.wg0 = {
-    ips = [ "10.100.0.1/24" ];
+    ips = ["10.100.0.1/24"];
     listenPort = 51820;
     privateKeyFile = "/etc/wireguard/privatekey";
     peers = [
       {
         publicKey = "0hrwVOfaPGTs2bfHoGrHroHGqG2aJiiu8JO9o5/K0xg=";
-        allowedIPs = [ "10.100.0.2/32" ];
+        allowedIPs = ["10.100.0.2/32"];
       }
     ];
   };
@@ -67,7 +46,7 @@
   networking.nat = {
     enable = true;
     externalInterface = "enp1s0";
-    internalInterfaces = [ "wg0" ];
+    internalInterfaces = ["wg0"];
   };
 
   networking.firewall = {

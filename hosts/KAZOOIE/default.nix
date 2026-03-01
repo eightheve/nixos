@@ -22,11 +22,11 @@
   myModules = {
     navidrome.nginx = {
       enable = true;
-      upstream = "10.100.0.2:4533";
+      upstream = "http://10.100.0.2:4533";
     };
     slskd.nginx = {
       enable = true;
-      upstream = "10.100.0.2:5030";
+      upstream = "http://10.100.0.2:5030";
     };
     sanaWebsite.enable = true;
   };

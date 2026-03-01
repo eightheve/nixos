@@ -62,7 +62,6 @@
       settings = {
         useSlskdn = true;
         shareFolders = ["[RAID]/srv/data/music"];
-        localPort = "5030";
         environmentFilePath = "/var/lib/slskd/.env";
       };
     };

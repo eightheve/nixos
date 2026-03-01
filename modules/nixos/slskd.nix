@@ -36,8 +36,8 @@ in {
       };
 
       localPort = lib.mkOption {
-        type = lib.types.str;
-        default = "5030";
+        type = lib.types.int;
+        default = 5030;
       };
 
       environmentFilePath = lib.mkOption {
@@ -61,7 +61,7 @@ in {
         homeMode = "774";
       };
 
-      networking.firewall.allowedTCPPorts = [cfg.settings.soulseekListeningPort];
+      networking.firewall.allowedTCPPorts = [cfg.settings.soulseekListeningPort cfg.settings.localPort];
       networking.firewall.allowedUDPPorts = [cfg.settings.soulseekListeningPort];
 
       systemd.services.slskd.serviceConfig = {

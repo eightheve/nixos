@@ -30,8 +30,8 @@ in {
         default = "/etc/navidrome.env";
       };
       localPort = lib.mkOption {
-        type = lib.types.str;
-        default = "4533";
+        type = lib.types.int;
+        default = 4533;
       };
     };
   };
@@ -52,13 +52,16 @@ in {
         openFirewall = true;
         environmentFile = cfg.settings.environmentFilePath;
         settings = {
-          Port = cfg.localPort;
+          Port = cfg.settings.localPort;
           MusicFolder = cfg.settings.musicFolder;
           AlbumPlayCountMode = "normalized";
+          Address = "0.0.0.0";
           "Tags.Genre.Split" = ["," ";" "/" "|"];
           EnableSharing = true;
         };
       };
+
+      networking.firewall.allowedTCPPorts = [cfg.settings.localPort];
     })
 
     (lib.mkIf cfg.nginx.enable {

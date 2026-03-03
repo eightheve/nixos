@@ -4,6 +4,23 @@
   ...
 }: let
   cfg = config.myModules.matrix;
+
+  serverConfig."m.server" = "matrix.doppel.moe:8448";
+  clientConfig."m.homeserver".base_url = "https://matrix.doppel.moe:8448";
+  supportConfig = {
+    contacts = [
+      {
+        matrix_id = "@sana:doppel.moe";
+        email_address = "sana@doppel.moe";
+        role = "m.role.admin";
+      }
+    ];
+  };
+  mkWellKnown = data: ''
+    default_type application/json;
+    add_header Access-Control-Allow-Origin *;
+    return 200 '${builtins.toJSON data}';
+  '';
 in {
   options.myModules.matrix = {
     synapse = {
@@ -20,21 +37,20 @@ in {
 
         matrix-synapse = {
           enable = true;
-          extraConfigFiles = "/var/lib/matrix-synapse";
+          extraConfigFiles = ["/var/lib/matrix-synapse/secret.yaml"];
           settings = {
             server_name = "doppel.moe";
-            public_baseurl = "https://matrix.doppel.moe/";
-            enable_registration = true;
+            public_baseurl = "https://matrix.doppel.moe:8448";
             tls_certificate_path = "/var/lib/acme/matrix.doppel.moe/fullchain.pem";
             tls_private_key_path = "/var/lib/acme/matrix.doppel.moe/key.pem";
             listeners = [
               {
-                bind_address = "";
+                bind_addresses = [""];
                 port = 8448;
                 resources = [
                   {
                     compress = true;
-                    names = ["client" "webclient"];
+                    names = ["client"];
                   }
                   {
                     compress = false;
@@ -47,12 +63,12 @@ in {
               }
               {
                 # client
-                bind_address = "127.0.0.1";
+                bind_addresses = ["127.0.0.1"];
                 port = 8008;
                 resources = [
                   {
                     compress = true;
-                    names = ["client" "webclient"];
+                    names = ["client"];
                   }
                 ];
                 tls = false;
@@ -71,16 +87,23 @@ in {
               proxyPass = "http://127.0.0.1:8008";
             };
           };
+          virtualHosts."doppel.moe" = {
+            enableACME = true;
+            forceSSL = true;
+            locations."/.well-known/matrix/server".extraConfig = mkWellKnown serverConfig;
+            locations."/.well-known/matrix/support".extraConfig = mkWellKnown supportConfig;
+            locations."/.well-known/matrix/client".extraConfig = mkWellKnown clientConfig;
+          };
         };
       };
 
       security.acme.certs = {
         "matrix.doppel.moe" = {
-          group = "matrix-synapse";
-          allowKeysForGroup = true;
+          group = "nginx";
           postRun = "systemctl reload nginx.service; systemctl restart matrix-synapse.service";
         };
       };
+      users.users.matrix-synapse.extraGroups = ["nginx"];
     })
   ];
 }

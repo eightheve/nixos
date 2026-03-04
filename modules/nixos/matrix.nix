@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   cfg = config.myModules.matrix;
@@ -30,7 +31,10 @@ in {
 
   config = lib.mkMerge [
     (lib.mkIf cfg.synapse.enable {
-      networking.firewall.allowedTCPPorts = [80 443 8448];
+      nixpkgs.overlays = [
+        (import ../../overlays/matrix-appservice-discord.nix)
+      ];
+      networking.firewall.allowedTCPPorts = [80 443 8448 8008];
 
       services = {
         postgresql.enable = true;
@@ -43,6 +47,7 @@ in {
             public_baseurl = "https://matrix.doppel.moe:8448";
             tls_certificate_path = "/var/lib/acme/matrix.doppel.moe/fullchain.pem";
             tls_private_key_path = "/var/lib/acme/matrix.doppel.moe/key.pem";
+            app_service_config_files = [ "/var/lib/matrix-synapse/discord-registration.yaml" ];
             listeners = [
               {
                 bind_addresses = [""];
@@ -63,7 +68,7 @@ in {
               }
               {
                 # client
-                bind_addresses = ["127.0.0.1"];
+                bind_addresses = ["0.0.0.0"];
                 port = 8008;
                 resources = [
                   {
@@ -104,6 +109,18 @@ in {
         };
       };
       users.users.matrix-synapse.extraGroups = ["nginx"];
+    
+      services.matrix-appservice-discord = {
+        enable = true;
+        environmentFile = "/etc/matrix-appservice-discord.env";
+        settings = {
+          bridge = {
+            domain = "doppel.moe";
+            homeserverUrl = "http://matrix.doppel.moe:8008";
+            adminMxid = "@sana:doppel.moe";
+          };
+        };
+      };
     })
   ];
 }

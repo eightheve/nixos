@@ -31,9 +31,10 @@ in {
 
   config = lib.mkMerge [
     (lib.mkIf cfg.synapse.enable {
-      nixpkgs.overlays = [
-        (import ../../overlays/matrix-appservice-discord.nix)
+      nixpkgs.config.permittedInsecurePackages = [
+        "olm-3.2.16"
       ];
+
       networking.firewall.allowedTCPPorts = [80 443 8448 8008];
 
       services = {
@@ -99,6 +100,13 @@ in {
             locations."/.well-known/matrix/support".extraConfig = mkWellKnown supportConfig;
             locations."/.well-known/matrix/client".extraConfig = mkWellKnown clientConfig;
           };
+          virtualHosts."mautrix-media.doppel.moe" = {
+            enableACME = true;
+            forceSSL = true;
+            locations."/" = {
+              proxyPass = "http://127.0.0.1:29334";
+            };
+          };
         };
       };
 
@@ -110,14 +118,36 @@ in {
       };
       users.users.matrix-synapse.extraGroups = ["nginx"];
     
-      services.matrix-appservice-discord = {
+     
+      services.mautrix-discord = {
         enable = true;
-        environmentFile = "/etc/matrix-appservice-discord.env";
+        registerToSynapse = true;
         settings = {
-          bridge = {
+          homeserver = {
+            address = "https://matrix.doppel.moe";
             domain = "doppel.moe";
-            homeserverUrl = "http://matrix.doppel.moe:8008";
-            adminMxid = "@sana:doppel.moe";
+          };
+          appservice = {
+            id = "_mautrix_discord";
+            database = {
+              type = "postgres";
+              uri = "postgres://mautrix-discord:password@127.0.0.1/mautrix-discord?sslmode=disable";
+            };
+            bot = {
+              username = "_mautrix_bridge";
+              displayname = "Mautrix Bridge";
+            };
+          };
+          bridge = {
+            public_address = "https://mautrix-media.doppel.moe";
+            direct_media = {
+              enabled = true;
+              server_name = "mautrix-media.doppel.moe";
+            };
+            permissions = {
+              "*" = "relay";
+              "@root:doppel.moe" = "admin";
+            };
           };
         };
       };

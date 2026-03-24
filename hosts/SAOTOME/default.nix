@@ -75,7 +75,7 @@
     };
 
     remoteBuilds.user = {
-      enable = true;
+      enable = false;
       hosts = {
         HAMUKO-NIXREMOTE = {
           hostName = "192.168.1.20";

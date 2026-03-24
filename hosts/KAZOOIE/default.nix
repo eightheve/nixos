@@ -100,32 +100,12 @@
     mkdir -p /etc/skel/Maildir/{new,cur,tmp}
   '';
 
-  networking.wireguard.interfaces.wg0 = {
-    ips = ["10.100.0.1/24"];
-    listenPort = 51820;
-    privateKeyFile = "/etc/wireguard/privatekey";
-    peers = [
-      {
-        publicKey = "0hrwVOfaPGTs2bfHoGrHroHGqG2aJiiu8JO9o5/K0xg=";
-        allowedIPs = ["10.100.0.2/32"];
-      }
-      {
-        publicKey = "62AFcf79kP5HyAoj1IRaj4fwnJTYvfK0hhTYjSMQg0w=";
-        allowedIPs = ["10.100.0.3/32"];
-      }
-    ];
+  myModules.wireguard = {
+    enable = true;
   };
 
   networking.firewall = {
     allowedTCPPorts = [443 80 25];
-    allowedUDPPorts = [51820];
-    extraCommands = ''
-      iptables -t nat -A PREROUTING -i enp1s0 -p tcp --dport 22 -j DNAT --to-destination 10.100.0.2:22
-    '';
-  };
-
-  boot.kernel.sysctl = {
-    "net.ipv4.ip_forward" = true;
   };
 
   system.stateVersion = "25.05";

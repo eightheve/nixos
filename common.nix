@@ -54,7 +54,7 @@
     pcscd.enable = true;
     udisks2.enable = true;
     postfix = {
-      enable = true;
+      enable = lib.mkDefault true;
       rootAlias = "sana";
       setSendmail = true;
     };

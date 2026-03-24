@@ -61,6 +61,8 @@ in {
         };
       };
 
+      systemd.services.navidrome.serviceConfig.BindReadOnlyPaths = lib.mkAfter ["/srv/data/audiobooks"];
+
       networking.firewall.allowedTCPPorts = [cfg.settings.localPort];
     })
 

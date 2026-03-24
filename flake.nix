@@ -5,6 +5,7 @@
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
+    agenix.url = "github:ryantm/agenix";
     nvf-nixpkgs.url = "github:NixOS/nixpkgs/c0b0e0fddf73fd517c3471e546c0df87a42d53f4";
     nvf.url = "github:notashelf/nvf";
     nvf.inputs.nixpkgs.follows = "nvf-nixpkgs";
@@ -23,6 +24,7 @@
     nixpkgs,
     nixpkgs-unstable,
     home-manager,
+    agenix,
     ...
   } @ inputs: let
     hostNames = builtins.attrNames (builtins.readDir ./hosts);
@@ -44,10 +46,8 @@
         modules = [
           ./modules/nixos
           ./users
-
-          ./common.nix
-
           ./hosts/${hostname}
+          agenix.nixosModules.default
           home-manager.nixosModules.home-manager
           {
             home-manager = {

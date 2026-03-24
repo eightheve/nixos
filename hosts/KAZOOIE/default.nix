@@ -1,5 +1,7 @@
 { pkgs,
+  pkgs-unstable,
   config,
+  lib,
   ...
 }: {
   imports = [
@@ -16,6 +18,15 @@
     hostName = "sys";
   };
   networking.domain = "doppel.moe";
+
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "claude-code"
+  ];
+
+  environment.systemPackages = [
+    pkgs.claude-code
+    pkgs-unstable.mcp-nixos
+  ];
 
   myModules.ssh = {
     enable = true;

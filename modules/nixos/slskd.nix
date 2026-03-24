@@ -141,10 +141,16 @@ in {
           };
 
           web = {
+            address = "*";
             https = {
               disabled = false;
               port = 5031;
             };
+          };
+          overlay.keyPath = "/var/lib/slskd/mesh-overlay.key";
+          mesh = {
+            enableOverlay = false;
+            enableDht = false;
           };
         };
       };

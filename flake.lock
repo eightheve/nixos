@@ -45,6 +45,21 @@
         "type": "github"
       }
     },
+    "fiction-repo": {
+      "locked": {
+        "lastModified": 1778762356,
+        "narHash": "sha256-oDjdpS+lgrnTgpInmp3n87Pbs8cxpzBxZvYYgXye3cg=",
+        "owner": "eightheve",
+        "repo": "fiction",
+        "rev": "c0516cfa478118a8d0a65e01512482eb882518f5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "eightheve",
+        "repo": "fiction",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "locked": {
         "lastModified": 1733328505,
@@ -369,17 +384,18 @@
     },
     "sana-website": {
       "inputs": {
+        "fiction-repo": "fiction-repo",
         "flake-utils": "flake-utils_2",
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1770216355,
-        "narHash": "sha256-rwiOOTF4x7OKohnzqpSNys8hfIvTJqqFJH053L533zg=",
+        "lastModified": 1779707632,
+        "narHash": "sha256-BA8uw6zr+xz9Sz2f7JuxxqRRCcFdEQgU8JS0J+ramaI=",
         "owner": "eightheve",
         "repo": "sana-website",
-        "rev": "320d3518ebd46fd807b26d7ccadae101def7d3cd",
+        "rev": "e9557a5110817d4ff2724d12a4c1a239fef1633b",
         "type": "github"
       },
       "original": {

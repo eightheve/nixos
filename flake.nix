@@ -45,6 +45,7 @@
           inherit pkgs-unstable;
         };
         modules = [
+          ./profiles
           ./modules/nixos
           ./users
           ./hosts/${hostname}

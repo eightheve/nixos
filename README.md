@@ -39,7 +39,4 @@ Currently there are two WMs offered, Hyprland and DWM. Both are offered as user-
 ## To-Do
 - [ ] Move Pi-hole to BANJO
 - [ ] Vintagestory server hosting for Wokestory group
-- [ ] Change GARDEN's name. I'm not happy with it, I just can't come up with anything better right now.
-- [ ] Buy a SIM card for GARDEN
-- [ ] Add options for Niri for using SATELLITE and GARDEN in touchscreen/pen mode. Gesture support would be nice
 - [ ] Move all rack servers (SAOTOME, HAMUKO, NYANKO, HIME, and another secret one that's missing RAM right now) to a closet. I bought a new DAS and the fans for all 4 machines running at once are getting too loud to sleep next to. 

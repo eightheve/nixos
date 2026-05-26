@@ -18,18 +18,7 @@
     };
   };
 
-  myUsers.sana = {
-    enable = true;
-    homeManager = {
-      enable = true;
-      beets.enable = true;
-    };
-  };
-
-  myUsers.cyanobacteria = {
-    enable = true;
-    useHomeManager = true;
-  };
+  site.profiles.server.enable = true;
 
   fileSystems."/srv/data" = {
     device = "/dev/md0";
@@ -50,16 +39,9 @@
       };
     };
 
-    wireguard = {
-      enable = true;
-    };
+    wireguard.enable = true;
 
     forgejoRunner.enable = true;
-
-    ssh = {
-      enable = true;
-      openFirewall = true;
-    };
 
     slskd = {
       enable = true;
@@ -92,6 +74,19 @@
         };
       };
     };
+  };
+
+  myUsers.sana = {
+    enable = true;
+    homeManager = {
+      enable = true;
+      beets.enable = true;
+    };
+  };
+
+  myUsers.cyanobacteria = {
+    enable = true;
+    useHomeManager = true;
   };
 
   system.stateVersion = "25.11";

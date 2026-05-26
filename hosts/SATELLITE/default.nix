@@ -1,7 +1,6 @@
 {pkgs, ...}: {
   imports = [
     ../../users/sana
-
     ./hardware.nix
   ];
 
@@ -17,28 +16,14 @@
   };
 
   boot.initrd.kernelModules = ["ideapad_laptop"];
-  hardware = {
-    bluetooth.enable = true;
-    sensor.iio.enable = true;
-    trackpoint = {
-      enable = true;
-    };
-  };
 
-  services.xserver = {
-    enable = true;
-    displayManager.startx.enable = true;
-    videoDrivers = ["modesetting"];
-  };
+  hardware.trackpoint.enable = true;
+
+  site.profiles.laptop.enable = true;
 
   myModules.networking = {
     enable = true;
     hostName = "SATELLITE";
-  };
-
-  myModules.ssh = {
-    enable = true;
-    openFirewall = true;
   };
 
   myUsers.sana = {

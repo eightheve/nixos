@@ -17,22 +17,9 @@
     };
   };
 
-  services.xserver = {
-    enable = true;
-    displayManager.startx.enable = true;
-    videoDrivers = ["nvidia"];
-  };
-
-  services.ollama.enable = true;
-  services.ollama.package = pkgs-unstable.ollama-cuda;
-  services.ollama.acceleration = "cuda";
+  site.profiles.desktop.enable = true;
 
   myModules = {
-    ssh = {
-      enable = true;
-      openFirewall = true;
-    };
-
     networking = {
       enable = true;
       hostName = "PASSENGER";
@@ -72,6 +59,13 @@
     };
   };
 
+  services = {
+    xserver.videoDrivers = ["nvidia"];
+    ollama.enable = true;
+    ollama.package = pkgs-unstable.ollama-cuda;
+    ollama.acceleration = "cuda";
+  };
+
   programs.steam.enable = true;
   nixpkgs.config.allowUnfree = true;
 
@@ -80,7 +74,6 @@
       open = true;
       nvidiaSettings = true;
     };
-    bluetooth.enable = true;
     opentabletdriver = {
       enable = true;
       daemon.enable = true;

@@ -1,7 +1,5 @@
 {
   imports = [
-    ./common
-
     ./graphics.nix
     ./forgejo-runner.nix
     ./matrix.nix

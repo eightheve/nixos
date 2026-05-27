@@ -2,6 +2,8 @@
   pkgs,
   lib,
   colorscheme ? null,
+  isLaptop ? false,
+  refreshRate ? 120,
 }:
 # Derive DWM colors from colorscheme
 let
@@ -43,12 +45,12 @@ let
     esac
   '';
 
-  brightnessCtrl = pkgs.writeShellScript "brightness-control" ''
+  brightnessCtrl = if isLaptop then pkgs.writeShellScript "brightness-control" ''
     case "$1" in
       1) ${pkgs.brightnessctl}/bin/brightnessctl set 10%+ -e -n 10%;;
       -1) ${pkgs.brightnessctl}/bin/brightnessctl set 10%- -e -n 10%;;
     esac
-  '';
+  '' else "";
 
   terminal = ["${pkgs.kitty}/bin/kitty"];
 
@@ -78,7 +80,7 @@ let
     static const int nmaster     = 1;
     static const int resizehints = 1;
     static const int lockfullscreen = 1;
-    static const int refreshrate = 120;
+    static const int refreshrate = ${toString refreshRate};
 
     static const Layout layouts[] = {
     	{ "[]=",      tile },
@@ -101,8 +103,10 @@ let
     static const char *up_vol[]   = { "${volumeCtrl}", "1", NULL};
     static const char *down_vol[] = { "${volumeCtrl}", "-1", NULL};
     static const char *mute_vol[] = { "${volumeCtrl}", "0", NULL};
+    ${lib.optionalString isLaptop ''
     static const char *brighter[] = { "${brightnessCtrl}", "1", NULL};
     static const char *dimmer[]   = { "${brightnessCtrl}", "-1", NULL};
+    ''}
     static const char *ss_all[]   = { "${screenshotAll}", NULL };
     static const char *ss_sel[]   = { "${screenshotSelection}", NULL };
 
@@ -142,8 +146,10 @@ let
     	{ 0, XF86XK_AudioMute,         spawn, {.v = mute_vol } },
     	{ 0, XF86XK_AudioLowerVolume,  spawn, {.v = down_vol } },
     	{ 0, XF86XK_AudioRaiseVolume,  spawn, {.v = up_vol } },
+    	${lib.optionalString isLaptop ''
     	{ 0, XF86XK_MonBrightnessDown, spawn, {.v = dimmer } },
     	{ 0, XF86XK_MonBrightnessUp,   spawn, {.v = brighter } },
+    	''}
     	{ 0,           XK_Print,       spawn, {.v = ss_all } },
     	{ ShiftMask,   XK_Print,       spawn, {.v = ss_sel } },
     	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },

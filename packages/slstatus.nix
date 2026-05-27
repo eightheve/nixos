@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  isLaptop ? false,
 }:
 let
   scripts = {
@@ -42,20 +43,25 @@ let
       '';
   };
 
-  modules = [
-    { function = "ipv4"; format = " NET: %s |"; argument = "wlp4s0"; }
+  baseModules = [
     { function = "run_command"; format = "%s"; argument = "${scripts.nowPlaying}"; }
     { function = "ram_perc"; format = " MEM: %s%% |"; argument = ""; }
     { function = "temp"; format = " TMP: %s°C |"; argument = "/sys/class/thermal/thermal_zone0/temp"; }
-    { function = "battery_perc"; format = " BAT: %s%% "; argument = "BAT0"; }
-    { function = "battery_state"; format = "%s |"; argument = "BAT0"; }
     { function = "keymap"; format = " %s |"; argument = ""; }
-    { function = "run_command"; format = " B: %s"; argument = "${scripts.currentBrightness}"; }
     { function = "run_command"; format = " V: %s"; argument = "${scripts.currentVolume}"; }
     { function = "run_command"; format = "%s |"; argument = "${scripts.muteStatus}"; }
     { function = "datetime"; format = " %s "; argument = "%a %d %b %T"; }
+  ];
+
+  laptopModules = [
+    { function = "ipv4"; format = " NET: %s |"; argument = "wlp4s0"; }
+    { function = "battery_perc"; format = " BAT: %s%% "; argument = "BAT0"; }
+    { function = "battery_state"; format = "%s |"; argument = "BAT0"; }
+    { function = "run_command"; format = " B: %s"; argument = "${scripts.currentBrightness}"; }
     { function = "run_command"; format = "%s"; argument = "${scripts.batteryAlert}"; }
   ];
+
+  modules = baseModules ++ lib.optionals isLaptop laptopModules;
 
   mkSlstatusConfig = moduleList: let
     mkModule = { function, format, argument }: ''{ ${function}, "${format}", "${argument}" }'';

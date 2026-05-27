@@ -30,21 +30,6 @@
         };
       };
     };
-
-    remoteBuilds.user = {
-      enable = true;
-      hosts = {
-        HAMUKO-NIXREMOTE = {
-          hostName = "192.168.1.20";
-        };
-        NYANKO-NIXREMOTE = {
-          hostName = "192.168.1.30";
-        };
-        HIME-NIXREMOTE = {
-          hostName = "192.168.1.40";
-        };
-      };
-    };
   };
 
   site.colorScheme = {
@@ -55,15 +40,13 @@
   site.users.sana = {
     enable = true;
     wallpaper = ../../assets/wallpapers/madoka.jpg;
+    additionalXinitrcCommands = [
+      "xrandr --output HDMI-0 --mode 1920x1200 --rotate left --rate 60 --pos 0x0"
+      "xrandr --output DP-2 --mode 1920x1080 --rate 144 --pos 1200x200"
+    ];
   };
 
-  services = {
-    xserver.videoDrivers = ["nvidia"];
-    ollama.enable = true;
-    ollama.package = pkgs-unstable.ollama-cuda;
-    ollama.acceleration = "cuda";
-  };
-
+  services.xserver.videoDrivers = ["nvidia"];
   programs.steam.enable = true;
   nixpkgs.config.allowUnfree = true;
 
@@ -92,7 +75,6 @@
       ckan
     ])
     ++ (with pkgs-unstable; [
-      ollama-cuda
       claude-code
     ]);
 

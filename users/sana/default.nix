@@ -179,8 +179,16 @@ in {
       };
 
       environment.systemPackages = [
-        (packages.dwm { inherit pkgs lib; colorscheme = if c.enable then c.colors else null; })
-        (packages.slstatus { inherit pkgs lib; })
+        (packages.dwm {
+          inherit pkgs lib;
+          colorscheme = if c.enable then c.colors else null;
+          isLaptop = config.site.profiles.laptop.enable;
+          refreshRate = if config.site.profiles.laptop.enable then 120 else 144;
+        })
+        (packages.slstatus {
+          inherit pkgs lib;
+          isLaptop = config.site.profiles.laptop.enable;
+        })
       ];
 
       environment.sessionVariables = {

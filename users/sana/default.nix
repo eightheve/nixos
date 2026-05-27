@@ -60,11 +60,6 @@
 
     bindkey -e
 
-    gpg-connect-agent /bye
-    if [ -z "$SSH_AUTH_SOCK" ]; then
-      export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-    fi
-
     alias vim="TERM=linux vim"
 
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)

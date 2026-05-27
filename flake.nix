@@ -42,7 +42,7 @@
         };
         modules = [
           ./profiles
-          ./modules/nixos
+          ./modules
           ./users
           ./hosts/${hostname}
           hjem.nixosModules.default

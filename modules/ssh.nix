@@ -6,7 +6,7 @@
   cfg = config.site.modules.ssh;
 in {
   options.site.modules.ssh = {
-    enable = lib.mkEnableOption "ssh";
+    enable = lib.mkEnableOption "OpenSSH server";
     openFirewall = lib.mkEnableOption "open ports in firewall";
 
     ports = lib.mkOption {

@@ -60,14 +60,14 @@
 
     bindkey -e
 
-    alias vim="TERM=linux vim"
-
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
     EDITOR=vim
   '';
 
   vimrc = ''
-    colorscheme wildcharm
+    autocmd VimEnter * call timer_start(8, {-> execute('set t_Co=16')})
+    autocmd VimEnter * call timer_start(9, {-> execute('colorscheme wildcharm')})
+    set mouse=a
     syntax on
     filetype plugin on
     filetype indent on

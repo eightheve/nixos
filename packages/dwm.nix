@@ -86,7 +86,13 @@ let
     	{ "[]=",      tile },
     	{ "><>",      NULL },
     	{ "[M]",      monocle },
+    	{ "TTT",      bstack },
+    	{ "===",      bstackhoriz },
     };
+    ${lib.optionalString (!isLaptop) ''
+    /* per-monitor default layout (NULL = use layouts[0]). index = monitor number */
+    static const Layout *monlayouts[] = { &layouts[0], &layouts[3] };
+    ''}
 
     #define MODKEY Mod4Mask
     #define TAGKEYS(KEY,TAG) \
@@ -126,6 +132,8 @@ let
     	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
     	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
     	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+    	{ MODKEY,                       XK_u,      setlayout,      {.v = &layouts[3]} },
+    	{ MODKEY,                       XK_o,      setlayout,      {.v = &layouts[4]} },
     	{ MODKEY,                       XK_space,  setlayout,      {0} },
     	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
     	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
@@ -169,8 +177,35 @@ let
     	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
     };
   '';
+
+  # Patch dwm.c: after assigning m->num in updategeom(), apply per-monitor
+  # default layout from the monlayouts[] config array (NULL = use default tile)
+  monlayoutPatch = pkgs.writeText "dwm-monlayouts.patch" ''
+    diff --git a/dwm.c b/dwm.c
+    --- a/dwm.c
+    +++ b/dwm.c
+    @@ -1907,6 +1907,11 @@
+     			{
+     				dirty = 1;
+     				m->num = i;
+    +				if (i < LENGTH(monlayouts) && monlayouts[i]) {
+    +					m->lt[0] = monlayouts[i];
+    +					m->lt[1] = &layouts[0];
+    +					strncpy(m->ltsymbol, monlayouts[i]->symbol, sizeof m->ltsymbol);
+    +				}
+     				m->mx = m->wx = unique[i].x_org;
+     				m->my = m->wy = unique[i].y_org;
+     				m->mw = m->ww = unique[i].width;
+  '';
 in
   pkgs.dwm.overrideAttrs (oldAttrs: {
+    patches = [
+      (pkgs.fetchpatch {
+        url = "https://dwm.suckless.org/patches/bottomstack/dwm-bottomstack-6.1.diff";
+        hash = "sha256-B38SP1NGBhve8gG1Ci2hjahZqePKdHOuXGGL+n450Jk=";
+      })
+      monlayoutPatch
+    ];
     postPatch = ''
       cp ${pkgs.writeText "config.h" configH} config.h
     '';

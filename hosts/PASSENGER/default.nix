@@ -37,12 +37,17 @@
     path = ../../colors/madoka.nix;
   };
 
+  hjem.users.sana.files = {
+    ".config/wallpaper-primary.jpg".source = ../../assets/wallpapers/madoka.jpg;
+    ".config/wallpaper-secondary.jpg".source = ../../assets/wallpapers/madoka-solid.jpg;
+  };
+
   site.users.sana = {
     enable = true;
-    wallpaper = ../../assets/wallpapers/madoka.jpg;
     additionalXinitrcCommands = [
       "xrandr --output HDMI-0 --mode 1920x1200 --rotate left --rate 60 --pos 0x0"
-      "xrandr --output DP-2 --mode 1920x1080 --rate 144 --pos 1200x200"
+      "xrandr --output DP-2 --mode 1920x1080 --rate 144 --pos 1200x200 --primary"
+      "feh --bg-fill ~/.config/wallpaper-primary.jpg ~/.config/wallpaper-secondary.jpg &"
     ];
   };
 

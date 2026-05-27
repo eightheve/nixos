@@ -116,11 +116,6 @@ in {
       description = "Whether to enable and manage the 'sana' user";
     };
 
-    wallpaper = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
-    };
-
     additionalXinitrcCommands = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [];

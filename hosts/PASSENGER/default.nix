@@ -19,7 +19,7 @@
 
   site.profiles.desktop.enable = true;
 
-  myModules = {
+  site.modules = {
     networking = {
       enable = true;
       hostName = "PASSENGER";
@@ -52,7 +52,7 @@
     path = ../../colors/madoka.nix;
   };
 
-  myUsers.sana = {
+  site.users.sana = {
     enable = true;
     wallpaper = ../../assets/wallpapers/madoka.jpg;
   };

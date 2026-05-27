@@ -4,14 +4,14 @@
   pkgs,
   ...
 }: let
-  cfg = config.myModules.forgejoRunner;
+  cfg = config.site.modules.forgejoRunner;
 
   pkgs-glibc239 = import (builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/2c36ece932b8c0040893990da00034e46c33e3e7.tar.gz";
     sha256 = "sha256-XvKKl01RaLL8k/3CXS1NazdsxZ7B+5hIY6j9JNqdl7c=";
   }) {system = "x86_64-linux";};
 in {
-  options.myModules.forgejoRunner = {
+  options.site.modules.forgejoRunner = {
     enable = lib.mkEnableOption "forgejo runner for ampersand sys";
   };
 

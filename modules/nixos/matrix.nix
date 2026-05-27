@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  cfg = config.myModules.matrix;
+  cfg = config.site.modules.matrix;
 
   serverConfig."m.server" = "matrix.doppel.moe:8448";
   clientConfig."m.homeserver".base_url = "https://matrix.doppel.moe:8448";
@@ -23,7 +23,7 @@
     return 200 '${builtins.toJSON data}';
   '';
 in {
-  options.myModules.matrix = {
+  options.site.modules.matrix = {
     synapse = {
       enable = lib.mkEnableOption "synapse web server";
     };

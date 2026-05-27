@@ -4,9 +4,9 @@
   pkgs,
   ...
 }: let
-  cfg = config.myModules.slskd;
+  cfg = config.site.modules.slskd;
 in {
-  options.myModules.slskd = {
+  options.site.modules.slskd = {
     enable = lib.mkEnableOption "web based soulseek client";
 
     nginx = {

@@ -15,7 +15,7 @@
 
   site.profiles.server.enable = true;
 
-  myModules.networking = {
+  site.modules.networking = {
     enable = true;
     hostName = "sys";
   };
@@ -30,9 +30,9 @@
     pkgs-unstable.mcp-nixos
   ];
 
-  myModules.ssh.ports = [2222];
+  site.modules.ssh.ports = [2222];
 
-  myModules = {
+  site.modules = {
     navidrome.nginx = {
       enable = true;
       upstream = "http://10.100.0.2:4533";

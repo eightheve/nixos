@@ -1,7 +1,6 @@
 {
   imports = [
     ./colorscheme.nix
-    ./graphics.nix
     ./forgejo-runner.nix
     ./matrix.nix
     ./navidrome.nix

@@ -3,9 +3,9 @@
   lib,
   ...
 }: let
-  cfg = config.myModules.networking;
+  cfg = config.site.modules.networking;
 in {
-  options.myModules.networking = {
+  options.site.modules.networking = {
     enable = lib.mkEnableOption "networking";
 
     hostName = lib.mkOption {
@@ -21,6 +21,12 @@ in {
         default = {};
         description = "Map of interface names to static IP addresses";
         example = {eno1 = "192.168.1.1";};
+      };
+
+      defaultGateway = lib.mkOption {
+        type = lib.types.str;
+        default = "192.168.1.1";
+        description = "Default gateway address for static IP configuration";
       };
     };
   };
@@ -42,7 +48,7 @@ in {
         })
         cfg.staticAddresses.interfaces
       );
-      defaultGateway = lib.mkIf cfg.staticAddresses.enable "192.168.1.1";
+      defaultGateway = lib.mkIf cfg.staticAddresses.enable cfg.staticAddresses.defaultGateway;
       nameservers = ["8.8.8.8" "1.1.1.1"];
     };
 

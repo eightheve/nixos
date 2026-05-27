@@ -3,9 +3,9 @@
   lib,
   ...
 }: let
-  cfg = config.myModules.navidrome;
+  cfg = config.site.modules.navidrome;
 in {
-  options.myModules.navidrome = {
+  options.site.modules.navidrome = {
     enable = lib.mkEnableOption "navidrome music server";
 
     nginx = {

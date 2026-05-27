@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  cfg = config.myUsers.sana;
+  cfg = config.site.users.sana;
   packages = import ../../packages;
 
   c = config.site.colorScheme;
@@ -114,7 +114,7 @@
     autocmd FileType markdown call ToggleWrap()
   '';
 in {
-  options.myUsers.sana = {
+  options.site.users.sana = {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = true;

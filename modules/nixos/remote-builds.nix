@@ -3,7 +3,7 @@
   lib,
   ...
 }: let
-  cfg = config.myModules.remoteBuilds;
+  cfg = config.site.modules.remoteBuilds;
 
   hostModule = lib.types.submodule {
     options = {
@@ -56,7 +56,7 @@
     protocol = "ssh-ng";
   };
 in {
-  options.myModules.remoteBuilds = {
+  options.site.modules.remoteBuilds = {
     builder = {
       enable = lib.mkEnableOption "be a remote builder";
 

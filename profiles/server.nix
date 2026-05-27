@@ -15,7 +15,7 @@ in {
       defaults.email = "sana@doppel.moe";
     };
 
-    myModules.ssh = {
+    site.modules.ssh = {
       enable = true;
       openFirewall = true;
     };

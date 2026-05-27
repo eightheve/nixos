@@ -3,9 +3,9 @@
   lib,
   ...
 }: let
-  cfg = config.myModules.ssh;
+  cfg = config.site.modules.ssh;
 in {
-  options.myModules.ssh = {
+  options.site.modules.ssh = {
     enable = lib.mkEnableOption "ssh";
     openFirewall = lib.mkEnableOption "open ports in firewall";
 

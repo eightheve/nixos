@@ -3,12 +3,13 @@
   lib,
   ...
 }: let
-  cfg = config.myModules.wireguard;
-  wireguardDefs = import ../../wireguard-defs.nix;
+  cfg = config.site.modules.wireguard;
+  wireguardDefs = import ./wireguard-defs.nix;
   currentHost = wireguardDefs.hosts.${config.networking.hostName} or null;
   allPeers = lib.filterAttrs (n: v: n != config.networking.hostName) wireguardDefs.hosts;
+  serverPeer = lib.findSingle (v: v.isServer) null null (lib.attrValues wireguardDefs.hosts);
 in {
-  options.myModules.wireguard = {
+  options.site.modules.wireguard = {
     enable = lib.mkEnableOption "wireguard VPN";
 
     privateKeyFile = lib.mkOption {
@@ -45,7 +46,7 @@ in {
     // lib.optionalAttrs (!currentHost.isServer) {
       peers = [
         {
-          publicKey = wireguardDefs.hosts.KAZOOIE.publicKey;
+          publicKey = serverPeer.publicKey;
           allowedIPs = ["${wireguardDefs.network}"];
           endpoint = cfg.serverEndpoint;
           persistentKeepalive = cfg.persistentKeepalive;

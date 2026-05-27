@@ -27,7 +27,7 @@
 
   networking.firewall.enable = true;
 
-  myModules = {
+  site.modules = {
     networking = {
       enable = true;
       hostName = "SAOTOME";
@@ -76,7 +76,7 @@
     };
   };
 
-  myUsers.sana.enable = true;
+  site.users.sana.enable = true;
 
   system.stateVersion = "25.11";
 }

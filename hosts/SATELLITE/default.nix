@@ -21,7 +21,7 @@
 
   site.profiles.laptop.enable = true;
 
-  myModules.networking = {
+  site.modules.networking = {
     enable = true;
     hostName = "SATELLITE";
   };
@@ -31,7 +31,7 @@
     path = ../../colors/rin.nix;
   };
 
-  myUsers.sana = {
+  site.users.sana = {
     enable = true;
     wallpaper = ../../assets/wallpapers/rin.jpg;
   };

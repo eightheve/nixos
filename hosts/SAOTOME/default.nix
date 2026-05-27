@@ -76,18 +76,7 @@
     };
   };
 
-  myUsers.sana = {
-    enable = true;
-    homeManager = {
-      enable = true;
-      beets.enable = true;
-    };
-  };
-
-  myUsers.cyanobacteria = {
-    enable = true;
-    useHomeManager = true;
-  };
+  myUsers.sana.enable = true;
 
   system.stateVersion = "25.11";
 }

@@ -46,13 +46,6 @@
     wireguard.enable = true;
   };
 
-  security.acme = {
-    certs."sys.doppel.moe" = {
-      email = "sana@doppel.moe";
-      webroot = "sys.doppel.moe";
-    };
-  };
-
   networking.firewall = {
     allowedTCPPorts = [443 80];
   };

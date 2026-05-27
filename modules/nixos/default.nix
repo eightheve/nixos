@@ -1,5 +1,6 @@
 {
   imports = [
+    ./colorscheme.nix
     ./graphics.nix
     ./forgejo-runner.nix
     ./matrix.nix
@@ -9,7 +10,7 @@
     ./sana-website.nix
     ./slskd.nix
     ./ssh.nix
-    ./vs-overlay.nix
     ./wireguard.nix
+    ./zsh.nix
   ];
 }

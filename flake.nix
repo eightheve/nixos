@@ -2,15 +2,11 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    hjem.url = "github:feel-co/hjem";
+    hjem.inputs.nixpkgs.follows = "nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
     agenix.url = "github:ryantm/agenix";
     agenix.inputs.nixpkgs.follows = "nixpkgs";
-    nvf-nixpkgs.url = "github:NixOS/nixpkgs/c0b0e0fddf73fd517c3471e546c0df87a42d53f4";
-    nvf.url = "github:notashelf/nvf";
-    nvf.inputs.nixpkgs.follows = "nvf-nixpkgs";
-    nixcord.url = "github:kaylorben/nixcord";
     sana-website = {
       url = "github:eightheve/sana-website";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -24,7 +20,7 @@
   outputs = {
     nixpkgs,
     nixpkgs-unstable,
-    home-manager,
+    hjem,
     agenix,
     ...
   } @ inputs: let
@@ -49,17 +45,8 @@
           ./modules/nixos
           ./users
           ./hosts/${hostname}
+          hjem.nixosModules.default
           agenix.nixosModules.default
-          home-manager.nixosModules.home-manager
-          {
-            home-manager = {
-              backupFileExtension = "backup";
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              extraSpecialArgs = {inherit inputs;};
-              sharedModules = [./modules/home];
-            };
-          }
         ];
       };
   in {

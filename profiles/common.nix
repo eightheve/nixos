@@ -103,6 +103,8 @@ in {
       };
     };
 
+    site.modules.zsh.enable = true;
+
     documentation.man.generateCaches = lib.mkForce false;
   };
 }

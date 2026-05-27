@@ -47,16 +47,14 @@
     };
   };
 
+  site.colorScheme = {
+    enable = true;
+    path = ../../colors/madoka.nix;
+  };
+
   myUsers.sana = {
     enable = true;
-    homeManager = {
-      enable = true;
-      windowManagers = ["hyprland"];
-      colorScheme = ../../colors/madoka.nix;
-      wallpaper = ../../assets/wallpapers/madoka.jpg;
-      enableDiscord = true;
-      enableVintageStory = true;
-    };
+    wallpaper = ../../assets/wallpapers/madoka.jpg;
   };
 
   services = {

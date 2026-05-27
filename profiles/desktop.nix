@@ -6,15 +6,10 @@
   cfg = config.site.profiles.desktop;
 in {
   options.site.profiles.desktop = {
-    enable = lib.mkEnableOption "desktop profile (workstation GUI settings)";
+    enable = lib.mkEnableOption "desktop profile (workstation-specific settings)";
   };
 
   config = lib.mkIf cfg.enable {
-    hardware.bluetooth.enable = true;
-
-    services.xserver = {
-      enable = true;
-      displayManager.startx.enable = true;
-    };
+    site.profiles.graphics.enable = true;
   };
 }

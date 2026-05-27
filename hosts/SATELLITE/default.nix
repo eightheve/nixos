@@ -26,16 +26,14 @@
     hostName = "SATELLITE";
   };
 
+  site.colorScheme = {
+    enable = true;
+    path = ../../colors/rin.nix;
+  };
+
   myUsers.sana = {
     enable = true;
-    homeManager = {
-      enable = true;
-      enableLaptopSupport = true;
-      windowManagers = ["dwm"];
-      colorScheme = ../../colors/rin.nix;
-      wallpaper = ../../assets/wallpapers/rin.jpg;
-      enableDiscord = true;
-    };
+    wallpaper = ../../assets/wallpapers/rin.jpg;
   };
 
   networking = {

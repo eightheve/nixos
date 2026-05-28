@@ -34,6 +34,7 @@
       enable = true;
       openFirewall = true;
     };
+    wireguard.enable = true;
   };
 
   site.colorScheme = {

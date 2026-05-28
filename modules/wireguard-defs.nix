@@ -1,5 +1,5 @@
 {
-  network = "10.100.0.0/24";
+  network = "10.0.0.0/8";
 
   hosts = {
     sys = {

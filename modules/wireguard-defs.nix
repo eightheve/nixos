@@ -15,9 +15,15 @@
       isServer = false;
     };
 
+    PASSENGER = {
+      ip = "10.100.1.1";
+      publicKey = "rqWyPEf6SEPp1QJ7lxVqq920pIo6UFddIbwZOO5DR3I=";
+      isServer = false;
+    };
+
     # Non-nix
     FORTRESS = {
-      ip = "10.100.0.3";
+      ip = "10.100.1.2";
       publicKey = "62AFcf79kP5HyAoj1IRaj4fwnJTYvfK0hhTYjSMQg0w=";
       isServer = false;
     };

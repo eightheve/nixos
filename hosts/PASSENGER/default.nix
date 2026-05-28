@@ -30,6 +30,10 @@
         };
       };
     };
+    ssh = {
+      enable = true;
+      openFirewall = true;
+    };
   };
 
   site.colorScheme = {

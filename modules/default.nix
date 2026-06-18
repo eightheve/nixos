@@ -5,11 +5,11 @@
     ./matrix.nix
     ./navidrome.nix
     ./networking.nix
+    ./network-topology.nix
     ./remote-builds.nix
     ./sana-website.nix
     ./slskd.nix
     ./ssh.nix
-    ./wireguard.nix
     ./zsh.nix
   ];
 }

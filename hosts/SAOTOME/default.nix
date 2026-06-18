@@ -31,15 +31,7 @@
     networking = {
       enable = true;
       hostName = "SAOTOME";
-      staticAddresses = {
-        enable = true;
-        interfaces = {
-          eno3 = "192.168.1.10";
-        };
-      };
     };
-
-    wireguard.enable = true;
 
     forgejoRunner.enable = true;
 

@@ -23,18 +23,11 @@
     networking = {
       enable = true;
       hostName = "PASSENGER";
-      staticAddresses = {
-        enable = true;
-        interfaces = {
-          enp12s0 = "192.168.1.5";
-        };
-      };
     };
     ssh = {
       enable = true;
       openFirewall = true;
     };
-    wireguard.enable = true;
   };
 
   site.colorScheme = {

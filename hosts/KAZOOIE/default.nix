@@ -17,7 +17,7 @@
 
   site.modules.networking = {
     enable = true;
-    hostName = "sys";
+    hostName = "KAZOOIE";
   };
   networking.domain = "doppel.moe";
 
@@ -43,7 +43,6 @@
     };
     sanaWebsite.enable = true;
     matrix.synapse.enable = true;
-    wireguard.enable = true;
   };
 
   site.users.benjamin.enable = true;

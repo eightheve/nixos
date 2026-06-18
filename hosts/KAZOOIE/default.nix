@@ -46,6 +46,8 @@
     wireguard.enable = true;
   };
 
+  site.users.benjamin.enable = true;
+
   networking.firewall = {
     allowedTCPPorts = [443 80];
   };

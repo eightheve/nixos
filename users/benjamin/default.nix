@@ -43,11 +43,13 @@ in {
     systemd.tmpfiles.rules = [
       "d /srv/benjamin/www 0755 benjamin users - -"
     ];
+
+    networking.firewall.allowedTCPPorts = [ 3030 ];
   
     services.nginx = {
       enable = true;
       virtualHosts.localhost = {
-        listen = [{addr = "127.0.0.1"; port = 3030;}];
+        listen = [{addr = "0.0.0.0"; port = 3030;}];
         root = "/srv/benjamin/www";
         locations."/" = {
           tryFiles = "$uri $uri/ =404";

@@ -62,6 +62,10 @@
 
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
     EDITOR=vim
+
+    if [ -n "$IN_NIX_SHELL" ]; then
+      PROMPT="%{$fg[cyan]%}(nix)%{$reset_color%} $PROMPT"
+    fi
   '';
 
   vimrc = ''

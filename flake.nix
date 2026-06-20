@@ -11,6 +11,7 @@
       url = "github:eightheve/sana-website";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    fathom.url = "github:eightheve/fathom";
     vintagestory-nix = {
       url = "github:PierreBorine/vintagestory-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -22,6 +23,7 @@
     nixpkgs-unstable,
     hjem,
     agenix,
+    fathom,
     ...
   } @ inputs: let
     hostNames = builtins.attrNames (builtins.readDir ./hosts);
@@ -47,6 +49,7 @@
           ./hosts/${hostname}
           hjem.nixosModules.default
           agenix.nixosModules.default
+          fathom.nixosModules.default
         ];
       };
   in {

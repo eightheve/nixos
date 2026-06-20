@@ -21,6 +21,8 @@
   };
   networking.domain = "doppel.moe";
 
+  services.fathom-releases.enable = true;
+
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "claude-code"
   ];

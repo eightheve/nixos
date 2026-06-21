@@ -38,7 +38,7 @@
     slskd = {
       enable = true;
       settings = {
-        useSlskdn = true;
+        useSlskdn = false;
         shareFolders = ["[RAID]/srv/data/music"];
         environmentFilePath = "/var/lib/slskd/.env";
       };

@@ -70,5 +70,16 @@
 
   site.users.sana.enable = true;
 
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      ovmf.enable = true;
+    };
+  };
+
+  users.users.sana.extraGroups = [ "libvirtd" ];
+  systemd.tmpfiles.rules = [ "d /var/lib/wayfinder-vm 0755 wayfinder wayfinder -" ];
+
   system.stateVersion = "25.11";
 }

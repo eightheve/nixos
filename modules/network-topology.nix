@@ -194,6 +194,19 @@
       };
     };
 
+    MACSTUDIO = {
+      managed = false;
+      wireguard = {
+        publicKey = "ikqycPKKtu7yo+3PQEs6hZGvYH+OzrnYWQauLsRYTnY=";
+        interfaces = {
+          wg0 = {
+            ip = "10.150.0.10";
+            network = "10.0.0.0/8";
+          };
+        };
+      };
+    };
+
     HP1 = {
       networkManager = false;
       interfaces = {

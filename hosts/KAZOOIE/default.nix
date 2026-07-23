@@ -59,6 +59,7 @@
     };
     sanaWebsite.enable = true;
     matrix.synapse.enable = true;
+    maddy.enable = true;
   };
 
   site.users.benjamin.enable = true;

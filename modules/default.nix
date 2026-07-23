@@ -2,6 +2,7 @@
   imports = [
     ./colorscheme.nix
     ./forgejo-runner.nix
+    ./maddy.nix
     ./matrix.nix
     ./navidrome.nix
     ./networking.nix

@@ -80,15 +80,6 @@
 
   site.users.sana.enable = true;
 
-  virtualisation.libvirtd = {
-    enable = true;
-    qemu = {
-      package = pkgs.qemu_kvm;
-      ovmf.enable = true;
-    };
-  };
-
-
   networking.firewall.allowedTCPPorts = [ 80 42420 ];
 
   users.users.sana.extraGroups = [ "libvirtd" ];

@@ -181,6 +181,19 @@
       };
     };
 
+    BAILEY = {
+      managed = false; 
+      wireguard = {
+        publicKey = "evV0AURoi8kMRTXtqA7Lo9Noqg9/GrrlEp8zrGpzO1k=";
+        interfaces = {
+          wg0 = {
+            ip = "10.100.1.10";
+            network = "10.0.0.0/8";
+          };
+        };
+      };
+    };
+
     HP1 = {
       networkManager = false;
       interfaces = {

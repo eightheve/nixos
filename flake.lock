@@ -225,6 +225,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1784356753,
+        "narHash": "sha256-12KrbMiWLcf8m7pCvAtZh1ZrgF85ZXDXvfR/fWTKy84=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "61b7c44c4073f0b827768aff0049561b5110ea5a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -233,7 +249,8 @@
         "hjem": "hjem",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "sana-website": "sana-website"
+        "sana-website": "sana-website",
+        "vintagestory-server": "vintagestory-server"
       }
     },
     "sana-website": {
@@ -300,6 +317,24 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "vintagestory-server": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1784654782,
+        "narHash": "sha256-PgToGcnxBzVkuL6MxtBG5tGIMO/ilrR+R0Q0a/Wa+D0=",
+        "owner": "eightheve",
+        "repo": "vs-nix-bot",
+        "rev": "ec12a32a219927c6b51955de08c1b094c423ae29",
+        "type": "github"
+      },
+      "original": {
+        "owner": "eightheve",
+        "repo": "vs-nix-bot",
         "type": "github"
       }
     }

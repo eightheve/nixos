@@ -74,6 +74,8 @@
         };
       };
     };
+
+    wokeforum.server.enable = true;
   };
 
   site.users.sana.enable = true;

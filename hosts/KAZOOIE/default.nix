@@ -60,6 +60,7 @@
     sanaWebsite.enable = true;
     matrix.synapse.enable = true;
     maddy.enable = true;
+    wokeforum.client.enable = true;
   };
 
   site.users.benjamin.enable = true;

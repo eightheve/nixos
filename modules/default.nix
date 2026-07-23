@@ -11,6 +11,7 @@
     ./sana-website.nix
     ./slskd.nix
     ./ssh.nix
+    ./wokeforum.nix
     ./zsh.nix
   ];
 }

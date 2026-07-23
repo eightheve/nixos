@@ -1,7 +1,12 @@
-{...}: {
+{
+  pkgs,
+  ...
+}: {
   imports = [
     ./hardware.nix
   ];
+
+  nixpkgs.config.allowUnfree = true;
 
   boot = {
     loader.grub = {
@@ -25,6 +30,9 @@
     fsType = "ext4";
   };
 
+  services.vintagestory.enable = true;
+  networking.firewall.allowedUDPPorts = [ 42420 ];
+
   networking.firewall.enable = true;
 
   site.modules = {
@@ -38,7 +46,7 @@
     slskd = {
       enable = true;
       settings = {
-        useSlskdn = true;
+        useSlskdn = false;
         shareFolders = ["[RAID]/srv/data/music"];
         environmentFilePath = "/var/lib/slskd/.env";
       };
@@ -77,6 +85,9 @@
       ovmf.enable = true;
     };
   };
+
+
+  networking.firewall.allowedTCPPorts = [ 80 42420 ];
 
   users.users.sana.extraGroups = [ "libvirtd" ];
   systemd.tmpfiles.rules = [ "d /var/lib/wayfinder-vm 0755 wayfinder wayfinder -" ];

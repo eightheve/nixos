@@ -12,6 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     fathom.url = "github:eightheve/fathom";
+    vintagestory-server.url = "github:eightheve/vs-nix-bot";
   };
 
   outputs = {
@@ -20,6 +21,7 @@
     hjem,
     agenix,
     fathom,
+    vintagestory-server,
     ...
   } @ inputs: let
     hostNames = builtins.attrNames (builtins.readDir ./hosts);
@@ -46,6 +48,7 @@
           hjem.nixosModules.default
           agenix.nixosModules.default
           fathom.nixosModules.default
+          vintagestory-server.nixosModules.default
         ];
       };
   in {

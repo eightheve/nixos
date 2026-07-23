@@ -206,50 +206,5 @@
         };
       };
     };
-
-    HP1 = {
-      networkManager = false;
-      interfaces = {
-        eno1.dhcp = true;
-        eno2.address = "10.200.0.1";
-        eno3.address = "10.200.1.1";
-      };
-      wireguard = {
-        publicKey = "PLACEHOLDER";
-        interfaces = {
-          wg0 = {
-            ip = "10.100.2.1";
-            network = "10.0.0.0/8";
-            routedNetworks = ["10.200.0.0/16"];
-          };
-        };
-      };
-      routing = {
-        nat = {
-          "10.200.0.0/24".outInterface = "eno1";
-          "10.200.1.0/24".outInterface = "eno1";
-        };
-      };
-    };
-
-    HP2 = {
-      networkManager = false;
-      interfaces = {
-        eno1 = {
-          address = "10.200.0.2";
-          gateway = "10.200.0.1";
-        };
-      };
-    };
-
-    HP3 = {
-      networkManager = false;
-      interfaces = {
-        eno1 = {
-          address = "10.200.1.2";
-          gateway = "10.200.1.1";
-        };
-      };
-    };
   };
 }

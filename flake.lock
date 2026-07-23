@@ -65,11 +65,11 @@
     },
     "fiction-repo": {
       "locked": {
-        "lastModified": 1778762356,
-        "narHash": "sha256-oDjdpS+lgrnTgpInmp3n87Pbs8cxpzBxZvYYgXye3cg=",
+        "lastModified": 1784199218,
+        "narHash": "sha256-Rs/qOmhLnUoDrwuDwIo9KW5FV0Fa0dJxKQJc9Y8dzPs=",
         "owner": "eightheve",
         "repo": "fiction",
-        "rev": "c0516cfa478118a8d0a65e01512482eb882518f5",
+        "rev": "b5bd40086a875f62ee3e22879c65060b3a309c8b",
         "type": "github"
       },
       "original": {
@@ -233,8 +233,7 @@
         "hjem": "hjem",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "sana-website": "sana-website",
-        "vintagestory-nix": "vintagestory-nix"
+        "sana-website": "sana-website"
       }
     },
     "sana-website": {
@@ -246,11 +245,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781801829,
-        "narHash": "sha256-Y5dWrt6XiET+eUPGWxaZLo+FVXXmYnaEavXJHYn6VyM=",
+        "lastModified": 1784199457,
+        "narHash": "sha256-SzCnYkRqEE1CZRul/PRcng+QLYrGDA5DOO/a4KAC9PI=",
         "owner": "eightheve",
         "repo": "sana-website",
-        "rev": "605f5b9b58618fcd24130f609ed2558e4532250e",
+        "rev": "d26390f26ac38ad1b66c3fe05504074aad0a6ba9",
         "type": "github"
       },
       "original": {
@@ -301,26 +300,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "vintagestory-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1779529492,
-        "narHash": "sha256-dokKyPaF9J+GMV9SV6CRW6NVc9n5/K39WptmI0nd4zU=",
-        "owner": "PierreBorine",
-        "repo": "vintagestory-nix",
-        "rev": "07626b3992e356dca17dd55bb56a2a3adc44b3d8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "PierreBorine",
-        "repo": "vintagestory-nix",
         "type": "github"
       }
     }

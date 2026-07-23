@@ -1,7 +1,12 @@
-{...}: {
+{
+  pkgs,
+  ...
+}: {
   imports = [
     ./hardware.nix
   ];
+
+  nixpkgs.config.allowUnfree = true;
 
   boot = {
     loader.grub = {
@@ -24,6 +29,9 @@
     device = "/dev/md0";
     fsType = "ext4";
   };
+
+  services.vintagestory.enable = true;
+  networking.firewall.allowedUDPPorts = [ 42420 ];
 
   networking.firewall.enable = true;
 
@@ -77,6 +85,9 @@
       ovmf.enable = true;
     };
   };
+
+
+  networking.firewall.allowedTCPPorts = [ 80 42420 ];
 
   users.users.sana.extraGroups = [ "libvirtd" ];
   systemd.tmpfiles.rules = [ "d /var/lib/wayfinder-vm 0755 wayfinder wayfinder -" ];

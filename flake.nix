@@ -16,6 +16,7 @@
       url = "github:PierreBorine/vintagestory-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    vintagestory-server.url = "path:/home/sana/git/vintagestory";
   };
 
   outputs = {
@@ -24,6 +25,7 @@
     hjem,
     agenix,
     fathom,
+    vintagestory-server,
     ...
   } @ inputs: let
     hostNames = builtins.attrNames (builtins.readDir ./hosts);
@@ -50,6 +52,7 @@
           hjem.nixosModules.default
           agenix.nixosModules.default
           fathom.nixosModules.default
+          vintagestory-server.nixosModules.default
         ];
       };
   in {

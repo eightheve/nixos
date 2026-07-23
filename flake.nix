@@ -12,10 +12,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     fathom.url = "github:eightheve/fathom";
-    vintagestory-nix = {
-      url = "github:PierreBorine/vintagestory-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = {

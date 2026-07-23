@@ -59,13 +59,6 @@ in {
     };
 
     environment = {
-      shellInit = ''
-        gpg-connect-agent /bye
-        if [ -z "$SSH_AUTH_SOCK" ]; then
-          export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
-        fi
-      '';
-
       systemPackages = with pkgs; [
         inputs.agenix.packages.x86_64-linux.default
 

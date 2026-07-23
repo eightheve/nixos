@@ -66,6 +66,8 @@
     if [ -n "$IN_NIX_SHELL" ]; then
       PROMPT="%{$fg[cyan]%}(nix)%{$reset_color%} $PROMPT"
     fi
+
+    alias ssh="gpg-connect-agent updatestartuptty /bye >/dev/null && ssh"
   '';
 
   vimrc = ''

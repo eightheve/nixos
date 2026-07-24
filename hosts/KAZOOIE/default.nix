@@ -61,6 +61,7 @@
     matrix.synapse.enable = true;
     maddy.enable = true;
     wokeforum.client.enable = true;
+    wokeforum.forum.enable = true;
   };
 
   site.users.benjamin.enable = true;

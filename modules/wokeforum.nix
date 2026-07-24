@@ -198,6 +198,8 @@ in {
             rsync -rc --no-perms \
               --exclude=Settings.php \
               --exclude=Settings_bak.php \
+              --exclude=install.php \
+              --exclude=upgrade.php \
               --exclude=db_last_error.php \
               --exclude='agreement*.txt' \
               --exclude=cache/ \
@@ -226,6 +228,12 @@ in {
             client_max_body_size 25M;
           '';
           locations = {
+            "/install.php" = {
+              return = 404;
+            };
+            "/upgrade.php" = {
+              return = 404;
+            };
             "/" = {
               tryFiles = "$uri $uri/ /index.php?$args";
             };
@@ -237,12 +245,6 @@ in {
               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
               fastcgi_param PATH_INFO $fastcgi_path_info;
             '';
-            "/install.php" = {
-              return = 404;
-            };
-            "/upgrade.php" = {
-              return = 404;
-            };
           };
         };
       };

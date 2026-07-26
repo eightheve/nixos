@@ -51,8 +51,9 @@
     enable = true;
     additionalXinitrcCommands = [
       "xrandr --output HDMI-0 --mode 1920x1200 --rotate left --rate 60 --pos 0x0"
-      "xrandr --output DP-2 --mode 1920x1080 --rate 144 --pos 1200x200 --primary"
-      "feh --bg-fill ~/.config/wallpaper-primary.jpg ~/.config/wallpaper-secondary.jpg &"
+      "xrandr --output DP-4 --mode 1920x1080 --rate 144 --pos 1200x200 --primary"
+      "xrandr --output DP-2 --mode 1920x1200 --rotate right --rate 60 --pos 3120x0"
+      "feh --bg-fill ~/.config/wallpaper-primary.jpg ~/.config/wallpaper-secondary.jpg ~/.config/wallpaper-secondary.jpg &"
     ];
   };
 
@@ -70,6 +71,8 @@
       daemon.enable = true;
     };
   };
+ 
+  services.jack.jackd.extraOptions = [ "-d" "alsa" "-d" "hw:1" ];
 
   environment.systemPackages =
     (with pkgs; [
@@ -80,9 +83,12 @@
       lm_sensors
       pulseaudio
 
+      inkscape
+
       gamescope
       prismlauncher
       ckan
+      renoise
     ])
     ++ (with pkgs-unstable; [
       claude-code

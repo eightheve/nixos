@@ -26,6 +26,11 @@ in {
       pavucontrol
     ];
 
+    nixpkgs.config.permittedInsecurePackages = [
+      "librewolf-152.0.2-1"
+      "librewolf-unwrapped-152.0.2-1"
+    ];
+
     fonts = {
       packages = with pkgs; [
         noto-fonts
@@ -72,15 +77,13 @@ in {
       };
     };
 
-    services = {
-      pulseaudio.enable = false;
-      pipewire = {
-        enable = true;
-        alsa.enable = true;
-        alsa.support32Bit = true;
-        pulse.enable = true;
-      };
+    services.jack = {
+      jackd.enable = true;
+      alsa.enable = false;
+      loopback.enable = true;
     };
+    services.pipewire.enable = false;
+    services.pulseaudio.enable = true;
     security.rtkit.enable = true;
   };
 }

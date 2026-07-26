@@ -45,13 +45,31 @@
         "type": "github"
       }
     },
+    "fathom": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1781886214,
+        "narHash": "sha256-gicGNC4fZGho2FghprgqTcW88AgSXb7I7dVw7rqj32w=",
+        "owner": "eightheve",
+        "repo": "fathom",
+        "rev": "0ca8db38754d19fb3bd9eb4bb472c9dd61dc2e19",
+        "type": "github"
+      },
+      "original": {
+        "owner": "eightheve",
+        "repo": "fathom",
+        "type": "github"
+      }
+    },
     "fiction-repo": {
       "locked": {
-        "lastModified": 1778762356,
-        "narHash": "sha256-oDjdpS+lgrnTgpInmp3n87Pbs8cxpzBxZvYYgXye3cg=",
+        "lastModified": 1784199218,
+        "narHash": "sha256-Rs/qOmhLnUoDrwuDwIo9KW5FV0Fa0dJxKQJc9Y8dzPs=",
         "owner": "eightheve",
         "repo": "fiction",
-        "rev": "c0516cfa478118a8d0a65e01512482eb882518f5",
+        "rev": "b5bd40086a875f62ee3e22879c65060b3a309c8b",
         "type": "github"
       },
       "original": {
@@ -161,16 +179,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1779467186,
-        "narHash": "sha256-nOesoDCiXcUftqbRBMz9tt4blI5PvljMWbm3kuCA+0s=",
-        "owner": "nixos",
+        "lastModified": 1781577229,
+        "narHash": "sha256-lrp67w8AulE9Ks53n27I45ADSzbOCn4H+CNW1Ck8B+8=",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b77b3de8775677f84492abe84635f87b0e153f0f",
+        "rev": "567a49d1913ce81ac6e9582e3553dd90a955875f",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
-        "ref": "nixos-25.11",
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -191,15 +209,48 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1779467186,
+        "narHash": "sha256-nOesoDCiXcUftqbRBMz9tt4blI5PvljMWbm3kuCA+0s=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "b77b3de8775677f84492abe84635f87b0e153f0f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-25.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1784356753,
+        "narHash": "sha256-12KrbMiWLcf8m7pCvAtZh1ZrgF85ZXDXvfR/fWTKy84=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "61b7c44c4073f0b827768aff0049561b5110ea5a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "fathom": "fathom",
         "flake-utils": "flake-utils",
         "hjem": "hjem",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": "nixpkgs_2",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "sana-website": "sana-website",
-        "vintagestory-nix": "vintagestory-nix"
+        "vintagestory-server": "vintagestory-server"
       }
     },
     "sana-website": {
@@ -211,11 +262,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779707632,
-        "narHash": "sha256-BA8uw6zr+xz9Sz2f7JuxxqRRCcFdEQgU8JS0J+ramaI=",
+        "lastModified": 1784199457,
+        "narHash": "sha256-SzCnYkRqEE1CZRul/PRcng+QLYrGDA5DOO/a4KAC9PI=",
         "owner": "eightheve",
         "repo": "sana-website",
-        "rev": "e9557a5110817d4ff2724d12a4c1a239fef1633b",
+        "rev": "d26390f26ac38ad1b66c3fe05504074aad0a6ba9",
         "type": "github"
       },
       "original": {
@@ -269,23 +320,21 @@
         "type": "github"
       }
     },
-    "vintagestory-nix": {
+    "vintagestory-server": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1779529492,
-        "narHash": "sha256-dokKyPaF9J+GMV9SV6CRW6NVc9n5/K39WptmI0nd4zU=",
-        "owner": "PierreBorine",
-        "repo": "vintagestory-nix",
-        "rev": "07626b3992e356dca17dd55bb56a2a3adc44b3d8",
+        "lastModified": 1784654782,
+        "narHash": "sha256-PgToGcnxBzVkuL6MxtBG5tGIMO/ilrR+R0Q0a/Wa+D0=",
+        "owner": "eightheve",
+        "repo": "vs-nix-bot",
+        "rev": "ec12a32a219927c6b51955de08c1b094c423ae29",
         "type": "github"
       },
       "original": {
-        "owner": "PierreBorine",
-        "repo": "vintagestory-nix",
+        "owner": "eightheve",
+        "repo": "vs-nix-bot",
         "type": "github"
       }
     }

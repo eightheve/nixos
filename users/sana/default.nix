@@ -62,11 +62,17 @@
 
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
     EDITOR=vim
+
+    if [ -n "$IN_NIX_SHELL" ]; then
+      PROMPT="%{$fg[cyan]%}(nix)%{$reset_color%} $PROMPT"
+    fi
+
+    alias ssh="gpg-connect-agent updatestartuptty /bye >/dev/null && ssh"
   '';
 
   vimrc = ''
     autocmd VimEnter * call timer_start(8, {-> execute('set t_Co=16')})
-    autocmd VimEnter * call timer_start(9, {-> execute('colorscheme wildcharm')})
+    autocmd VimEnter * call timer_start(12, {-> execute('colorscheme zaibatsu')})
     set mouse=a
     syntax on
     filetype plugin on

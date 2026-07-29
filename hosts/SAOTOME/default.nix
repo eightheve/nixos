@@ -33,6 +33,8 @@
   services.vintagestory.enable = true;
   networking.firewall.allowedUDPPorts = [ 42420 ];
 
+  site.modules.mcWhitelist.enable = true;
+
   networking.firewall.enable = true;
 
   site.modules = {
@@ -80,7 +82,7 @@
 
   site.users.sana.enable = true;
 
-  networking.firewall.allowedTCPPorts = [ 80 42420 ];
+  networking.firewall.allowedTCPPorts = [ 80 42420 25565 ];
 
   users.users.sana.extraGroups = [ "libvirtd" ];
   systemd.tmpfiles.rules = [ "d /var/lib/wayfinder-vm 0755 wayfinder wayfinder -" ];

@@ -4,6 +4,7 @@
     ./forgejo-runner.nix
     ./maddy.nix
     ./matrix.nix
+    ./mc-whitelist.nix
     ./navidrome.nix
     ./networking.nix
     ./network-topology.nix

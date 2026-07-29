@@ -13,6 +13,7 @@
     };
     fathom.url = "github:eightheve/fathom";
     vintagestory-server.url = "github:eightheve/vs-nix-bot";
+    mc-whitelist.url = "github:eightheve/mc-whitelist";
     wayfinder.url = "github:eightheve/wayfinder";
   };
 
@@ -24,6 +25,7 @@
     fathom,
     wayfinder,
     vintagestory-server,
+    mc-whitelist,
     ...
   } @ inputs: let
     hostNames = builtins.attrNames (builtins.readDir ./hosts);
@@ -52,6 +54,7 @@
           fathom.nixosModules.default
           wayfinder.nixosModules.default
           vintagestory-server.nixosModules.default
+          mc-whitelist.nixosModules.default
         ];
       };
   in {

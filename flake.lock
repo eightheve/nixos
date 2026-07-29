@@ -156,6 +156,24 @@
         "type": "github"
       }
     },
+    "mc-whitelist": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1785344683,
+        "narHash": "sha256-sAX9uYFu8tPbYBiTr3NQbLsXXXXT93ei7MzAkunuwkc=",
+        "owner": "eightheve",
+        "repo": "mc-whitelist",
+        "rev": "6ec6871f05eecf541291a38cb5b687c4bdfb6496",
+        "type": "github"
+      },
+      "original": {
+        "owner": "eightheve",
+        "repo": "mc-whitelist",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -211,6 +229,22 @@
     },
     "nixpkgs_2": {
       "locked": {
+        "lastModified": 1785090369,
+        "narHash": "sha256-m0pDuRJG7EDo9ri+4Ksu83VsI+PlxNC9lNBfydejce4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "624af665418d3c65d544145b4d34ad696439570e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
         "lastModified": 1785133411,
         "narHash": "sha256-Yjv0WEg39KRYS0rBdTbu6Fc/or/ihAKk13W9sQ6VWd0=",
         "owner": "nixos",
@@ -225,7 +259,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_3": {
+    "nixpkgs_4": {
       "locked": {
         "lastModified": 1784356753,
         "narHash": "sha256-12KrbMiWLcf8m7pCvAtZh1ZrgF85ZXDXvfR/fWTKy84=",
@@ -241,7 +275,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1781577229,
         "narHash": "sha256-lrp67w8AulE9Ks53n27I45ADSzbOCn4H+CNW1Ck8B+8=",
@@ -263,7 +297,8 @@
         "fathom": "fathom",
         "flake-utils": "flake-utils",
         "hjem": "hjem",
-        "nixpkgs": "nixpkgs_2",
+        "mc-whitelist": "mc-whitelist",
+        "nixpkgs": "nixpkgs_3",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "sana-website": "sana-website",
         "vintagestory-server": "vintagestory-server",
@@ -339,7 +374,7 @@
     },
     "vintagestory-server": {
       "inputs": {
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
         "lastModified": 1784654782,
@@ -357,7 +392,7 @@
     },
     "wayfinder": {
       "inputs": {
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": "nixpkgs_5"
       },
       "locked": {
         "lastModified": 1785136132,

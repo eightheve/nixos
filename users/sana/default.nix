@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  pkgs-unstable,
   ...
 }: let
   cfg = config.site.users.sana;
@@ -145,8 +146,9 @@ in {
 
       hjem.users.sana = {
         enable = true;
-        packages = with pkgs; [
-          vim
+        packages = [
+          pkgs.vim
+          pkgs-unstable.pi-coding-agent
         ];
 
         files = {

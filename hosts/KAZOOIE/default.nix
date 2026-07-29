@@ -8,6 +8,8 @@
     ./hardware.nix
   ];
 
+  services.wayfinder.enable = true;
+
   boot.loader.grub = {
     enable = true;
     device = "/dev/sda";

@@ -13,6 +13,7 @@
     };
     fathom.url = "github:eightheve/fathom";
     vintagestory-server.url = "github:eightheve/vs-nix-bot";
+    wayfinder.url = "github:eightheve/wayfinder";
   };
 
   outputs = {
@@ -21,6 +22,7 @@
     hjem,
     agenix,
     fathom,
+    wayfinder,
     vintagestory-server,
     ...
   } @ inputs: let
@@ -48,6 +50,7 @@
           hjem.nixosModules.default
           agenix.nixosModules.default
           fathom.nixosModules.default
+          wayfinder.nixosModules.default
           vintagestory-server.nixosModules.default
         ];
       };

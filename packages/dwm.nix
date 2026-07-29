@@ -91,7 +91,11 @@ let
     };
     ${lib.optionalString (!isLaptop) ''
     /* per-monitor default layout (NULL = use layouts[0]). index = monitor number */
-    static const Layout *monlayouts[] = { &layouts[0], &layouts[3] };
+    static const Layout *monlayouts[] = {
+      &layouts[0], 
+      &layouts[3],
+      &layouts[3],
+    };
     ''}
 
     #define MODKEY Mod4Mask
@@ -136,6 +140,7 @@ let
     	{ MODKEY,                       XK_o,      setlayout,      {.v = &layouts[4]} },
     	{ MODKEY,                       XK_space,  setlayout,      {0} },
     	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
+        { MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
     	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
     	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
     	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
@@ -203,6 +208,10 @@ in
       (pkgs.fetchpatch {
         url = "https://dwm.suckless.org/patches/bottomstack/dwm-bottomstack-6.1.diff";
         hash = "sha256-B38SP1NGBhve8gG1Ci2hjahZqePKdHOuXGGL+n450Jk=";
+      })
+      (pkgs.fetchpatch {
+        url = "https://dwm.suckless.org/patches/actualfullscreen/dwm-actualfullscreen-20211013-cb3f58a.diff";
+        hash = "sha256-vsTuudJCy7Zo1wdwpI/nY7Zu1txXx90QoDfJLmfDUH8=";
       })
       monlayoutPatch
     ];

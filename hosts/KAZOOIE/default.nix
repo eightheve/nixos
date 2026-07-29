@@ -39,15 +39,6 @@
 
   services.fathom-releases.enable = true;
 
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "claude-code"
-  ];
-
-  environment.systemPackages = [
-    pkgs.claude-code
-    pkgs-unstable.mcp-nixos
-  ];
-
   site.modules.ssh.ports = [2222];
 
   site.modules = {

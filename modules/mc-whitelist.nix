@@ -2,9 +2,11 @@
   config,
   lib,
   pkgs-unstable,
+  inputs,
   ...
 }: let
   cfg = config.site.modules.mcWhitelist;
+  resourcePack = "${inputs.mc-whitelist}/Matcha_Flavoured_1_03.zip";
 in {
   options.site.modules.mcWhitelist = {
     enable = lib.mkEnableOption "Minecraft (Paper) server with self-service whitelist site";
@@ -26,7 +28,7 @@ in {
     (lib.mkIf cfg.enable {
       services.mc-whitelist = {
         enable = true;
-        serverPackage = pkgs-unstable.papermc;
+        serverPackage = pkgs-unstable.minecraftServers.vanilla;
       };
     })
 
@@ -40,6 +42,15 @@ in {
           enableACME = true;
           locations."/" = {
             proxyPass = cfg.nginx.upstream;
+          };
+          # Static resource pack download; referenced by resource-pack in
+          # server.properties on SAOTOME.
+          locations."= /resourcepack.zip" = {
+            alias = resourcePack;
+            extraConfig = ''
+              default_type application/zip;
+              add_header Cache-Control "public, max-age=86400";
+            '';
           };
         };
       };

@@ -161,11 +161,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1785344683,
-        "narHash": "sha256-sAX9uYFu8tPbYBiTr3NQbLsXXXXT93ei7MzAkunuwkc=",
+        "lastModified": 1785404815,
+        "narHash": "sha256-3bli0VWZNe3J6wFbAUIvTjg1GkTlW/JB840u+XBxGXo=",
         "owner": "eightheve",
         "repo": "mc-whitelist",
-        "rev": "6ec6871f05eecf541291a38cb5b687c4bdfb6496",
+        "rev": "1b4ff6b17a57332fc61a29c52af81087aaa57631",
         "type": "github"
       },
       "original": {

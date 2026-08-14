@@ -14,7 +14,7 @@ let
   xinitrcText = ''
     ${lib.concatStringsSep "\n" cfg.additionalXinitrcCommands}
     slstatus &
-    feh --bg-fill ~/.wallpaper.jpg &
+    ${lib.concatStringsSep " " (map (p: "feh --bg-fill ${p} &") cfg.wallpaperPaths)}
     exec dwm
   '';
 
@@ -130,6 +130,12 @@ in
       type = lib.types.listOf lib.types.str;
       default = [ ];
       description = "Additional commands in ~/.xinitrc before exec dwm";
+    };
+
+    wallpaperPaths = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Wallpaper file paths feh --bg-fill applies on X start";
     };
   };
 

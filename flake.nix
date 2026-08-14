@@ -4,8 +4,6 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     hjem.url = "github:feel-co/hjem";
     hjem.inputs.nixpkgs.follows = "nixpkgs";
-    agenix.url = "github:ryantm/agenix";
-    agenix.inputs.nixpkgs.follows = "nixpkgs";
     sana-website = {
       url = "github:eightheve/sana-website";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -23,7 +21,6 @@
       nixpkgs,
       nixpkgs-unstable,
       hjem,
-      agenix,
       fathom,
       wayfinder,
       vintagestory-server,
@@ -69,7 +66,6 @@
             ./users
             ./hosts/${hostname}
             hjem.nixosModules.default
-            agenix.nixosModules.default
             fathom.nixosModules.default
             wayfinder.nixosModules.default
             vintagestory-server.nixosModules.default

@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  site,
   ...
 }:
 let
@@ -165,25 +166,13 @@ in
       };
     })
 
-    (lib.mkIf cfg.nginx.enable {
-      services.nginx = {
-        enable = true;
-        recommendedProxySettings = true;
-        recommendedTlsSettings = true;
-        virtualHosts."${cfg.nginx.domainName}" = {
-          forceSSL = true;
-          enableACME = lib.mkForce true;
-          locations."/" = {
-            proxyPass = cfg.nginx.upstream;
-            proxyWebsockets = true;
-          };
-        };
-      };
-
-      networking.firewall.allowedTCPPorts = [
-        80
-        443
-      ];
-    })
+    (lib.mkIf cfg.nginx.enable (
+      site.lib.mkProxyVhost {
+        domain = cfg.nginx.domainName;
+        upstream = cfg.nginx.upstream;
+        enableACME = lib.mkForce true;
+        proxyWebsockets = true;
+      }
+    ))
   ];
 }

@@ -18,10 +18,6 @@
 
   site.profiles.server.enable = true;
 
-  site.modules.networking = {
-    enable = true;
-    hostName = "KAZOOIE";
-  };
   networking.domain = "doppel.moe";
 
   networking.nat =

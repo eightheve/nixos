@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  site,
   ...
 }:
 let
@@ -73,25 +74,12 @@ in
       networking.firewall.allowedTCPPorts = [ cfg.settings.localPort ];
     })
 
-    (lib.mkIf cfg.nginx.enable {
-      services.nginx = {
-        enable = true;
-        recommendedProxySettings = true;
-        recommendedTlsSettings = true;
-        virtualHosts."${cfg.nginx.domainName}" = {
-          forceSSL = true;
-          enableACME = true;
-          locations."/" = {
-            proxyPass = cfg.nginx.upstream;
-            proxyWebsockets = true;
-          };
-        };
-      };
-
-      networking.firewall.allowedTCPPorts = [
-        80
-        443
-      ];
-    })
+    (lib.mkIf cfg.nginx.enable (
+      site.lib.mkProxyVhost {
+        domain = cfg.nginx.domainName;
+        upstream = cfg.nginx.upstream;
+        proxyWebsockets = true;
+      }
+    ))
   ];
 }

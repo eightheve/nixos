@@ -3,6 +3,7 @@
   lib,
   pkgs-unstable,
   inputs,
+  site,
   ...
 }:
 let
@@ -34,33 +35,20 @@ in
       };
     })
 
-    (lib.mkIf cfg.nginx.enable {
-      services.nginx = {
-        enable = true;
-        recommendedProxySettings = true;
-        recommendedTlsSettings = true;
-        virtualHosts."${cfg.nginx.domainName}" = {
-          forceSSL = true;
-          enableACME = true;
-          locations."/" = {
-            proxyPass = cfg.nginx.upstream;
-          };
-          # Static resource pack download; referenced by resource-pack in
-          # server.properties on SAOTOME.
-          locations."= /resourcepack.zip" = {
-            alias = resourcePack;
-            extraConfig = ''
-              default_type application/zip;
-              add_header Cache-Control "public, max-age=86400";
-            '';
-          };
+    (lib.mkIf cfg.nginx.enable (
+      site.lib.mkProxyVhost {
+        domain = cfg.nginx.domainName;
+        upstream = cfg.nginx.upstream;
+        # Static resource pack download; referenced by resource-pack in
+        # server.properties on SAOTOME.
+        extraLocations."= /resourcepack.zip" = {
+          alias = resourcePack;
+          extraConfig = ''
+            default_type application/zip;
+            add_header Cache-Control "public, max-age=86400";
+          '';
         };
-      };
-
-      networking.firewall.allowedTCPPorts = [
-        80
-        443
-      ];
-    })
+      }
+    ))
   ];
 }

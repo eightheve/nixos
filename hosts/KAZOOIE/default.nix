@@ -24,33 +24,36 @@
   };
   networking.domain = "doppel.moe";
 
-  networking.nat = {
-    enable = true;
-    externalInterface = "enp1s0";
-    internalInterfaces = [ "wg0" ];
-    forwardPorts = [
-      {
-        sourcePort = 42420;
-        destination = "10.100.0.2:42420";
-        proto = "udp";
-      }
-      {
-        sourcePort = 42420;
-        destination = "10.100.0.2:42420";
-        proto = "tcp";
-      }
-      {
-        sourcePort = 25565;
-        destination = "10.100.0.2:25565";
-        proto = "tcp";
-      }
-    ];
-    extraCommands = ''
-      iptables -t nat -A POSTROUTING -o wg0 -d 10.100.0.2 -p tcp --dport 42420 -j MASQUERADE
-      iptables -t nat -A POSTROUTING -o wg0 -d 10.100.0.2 -p udp --dport 42420 -j MASQUERADE
-      iptables -t nat -A POSTROUTING -o wg0 -d 10.100.0.2 -p tcp --dport 25565 -j MASQUERADE
-    '';
-  };
+  networking.nat =
+    let
+      ports = [
+        {
+          sourcePort = 42420;
+          destination = "10.100.0.2:42420";
+          proto = "udp";
+        }
+        {
+          sourcePort = 42420;
+          destination = "10.100.0.2:42420";
+          proto = "tcp";
+        }
+        {
+          sourcePort = 25565;
+          destination = "10.100.0.2:25565";
+          proto = "tcp";
+        }
+      ];
+    in
+    {
+      enable = true;
+      externalInterface = "enp1s0";
+      internalInterfaces = [ "wg0" ];
+      forwardPorts = ports;
+      extraCommands = lib.concatMapStringsSep "\n" (
+        p:
+        "iptables -t nat -A POSTROUTING -o wg0 -d ${p.destination} -p ${p.proto} --dport ${toString p.sourcePort} -j MASQUERADE"
+      ) ports;
+    };
 
   services.fathom-releases.enable = true;
 
@@ -58,9 +61,16 @@
     SystemMaxUse=500M
   '';
 
-  site.modules.ssh.ports = [ 2222 ];
-
   site.modules = {
+    networking = {
+      enable = true;
+      hostName = "KAZOOIE";
+    };
+    ssh = {
+      enable = true;
+      openFirewall = true;
+      ports = [ 2222 ];
+    };
     navidrome.nginx = {
       enable = true;
       upstream = "http://10.100.0.2:4533";

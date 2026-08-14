@@ -5,19 +5,8 @@
   inputs,
   ...
 }:
-let
-  cfg = config.site.profiles.common;
-in
 {
-  options.site.profiles.common = {
-    enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Enable common system profile (base settings for all hosts)";
-    };
-  };
-
-  config = lib.mkIf cfg.enable {
+  config = {
     nix = {
       settings = {
         experimental-features = "nix-command flakes";

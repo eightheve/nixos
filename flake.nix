@@ -29,6 +29,7 @@
       vintagestory-server,
       mc-whitelist,
       git-hooks,
+      sana-website,
       ...
     }@inputs:
     let
@@ -73,6 +74,7 @@
             wayfinder.nixosModules.default
             vintagestory-server.nixosModules.default
             mc-whitelist.nixosModules.default
+            sana-website.nixosModules.default
           ];
         };
     in

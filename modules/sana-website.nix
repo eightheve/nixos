@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  inputs,
   ...
 }:
 let
@@ -23,10 +22,6 @@ in
       };
     };
   };
-
-  imports = [
-    inputs.sana-website.nixosModules.default
-  ];
 
   config = lib.mkIf cfg.enable {
     services.sana-moe = {

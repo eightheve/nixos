@@ -4,7 +4,8 @@
   pkgs,
   pkgs-unstable,
   ...
-}: let
+}:
+let
   cfg = config.site.users.sana;
   packages = import ../../packages;
 
@@ -117,7 +118,8 @@
     autocmd FileType markdown setlocal spell
     autocmd FileType markdown call ToggleWrap()
   '';
-in {
+in
+{
   options.site.users.sana = {
     enable = lib.mkOption {
       type = lib.types.bool;
@@ -127,7 +129,7 @@ in {
 
     additionalXinitrcCommands = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [];
+      default = [ ];
       description = "Additional commands in ~/.xinitrc before exec dwm";
     };
   };
@@ -138,7 +140,13 @@ in {
         isNormalUser = true;
         createHome = true;
         description = "二葉さな";
-        extraGroups = ["wheel" "networkmanager" "slskd" "input" "jackaudio"];
+        extraGroups = [
+          "wheel"
+          "networkmanager"
+          "slskd"
+          "input"
+          "jackaudio"
+        ];
         hashedPassword = "$y$j9T$aqLJPq7sjoh7G60UN.4dd1$Deb/3ODxhVw.Qd2uN.A0.QvOH8Oel9BF.ukD/aXnNd8";
         shell = pkgs.zsh;
         openssh.authorizedKeys.keys = [

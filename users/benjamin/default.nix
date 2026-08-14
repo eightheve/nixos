@@ -3,7 +3,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.site.users.benjamin;
 
   gitConfigText = ''
@@ -18,7 +19,8 @@
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
     EDITOR=nano
   '';
-in {
+in
+{
   options.site.users.benjamin = {
     enable = lib.mkEnableOption "benjamin user";
   };
@@ -34,7 +36,7 @@ in {
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKkIafdFkbx/nAa2obU7EkJxsYsEYbnmW0MH0fJwbB4V benjamin.z.zhang@gmail.com"
       ];
     };
-     
+
     hjem.users.benjamin.files = {
       ".config/git/config".text = gitConfigText;
       ".zshrc".text = zshConfigText;
@@ -45,11 +47,16 @@ in {
     ];
 
     networking.firewall.allowedTCPPorts = [ 3030 ];
-  
+
     services.nginx = {
       enable = true;
       virtualHosts.localhost = {
-        listen = [{addr = "0.0.0.0"; port = 3030;}];
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = 3030;
+          }
+        ];
         root = "/srv/benjamin/www";
         locations."/" = {
           tryFiles = "$uri $uri/ =404";

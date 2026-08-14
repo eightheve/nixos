@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.site.profiles.laptop;
-in {
+in
+{
   options.site.profiles.laptop = {
     enable = lib.mkEnableOption "laptop profile (mobile hardware settings)";
   };
@@ -14,6 +16,6 @@ in {
 
     hardware.sensor.iio.enable = true;
 
-    services.xserver.videoDrivers = ["modesetting"];
+    services.xserver.videoDrivers = [ "modesetting" ];
   };
 }

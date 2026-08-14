@@ -2,7 +2,8 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.remoteBuilds;
 
   hostModule = lib.types.submodule {
@@ -25,7 +26,12 @@
       };
       supportedFeatures = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = ["nixos-test" "benchmark" "big-parallel" "kvm"];
+        default = [
+          "nixos-test"
+          "benchmark"
+          "big-parallel"
+          "kvm"
+        ];
       };
       identityFile = lib.mkOption {
         type = lib.types.str;
@@ -52,10 +58,16 @@
 
   mkBuildMachine = name: host: {
     hostName = name;
-    inherit (host) system maxJobs speedFactor supportedFeatures;
+    inherit (host)
+      system
+      maxJobs
+      speedFactor
+      supportedFeatures
+      ;
     protocol = "ssh-ng";
   };
-in {
+in
+{
   options.site.modules.remoteBuilds = {
     builder = {
       enable = lib.mkEnableOption "be a remote builder";
@@ -80,7 +92,7 @@ in {
 
       hosts = lib.mkOption {
         type = lib.types.attrsOf hostModule;
-        default = {};
+        default = { };
       };
     };
   };
@@ -94,19 +106,19 @@ in {
         openssh.authorizedKeys.keys = cfg.builder.authorizedRootKeys;
       };
 
-      systemd.tmpfiles.rules = let
-        username = cfg.builder.serviceUserName;
-      in [
-        "z /home/${username} 0555 ${username} ${username} -"
-        "z /home/${username}/.ssh/ 0555 ${username} ${username} - "
-      ];
+      systemd.tmpfiles.rules =
+        let
+          username = cfg.builder.serviceUserName;
+        in
+        [
+          "z /home/${username} 0555 ${username} ${username} -"
+          "z /home/${username}/.ssh/ 0555 ${username} ${username} - "
+        ];
 
-      nix.settings.trusted-users = [cfg.builder.serviceUserName];
+      nix.settings.trusted-users = [ cfg.builder.serviceUserName ];
     })
     (lib.mkIf cfg.user.enable {
-      programs.ssh.extraConfig = lib.concatStrings (
-        lib.mapAttrsToList mkSshConfig cfg.user.hosts
-      );
+      programs.ssh.extraConfig = lib.concatStrings (lib.mapAttrsToList mkSshConfig cfg.user.hosts);
 
       nix = {
         buildMachines = lib.mapAttrsToList mkBuildMachine cfg.user.hosts;

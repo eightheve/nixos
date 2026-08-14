@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.navidrome;
-in {
+in
+{
   options.site.modules.navidrome = {
     enable = lib.mkEnableOption "navidrome music server";
 
@@ -56,14 +58,19 @@ in {
           MusicFolder = cfg.settings.musicFolder;
           AlbumPlayCountMode = "normalized";
           Address = "0.0.0.0";
-          "Tags.Genre.Split" = ["," ";" "/" "|"];
+          "Tags.Genre.Split" = [
+            ","
+            ";"
+            "/"
+            "|"
+          ];
           EnableSharing = true;
         };
       };
 
-      systemd.services.navidrome.serviceConfig.BindReadOnlyPaths = lib.mkAfter ["/srv/data/audiobooks"];
+      systemd.services.navidrome.serviceConfig.BindReadOnlyPaths = lib.mkAfter [ "/srv/data/audiobooks" ];
 
-      networking.firewall.allowedTCPPorts = [cfg.settings.localPort];
+      networking.firewall.allowedTCPPorts = [ cfg.settings.localPort ];
     })
 
     (lib.mkIf cfg.nginx.enable {
@@ -81,7 +88,10 @@ in {
         };
       };
 
-      networking.firewall.allowedTCPPorts = [80 443];
+      networking.firewall.allowedTCPPorts = [
+        80
+        443
+      ];
     })
   ];
 }

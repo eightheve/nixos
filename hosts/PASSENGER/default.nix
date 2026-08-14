@@ -2,7 +2,8 @@
   pkgs,
   pkgs-unstable,
   ...
-}: {
+}:
+{
   imports = [
     ./hardware.nix
   ];
@@ -11,7 +12,7 @@
     efi.canTouchEfiVariables = true;
     grub = {
       enable = true;
-      devices = ["nodev"];
+      devices = [ "nodev" ];
       efiSupport = true;
       useOSProber = true;
     };
@@ -50,7 +51,7 @@
     ];
   };
 
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" ];
   programs.steam.enable = true;
   nixpkgs.config.allowUnfree = true;
 
@@ -64,8 +65,13 @@
       daemon.enable = true;
     };
   };
- 
-  services.jack.jackd.extraOptions = [ "-d" "alsa" "-d" "hw:1" ];
+
+  services.jack.jackd.extraOptions = [
+    "-d"
+    "alsa"
+    "-d"
+    "hw:1"
+  ];
 
   environment.systemPackages =
     (with pkgs; [

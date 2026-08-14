@@ -3,7 +3,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.matrix;
 
   serverConfig."m.server" = "matrix.doppel.moe:8448";
@@ -22,7 +23,8 @@
     add_header Access-Control-Allow-Origin *;
     return 200 '${builtins.toJSON data}';
   '';
-in {
+in
+{
   options.site.modules.matrix = {
     synapse = {
       enable = lib.mkEnableOption "synapse web server";
@@ -35,14 +37,19 @@ in {
         "olm-3.2.16"
       ];
 
-      networking.firewall.allowedTCPPorts = [80 443 8448 8008];
+      networking.firewall.allowedTCPPorts = [
+        80
+        443
+        8448
+        8008
+      ];
 
       services = {
         postgresql.enable = true;
 
         matrix-synapse = {
           enable = true;
-          extraConfigFiles = ["/var/lib/matrix-synapse/secret.yaml"];
+          extraConfigFiles = [ "/var/lib/matrix-synapse/secret.yaml" ];
           settings = {
             server_name = "doppel.moe";
             public_baseurl = "https://matrix.doppel.moe:8448";
@@ -51,16 +58,16 @@ in {
             app_service_config_files = [ "/var/lib/matrix-synapse/discord-registration.yaml" ];
             listeners = [
               {
-                bind_addresses = [""];
+                bind_addresses = [ "" ];
                 port = 8448;
                 resources = [
                   {
                     compress = true;
-                    names = ["client"];
+                    names = [ "client" ];
                   }
                   {
                     compress = false;
-                    names = ["federation"];
+                    names = [ "federation" ];
                   }
                 ];
                 tls = true;
@@ -69,12 +76,12 @@ in {
               }
               {
                 # client
-                bind_addresses = ["0.0.0.0"];
+                bind_addresses = [ "0.0.0.0" ];
                 port = 8008;
                 resources = [
                   {
                     compress = true;
-                    names = ["client"];
+                    names = [ "client" ];
                   }
                 ];
                 tls = false;
@@ -116,9 +123,8 @@ in {
           postRun = "systemctl reload nginx.service; systemctl restart matrix-synapse.service";
         };
       };
-      users.users.matrix-synapse.extraGroups = ["nginx"];
-    
-     
+      users.users.matrix-synapse.extraGroups = [ "nginx" ];
+
       services.mautrix-discord = {
         enable = true;
         registerToSynapse = true;

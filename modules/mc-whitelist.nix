@@ -4,10 +4,12 @@
   pkgs-unstable,
   inputs,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.mcWhitelist;
   resourcePack = "${inputs.mc-whitelist}/Matcha_Flavoured_1_03.zip";
-in {
+in
+{
   options.site.modules.mcWhitelist = {
     enable = lib.mkEnableOption "Minecraft (Paper) server with self-service whitelist site";
 
@@ -55,7 +57,10 @@ in {
         };
       };
 
-      networking.firewall.allowedTCPPorts = [80 443];
+      networking.firewall.allowedTCPPorts = [
+        80
+        443
+      ];
     })
   ];
 }

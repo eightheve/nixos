@@ -1,109 +1,122 @@
 {
   lib,
   ...
-}: {
+}:
+{
   options.site.topology = lib.mkOption {
-    type = lib.types.attrsOf (lib.types.submodule {
-      options = {
-        managed = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-          description = "Whether this host is managed by this NixOS config";
-        };
+    type = lib.types.attrsOf (
+      lib.types.submodule {
+        options = {
+          managed = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Whether this host is managed by this NixOS config";
+          };
 
-        networkManager = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
+          networkManager = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+          };
 
-        interfaces = lib.mkOption {
-          type = lib.types.attrsOf (lib.types.submodule {
-            options = {
-              dhcp = lib.mkOption {
-                type = lib.types.bool;
-                default = true;
-              };
-              address = lib.mkOption {
-                type = lib.types.nullOr lib.types.str;
-                default = null;
-              };
-              gateway = lib.mkOption {
-                type = lib.types.nullOr lib.types.str;
-                default = null;
-              };
-            };
-          });
-          default = {};
-        };
-
-        wireguard = lib.mkOption {
-          type = lib.types.nullOr (lib.types.submodule {
-            options = {
-              publicKey = lib.mkOption {
-                type = lib.types.str;
-              };
-              interfaces = lib.mkOption {
-                type = lib.types.attrsOf (lib.types.submodule {
-                  options = {
-                    ip = lib.mkOption {
-                      type = lib.types.str;
-                    };
-                    isServer = lib.mkOption {
-                      type = lib.types.bool;
-                      default = false;
-                    };
-                    listenPort = lib.mkOption {
-                      type = lib.types.int;
-                      default = 51820;
-                    };
-                    endpoint = lib.mkOption {
-                      type = lib.types.nullOr lib.types.str;
-                      default = null;
-                      description = "External endpoint (host:port) for server interfaces";
-                    };
-                    network = lib.mkOption {
-                      type = lib.types.str;
-                      description = "CIDR for this WireGuard network (determines client allowedIPs)";
-                    };
-                    persistentKeepalive = lib.mkOption {
-                      type = lib.types.int;
-                      default = 25;
-                    };
-                    routedNetworks = lib.mkOption {
-                      type = lib.types.listOf lib.types.str;
-                      default = [];
-                      description = "Additional CIDRs routed through this interface (added to server-side allowedIPs)";
-                    };
+          interfaces = lib.mkOption {
+            type = lib.types.attrsOf (
+              lib.types.submodule {
+                options = {
+                  dhcp = lib.mkOption {
+                    type = lib.types.bool;
+                    default = true;
                   };
-                });
-              };
-            };
-          });
-          default = null;
-        };
-
-        routing = lib.mkOption {
-          type = lib.types.nullOr (lib.types.submodule {
-            options = {
-              nat = lib.mkOption {
-                type = lib.types.attrsOf (lib.types.submodule {
-                  options = {
-                    outInterface = lib.mkOption {
-                      type = lib.types.str;
-                      description = "Outbound interface for masquerading";
-                    };
+                  address = lib.mkOption {
+                    type = lib.types.nullOr lib.types.str;
+                    default = null;
                   };
-                });
-                default = {};
-                description = "NAT rules: keys are source CIDRs, values specify the outbound interface";
-              };
-            };
-          });
-          default = null;
+                  gateway = lib.mkOption {
+                    type = lib.types.nullOr lib.types.str;
+                    default = null;
+                  };
+                };
+              }
+            );
+            default = { };
+          };
+
+          wireguard = lib.mkOption {
+            type = lib.types.nullOr (
+              lib.types.submodule {
+                options = {
+                  publicKey = lib.mkOption {
+                    type = lib.types.str;
+                  };
+                  interfaces = lib.mkOption {
+                    type = lib.types.attrsOf (
+                      lib.types.submodule {
+                        options = {
+                          ip = lib.mkOption {
+                            type = lib.types.str;
+                          };
+                          isServer = lib.mkOption {
+                            type = lib.types.bool;
+                            default = false;
+                          };
+                          listenPort = lib.mkOption {
+                            type = lib.types.int;
+                            default = 51820;
+                          };
+                          endpoint = lib.mkOption {
+                            type = lib.types.nullOr lib.types.str;
+                            default = null;
+                            description = "External endpoint (host:port) for server interfaces";
+                          };
+                          network = lib.mkOption {
+                            type = lib.types.str;
+                            description = "CIDR for this WireGuard network (determines client allowedIPs)";
+                          };
+                          persistentKeepalive = lib.mkOption {
+                            type = lib.types.int;
+                            default = 25;
+                          };
+                          routedNetworks = lib.mkOption {
+                            type = lib.types.listOf lib.types.str;
+                            default = [ ];
+                            description = "Additional CIDRs routed through this interface (added to server-side allowedIPs)";
+                          };
+                        };
+                      }
+                    );
+                  };
+                };
+              }
+            );
+            default = null;
+          };
+
+          routing = lib.mkOption {
+            type = lib.types.nullOr (
+              lib.types.submodule {
+                options = {
+                  nat = lib.mkOption {
+                    type = lib.types.attrsOf (
+                      lib.types.submodule {
+                        options = {
+                          outInterface = lib.mkOption {
+                            type = lib.types.str;
+                            description = "Outbound interface for masquerading";
+                          };
+                        };
+                      }
+                    );
+                    default = { };
+                    description = "NAT rules: keys are source CIDRs, values specify the outbound interface";
+                  };
+                };
+              }
+            );
+            default = null;
+          };
         };
-      };
-    });
-    default = {};
+      }
+    );
+    default = { };
   };
 
   config.site.topology = {
@@ -182,7 +195,7 @@
     };
 
     BAILEY = {
-      managed = false; 
+      managed = false;
       wireguard = {
         publicKey = "evV0AURoi8kMRTXtqA7Lo9Noqg9/GrrlEp8zrGpzO1k=";
         interfaces = {

@@ -1,7 +1,8 @@
 {
   pkgs,
   ...
-}: {
+}:
+{
   imports = [
     ./hardware.nix
   ];
@@ -49,7 +50,7 @@
       enable = true;
       settings = {
         useSlskdn = false;
-        shareFolders = ["[RAID]/srv/data/music"];
+        shareFolders = [ "[RAID]/srv/data/music" ];
         environmentFilePath = "/var/lib/slskd/.env";
       };
     };
@@ -82,7 +83,11 @@
 
   site.users.sana.enable = true;
 
-  networking.firewall.allowedTCPPorts = [ 80 42420 25565 ];
+  networking.firewall.allowedTCPPorts = [
+    80
+    42420
+    25565
+  ];
 
   users.users.sana.extraGroups = [ "libvirtd" ];
   systemd.tmpfiles.rules = [ "d /var/lib/wayfinder-vm 0755 wayfinder wayfinder -" ];

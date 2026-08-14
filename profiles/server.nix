@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.site.profiles.server;
-in {
+in
+{
   options.site.profiles.server = {
     enable = lib.mkEnableOption "server profile (headless server base settings)";
   };

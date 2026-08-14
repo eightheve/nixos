@@ -3,9 +3,11 @@
   lib,
   inputs,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.sanaWebsite;
-in {
+in
+{
   options.site.modules.sanaWebsite = {
     enable = lib.mkEnableOption "sana's website";
 

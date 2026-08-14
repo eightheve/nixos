@@ -3,9 +3,11 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.site.profiles.graphics;
-in {
+in
+{
   options.site.profiles.graphics = {
     enable = lib.mkEnableOption "graphics profile (GUI and display settings)";
   };
@@ -54,10 +56,22 @@ in {
         };
 
         defaultFonts = {
-          serif = ["Noto Serif" "Noto Serif CJK SC" "Noto Emoji"];
-          sansSerif = ["Noto Sans" "MigMix 2P" "Noto Sans CJK SC" "Noto Emoji"];
-          monospace = ["JetBrainsMono Nerd Font" "Noto Emoji"];
-          emoji = ["Noto Emoji"];
+          serif = [
+            "Noto Serif"
+            "Noto Serif CJK SC"
+            "Noto Emoji"
+          ];
+          sansSerif = [
+            "Noto Sans"
+            "MigMix 2P"
+            "Noto Sans CJK SC"
+            "Noto Emoji"
+          ];
+          monospace = [
+            "JetBrainsMono Nerd Font"
+            "Noto Emoji"
+          ];
+          emoji = [ "Noto Emoji" ];
         };
       };
     };

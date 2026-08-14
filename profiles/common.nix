@@ -4,9 +4,11 @@
   pkgs,
   inputs,
   ...
-}: let
+}:
+let
   cfg = config.site.profiles.common;
-in {
+in
+{
   options.site.profiles.common = {
     enable = lib.mkOption {
       type = lib.types.bool;
@@ -35,7 +37,7 @@ in {
         yubico = {
           enable = true;
           mode = "challenge-response";
-          id = ["24483552"];
+          id = [ "24483552" ];
         };
         u2f = {
           enable = true;
@@ -50,7 +52,7 @@ in {
     services = {
       udisks2.enable = true;
       pcscd.enable = true;
-      udev.packages = [pkgs.yubikey-personalization];
+      udev.packages = [ pkgs.yubikey-personalization ];
     };
 
     programs.gnupg.agent = {
@@ -82,7 +84,10 @@ in {
 
     i18n = {
       defaultLocale = "en_US.UTF-8";
-      supportedLocales = ["en_US.UTF-8/UTF-8" "ja_JP.UTF-8/UTF-8"];
+      supportedLocales = [
+        "en_US.UTF-8/UTF-8"
+        "ja_JP.UTF-8/UTF-8"
+      ];
       extraLocaleSettings = {
         LC_ADDRESS = "en_US.UTF-8";
         LC_IDENTIFICATION = "en_US.UTF-8";

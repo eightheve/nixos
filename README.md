@@ -31,18 +31,20 @@ The only WM offered is `dwm`, with minimal patches and configuration. There is n
 
 ### Active
 
-| Host      | Role                | Hardware         |
-| :-------: | :-----------------: | :--------------: |
-| PASSENGER | Desktop/Workstation | Custom Tower     |
-| SATELLITE | Laptop/Workstation  | ThinkPad X1 Yoga |
-| SAOTOME   | Home Server/NAS     | Dell R720        |
-| KAZOOIE   | VPS Entrypoint      | N/A              |
+| Host      | Role                | Hardware     |
+| :-------: | :-----------------: | :----------: |
+| PASSENGER | Desktop/Workstation | Custom Tower |
+| SAOTOME   | Home Server/NAS     | Dell R720    |
+| KAZOOIE   | VPS Entrypoint      | N/A          |
 
 ### Inactive
 
-| Host | Role        | Hardware     |
-| :--: | :---------: | :----------: |
-| HIME | Home Server | HP DL360P G8 |
+No configuration is kept for inactive hosts.
+
+| Host      | Role               | Hardware         |
+| :-------: | :----------------: | :--------------: |
+| HIME      | Home Server        | HP DL360P G8     |
+| SATELLITE | Laptop/Workstation | ThinkPad X1 Yoga |
 
 ## To-Do
 - [ ] General code review cleanup

@@ -137,24 +137,10 @@ in
             currentHost.wireguard != null
             && lib.any (iface: iface.isServer) (lib.attrValues currentHost.wireguard.interfaces)
           )
-          || currentHost.routing != null
         )
         {
           "net.ipv4.ip_forward" = true;
         };
-
-    networking.nat = lib.mkIf (currentHost.routing != null && currentHost.routing.nat != { }) {
-      enable = true;
-      externalInterface =
-        let
-          firstEntry = lib.head (lib.attrValues currentHost.routing.nat);
-        in
-        firstEntry.outInterface;
-      internalInterfaces = lib.unique (
-        lib.mapAttrsToList (_: entry: entry.outInterface) currentHost.routing.nat
-      );
-      internalIPs = lib.mapAttrsToList (cidr: _: cidr) currentHost.routing.nat;
-    };
 
     services.avahi = {
       enable = true;

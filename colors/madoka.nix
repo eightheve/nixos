@@ -1,9 +1,4 @@
 {
-  meta = {
-    name = "rin";
-    style = "dark";
-  };
-
   shade0 = "070b13";
   shade1 = "21232c";
   shade2 = "3f3e46";

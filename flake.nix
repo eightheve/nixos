@@ -4,7 +4,6 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     hjem.url = "github:feel-co/hjem";
     hjem.inputs.nixpkgs.follows = "nixpkgs";
-    flake-utils.url = "github:numtide/flake-utils";
     agenix.url = "github:ryantm/agenix";
     agenix.inputs.nixpkgs.follows = "nixpkgs";
     sana-website = {
@@ -59,6 +58,9 @@
           specialArgs = {
             inherit inputs;
             inherit pkgs-unstable;
+            site = {
+              lib = import ./modules/lib.nix { inherit (nixpkgs) lib; };
+            };
           };
           modules = [
             ./profiles

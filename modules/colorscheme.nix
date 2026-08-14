@@ -18,11 +18,6 @@
       description = "color values from scheme file";
     };
 
-    termColors = lib.mkOption {
-      type = lib.types.attrsOf lib.types.str;
-      default = { };
-      description = "ANSI terminal color mappings (color00-color15)";
-    };
   };
 
   config = lib.mkMerge [
@@ -71,29 +66,6 @@
         assert validShades;
         assert validAccents;
         scheme;
-
-      site.colorScheme.termColors =
-        let
-          c = config.site.colorScheme.colors;
-        in
-        {
-          color00 = c.shade0;
-          color01 = c.accent0."0";
-          color02 = c.accent3."0";
-          color03 = c.accent2."0";
-          color04 = c.accent4."0";
-          color05 = c.accent6."0";
-          color06 = c.accent5."0";
-          color07 = c.shade4;
-          color08 = c.shade3;
-          color09 = c.accent0."1";
-          color10 = c.accent3."1";
-          color11 = c.accent2."1";
-          color12 = c.accent4."1";
-          color13 = c.accent6."1";
-          color14 = c.accent5."1";
-          color15 = c.shade5;
-        };
     })
   ];
 }

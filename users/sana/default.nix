@@ -10,7 +10,6 @@ let
   packages = import ../../packages;
 
   c = config.site.colorScheme;
-  termColors = c.termColors;
 
   xinitrcText = ''
     ${lib.concatStringsSep "\n" cfg.additionalXinitrcCommands}

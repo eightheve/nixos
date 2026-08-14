@@ -7,12 +7,6 @@
     type = lib.types.attrsOf (
       lib.types.submodule {
         options = {
-          managed = lib.mkOption {
-            type = lib.types.bool;
-            default = true;
-            description = "Whether this host is managed by this NixOS config";
-          };
-
           networkManager = lib.mkOption {
             type = lib.types.bool;
             default = false;
@@ -90,29 +84,6 @@
             default = null;
           };
 
-          routing = lib.mkOption {
-            type = lib.types.nullOr (
-              lib.types.submodule {
-                options = {
-                  nat = lib.mkOption {
-                    type = lib.types.attrsOf (
-                      lib.types.submodule {
-                        options = {
-                          outInterface = lib.mkOption {
-                            type = lib.types.str;
-                            description = "Outbound interface for masquerading";
-                          };
-                        };
-                      }
-                    );
-                    default = { };
-                    description = "NAT rules: keys are source CIDRs, values specify the outbound interface";
-                  };
-                };
-              }
-            );
-            default = null;
-          };
         };
       }
     );
@@ -177,12 +148,7 @@
       };
     };
 
-    SATELLITE = {
-      networkManager = true;
-    };
-
     FORTRESS = {
-      managed = false;
       wireguard = {
         publicKey = "62AFcf79kP5HyAoj1IRaj4fwnJTYvfK0hhTYjSMQg0w=";
         interfaces = {
@@ -195,7 +161,6 @@
     };
 
     BAILEY = {
-      managed = false;
       wireguard = {
         publicKey = "evV0AURoi8kMRTXtqA7Lo9Noqg9/GrrlEp8zrGpzO1k=";
         interfaces = {
@@ -208,7 +173,6 @@
     };
 
     MACSTUDIO = {
-      managed = false;
       wireguard = {
         publicKey = "ikqycPKKtu7yo+3PQEs6hZGvYH+OzrnYWQauLsRYTnY=";
         interfaces = {

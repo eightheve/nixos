@@ -1,42 +1,51 @@
-# EighthEve's NixOS Configuration(s)
+# Sana's NixOS Configuration
 
-Multi-host NixOS flake configuration. Will forever be a work in progress, but is especially WIP right now.
+Multi-host Nixos flake-based configuration
 
-## Paradigm/motivation
-This flake config is based on modules which provide options which are managed by hosts, all system modules are under config.myModules (stupid sounding name...), all users under config.myUsers, and all home manager modules are available under config.home-manager.users.[user].homeModules. 
-The flake itself is minimal, it just generates a configuration that automatically imports the necessary modules as well as the host's default.nix file, which is the main entry point for each system, enabling each module and user that the system needs. Each module should be self contained, except maybe all the complex interdependencies of graphical systems, which are managed a little less well.
+## Paradigm
+This flake is based on a multi-layer system made up of `modules`, `profiles`, and `hosts`. Each layer composes the previous layers along with plain NixOS options in order to construct a single coherent system or feature. Most options provided by this flake are under the local namespace `config.site`.
+
+- `modules` compose plain NixOS options together to construct one single scoped feature
+- `profiles` are made of both `module` and NixOS options, and are meant to be applied to entire classes of host based on role or hardware.
+- `hosts` are meant to define all of the options necessary to construct individual usable systems.
+
+All modules and profiles are imported unconditionally, and so all contain `options.`and conditionally applied `config.` sections. 
 
 ## Graphics
-Currently there are two WMs offered, Hyprland and DWM. Both are offered as user-level home manger modules, intended to be run from the TTY via `Hyprland` or `startx` respectively. No display manager is available, and I don't plan on adding one. The hyprland module is specifically optimized for my dual-monitor desktop, and the dwm module will only really look good on a single monitor.
+
+The only WM offered is `dwm`, with minimal patches and configuration. There is no display manager, the intended usage is to log in via the tty and run `startx`.
 
 ## Directory Structure
-- `common.nix`: shared configuration across all systems (i18n, base packages, etc.)
-- `hosts/`: per-host system configs (`default.nix`/`hardware.nix`)
-- `users/`: per-user modules
-- `modules/`: standalone reusable modules
-	+ `modules/nixos/`: system-level modules
-	+ `modules/home/`: Home Manager modules
+
+- `assets/` images and other binary files
+- `colors/` per-file nix attribute sets containing color schemes
+- `hosts/` contains subdirectories which are searched for when building systems. e.g. the host `#PASSENGER` will look for `hosts/PASSENGER/default.nix`
+- `modules/` unconditionally imported module declarations
+- `overlays/` nixpkgs overlays
+- `packages/` self contained package declarations
+- `profiles/` unconditionally imported profile declarations
+- `secrets/` contains agenix secrets, not currently used
+- `users/` unconditionally imported user declarations
 
 ## Hosts
 
-### ACTIVE
-| Host      | Role                | Location    | Model                   |
-| :-------- | :-----------------: | :---------: | :---------------------: |
-| PASSENGER | Desktop/Workstation | Home        | Custom Build            |
-| SATELLITE | Laptop Workstation  | Mobile      | ThinkPad X1 Yoga        |
-| CASTLE    | Laptop              | Mobile      | Dell Latitude E6420-XFR |
-| SAOTOME   | Home Server/NAS     | Home        | Dell R720               |
-| KAZOOIE   | Proxy for SAOTOME   | VA (VPS)    | N/A                     |
-| HAMUKO    | Build Server        | Home        | HP ProLiant DL360P Gen8 |
-| NYANKO    | Build Server        | Home        | HP ProLiant DL360P Gen8 |
-| HIME      | Build Server        | Home        | HP ProLiant DL360P Gen8 |
+### Active
 
-### INACTIVE
-| Host      | Role                | Location    | Model                   |
-| :-------- | :-----------------: | :---------: | :---------------------: |
-| BANJO     | Future Pi-hole host | Home        | ThinkCentre M715Q       |
+| Host      | Role                | Hardware         |
+| :-------: | :-----------------: | :--------------: |
+| PASSENGER | Desktop/Workstation | Custom Tower     |
+| SATELLITE | Laptop/Workstation  | ThinkPad X1 Yoga |
+| SAOTOME   | Home Server/NAS     | Dell R720        |
+| KAZOOIE   | VPS Entrypoint      | N/A              |
+
+### Inactive
+
+| Host | Role        | Hardware     |
+| :--: | :---------: | :----------: |
+| HIME | Home Server | HP DL360P G8 |
 
 ## To-Do
-- [ ] Move Pi-hole to BANJO
-- [ ] Vintagestory server hosting for Wokestory group
-- [ ] Move all rack servers (SAOTOME, HAMUKO, NYANKO, HIME, and another secret one that's missing RAM right now) to a closet. I bought a new DAS and the fans for all 4 machines running at once are getting too loud to sleep next to. 
+- [ ] General code review cleanup
+- [ ] Tighten security on KAZOOIE
+- [ ] Properly integrate agenix
+- [ ] Possibly integrate some of my external flakes directly into this config

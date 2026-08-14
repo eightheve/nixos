@@ -70,6 +70,7 @@
     fi
 
     alias ssh="gpg-connect-agent updatestartuptty /bye >/dev/null && ssh"
+    alias mdv='${pkgs.glow}/bin/glow -pw $(tput cols)'
   '';
 
   vimrc = ''

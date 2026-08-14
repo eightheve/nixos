@@ -20,3 +20,4 @@ Thumbs.db
 .clj-kondo
 .lsp
 .pi*
+.pre-commit-config.yaml

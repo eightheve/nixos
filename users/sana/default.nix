@@ -81,6 +81,9 @@ let
     filetype plugin on
     filetype indent on
     let mapleader = " "
+    let g:limelight_conceal_ctermfg = 'gray'
+    autocmd! User GoyoEnter Limelight
+    autocmd! User GoyoLeave Limelight!
     func! AsciiMode()
       syntax off
       setlocal virtualedit=all
@@ -170,6 +173,8 @@ in
           ".config/git/config".text = gitConfigText;
           ".zshrc".text = zshConfigText;
           ".vimrc".text = vimrc;
+          ".vim/pack/plugins/start/goyo".source = pkgs.vimPlugins.goyo-vim;
+          ".vim/pack/plugins/start/limelight".source = pkgs.vimPlugins.limelight-vim;
         };
       };
     })

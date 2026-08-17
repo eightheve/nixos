@@ -74,8 +74,8 @@ let
   '';
 
   vimrc = ''
-    autocmd VimEnter * call timer_start(8, {-> execute('set t_Co=16')})
-    autocmd VimEnter * call timer_start(12, {-> execute('colorscheme zaibatsu')})
+    set t_Co=16
+    colorscheme zaibatsu
     set mouse=a
     syntax on
     filetype plugin on

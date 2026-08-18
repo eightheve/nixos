@@ -26,7 +26,8 @@ in {
     (lib.mkIf cfg.enable {
       services.mc-whitelist = {
         enable = true;
-        serverPackage = pkgs-unstable.papermc;
+        serverPackage = pkgs-unstable.minecraftServers.vanilla;
+        web.serverName = "doppel.moe";
       };
     })
 

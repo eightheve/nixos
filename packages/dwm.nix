@@ -8,23 +8,24 @@
 # Derive DWM colors from colorscheme
 let
   colors =
-    if colorscheme != null
-    then {
-      gray1 = "#${colorscheme.shade0}";
-      gray2 = "#${colorscheme.shade2}";
-      gray3 = "#${colorscheme.shade3}";
-      gray4 = "#${colorscheme.shade5}";
-      accent1 = "#${colorscheme.accent4."0"}";
-      accent2 = "#${colorscheme.accent4."1"}";
-    }
-    else {
-      gray1 = "#000000";
-      gray2 = "#181818";
-      gray3 = "#e1e1e1";
-      gray4 = "#ffffff";
-      accent1 = "#222244";
-      accent2 = "#444477";
-    };
+    if colorscheme != null then
+      {
+        gray1 = "#${colorscheme.shade0}";
+        gray2 = "#${colorscheme.shade2}";
+        gray3 = "#${colorscheme.shade3}";
+        gray4 = "#${colorscheme.shade5}";
+        accent1 = "#${colorscheme.accent4."0"}";
+        accent2 = "#${colorscheme.accent4."1"}";
+      }
+    else
+      {
+        gray1 = "#000000";
+        gray2 = "#181818";
+        gray3 = "#e1e1e1";
+        gray4 = "#ffffff";
+        accent1 = "#222244";
+        accent2 = "#444477";
+      };
 
   # Keybind scripts
   screenshotAll = pkgs.writeShellScript "screenshot-all" ''
@@ -45,14 +46,18 @@ let
     esac
   '';
 
-  brightnessCtrl = if isLaptop then pkgs.writeShellScript "brightness-control" ''
-    case "$1" in
-      1) ${pkgs.brightnessctl}/bin/brightnessctl set 10%+ -e -n 10%;;
-      -1) ${pkgs.brightnessctl}/bin/brightnessctl set 10%- -e -n 10%;;
-    esac
-  '' else "";
+  brightnessCtrl =
+    if isLaptop then
+      pkgs.writeShellScript "brightness-control" ''
+        case "$1" in
+          1) ${pkgs.brightnessctl}/bin/brightnessctl set 10%+ -e -n 10%;;
+          -1) ${pkgs.brightnessctl}/bin/brightnessctl set 10%- -e -n 10%;;
+        esac
+      ''
+    else
+      "";
 
-  terminal = ["${pkgs.kitty}/bin/kitty"];
+  terminal = [ "${pkgs.kitty}/bin/kitty" ];
 
   configH = ''
     #include <X11/XF86keysym.h>
@@ -90,12 +95,12 @@ let
     	{ "===",      bstackhoriz },
     };
     ${lib.optionalString (!isLaptop) ''
-    /* per-monitor default layout (NULL = use layouts[0]). index = monitor number */
-    static const Layout *monlayouts[] = {
-      &layouts[0], 
-      &layouts[3],
-      &layouts[3],
-    };
+      /* per-monitor default layout (NULL = use layouts[0]). index = monitor number */
+      static const Layout *monlayouts[] = {
+        &layouts[0], 
+        &layouts[3],
+        &layouts[3],
+      };
     ''}
 
     #define MODKEY Mod4Mask
@@ -114,8 +119,8 @@ let
     static const char *down_vol[] = { "${volumeCtrl}", "-1", NULL};
     static const char *mute_vol[] = { "${volumeCtrl}", "0", NULL};
     ${lib.optionalString isLaptop ''
-    static const char *brighter[] = { "${brightnessCtrl}", "1", NULL};
-    static const char *dimmer[]   = { "${brightnessCtrl}", "-1", NULL};
+      static const char *brighter[] = { "${brightnessCtrl}", "1", NULL};
+      static const char *dimmer[]   = { "${brightnessCtrl}", "-1", NULL};
     ''}
     static const char *ss_all[]   = { "${screenshotAll}", NULL };
     static const char *ss_sel[]   = { "${screenshotSelection}", NULL };
@@ -160,9 +165,9 @@ let
     	{ 0, XF86XK_AudioLowerVolume,  spawn, {.v = down_vol } },
     	{ 0, XF86XK_AudioRaiseVolume,  spawn, {.v = up_vol } },
     	${lib.optionalString isLaptop ''
-    	{ 0, XF86XK_MonBrightnessDown, spawn, {.v = dimmer } },
-    	{ 0, XF86XK_MonBrightnessUp,   spawn, {.v = brighter } },
-    	''}
+       	{ 0, XF86XK_MonBrightnessDown, spawn, {.v = dimmer } },
+       	{ 0, XF86XK_MonBrightnessUp,   spawn, {.v = brighter } },
+       	''}
     	{ 0,           XK_Print,       spawn, {.v = ss_all } },
     	{ ShiftMask,   XK_Print,       spawn, {.v = ss_sel } },
     	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
@@ -203,19 +208,19 @@ let
      				m->mw = m->ww = unique[i].width;
   '';
 in
-  pkgs.dwm.overrideAttrs (oldAttrs: {
-    patches = [
-      (pkgs.fetchpatch {
-        url = "https://dwm.suckless.org/patches/bottomstack/dwm-bottomstack-6.1.diff";
-        hash = "sha256-B38SP1NGBhve8gG1Ci2hjahZqePKdHOuXGGL+n450Jk=";
-      })
-      (pkgs.fetchpatch {
-        url = "https://dwm.suckless.org/patches/actualfullscreen/dwm-actualfullscreen-20211013-cb3f58a.diff";
-        hash = "sha256-vsTuudJCy7Zo1wdwpI/nY7Zu1txXx90QoDfJLmfDUH8=";
-      })
-      monlayoutPatch
-    ];
-    postPatch = ''
-      cp ${pkgs.writeText "config.h" configH} config.h
-    '';
-  })
+pkgs.dwm.overrideAttrs (oldAttrs: {
+  patches = [
+    (pkgs.fetchpatch {
+      url = "https://dwm.suckless.org/patches/bottomstack/dwm-bottomstack-6.1.diff";
+      hash = "sha256-B38SP1NGBhve8gG1Ci2hjahZqePKdHOuXGGL+n450Jk=";
+    })
+    (pkgs.fetchpatch {
+      url = "https://dwm.suckless.org/patches/actualfullscreen/dwm-actualfullscreen-20211013-cb3f58a.diff";
+      hash = "sha256-vsTuudJCy7Zo1wdwpI/nY7Zu1txXx90QoDfJLmfDUH8=";
+    })
+    monlayoutPatch
+  ];
+  postPatch = ''
+    cp ${pkgs.writeText "config.h" configH} config.h
+  '';
+})

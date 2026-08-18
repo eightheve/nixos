@@ -2,16 +2,18 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.ssh;
-in {
+in
+{
   options.site.modules.ssh = {
     enable = lib.mkEnableOption "OpenSSH server";
     openFirewall = lib.mkEnableOption "open ports in firewall";
 
     ports = lib.mkOption {
       type = lib.types.listOf lib.types.int;
-      default = [22];
+      default = [ 22 ];
     };
   };
 

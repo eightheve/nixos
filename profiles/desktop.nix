@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.site.profiles.desktop;
-in {
+in
+{
   options.site.profiles.desktop = {
     enable = lib.mkEnableOption "desktop profile (workstation-specific settings)";
   };

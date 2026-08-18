@@ -3,7 +3,8 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.wokeforum;
   topology = config.site.topology;
 
@@ -29,7 +30,7 @@
   smfVendor = pkgs.stdenv.mkDerivation {
     name = "smf-${smfVersion}-vendor";
     src = smfSource;
-    nativeBuildInputs = [pkgs.php.packages.composer];
+    nativeBuildInputs = [ pkgs.php.packages.composer ];
     buildPhase = ''
       composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
     '';
@@ -61,7 +62,8 @@
   # Writable webroot. SMF's Settings.php, cache, attachments, avatars, Packages,
   webroot = "/var/lib/wokeforum";
   attachmentDir = "${clientPath}/media";
-in {
+in
+{
   options.site.modules.wokeforum = {
     server = {
       enable = lib.mkEnableOption "wokeforum NFS server role (runs on SAOTOME)";
@@ -121,7 +123,7 @@ in {
         '';
       };
 
-      networking.firewall.interfaces.wg0.allowedTCPPorts = [2049];
+      networking.firewall.interfaces.wg0.allowedTCPPorts = [ 2049 ];
     })
 
     (lib.mkIf cfg.client.enable {
@@ -144,7 +146,7 @@ in {
       services.mysql = {
         enable = true;
         package = pkgs.mariadb;
-        ensureDatabases = [cfg.forum.dbName];
+        ensureDatabases = [ cfg.forum.dbName ];
         ensureUsers = [
           { name = cfg.forum.dbUser; }
         ];
@@ -177,16 +179,19 @@ in {
 
       systemd.services.wokeforum-install = {
         description = "Install/upgrade SMF webroot";
-        wantedBy = ["multi-user.target"];
-        after = ["network.target" "systemd-tmpfiles-setup.service"];
-        requires = ["systemd-tmpfiles-setup.service"];
+        wantedBy = [ "multi-user.target" ];
+        after = [
+          "network.target"
+          "systemd-tmpfiles-setup.service"
+        ];
+        requires = [ "systemd-tmpfiles-setup.service" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
           User = "wokestory";
           Group = "wokestory";
         };
-        path = [pkgs.rsync];
+        path = [ pkgs.rsync ];
         script = ''
           # attachments is a symlink to the NFS mount; remove it so rsync doesn't write SMF core files through it.
           rm -rf ${webroot}/attachments
@@ -249,7 +254,10 @@ in {
         };
       };
 
-      networking.firewall.allowedTCPPorts = [80 443];
+      networking.firewall.allowedTCPPorts = [
+        80
+        443
+      ];
     })
   ];
 }

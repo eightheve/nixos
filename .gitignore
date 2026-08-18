@@ -16,5 +16,8 @@ result-*
 .DS_Store
 Thumbs.db
 
+# Tool generated
 .clj-kondo
 .lsp
+.pi*
+.pre-commit-config.yaml

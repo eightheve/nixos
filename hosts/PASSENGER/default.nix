@@ -2,7 +2,8 @@
   pkgs,
   pkgs-unstable,
   ...
-}: {
+}:
+{
   imports = [
     ./hardware.nix
   ];
@@ -11,7 +12,7 @@
     efi.canTouchEfiVariables = true;
     grub = {
       enable = true;
-      devices = ["nodev"];
+      devices = [ "nodev" ];
       efiSupport = true;
       useOSProber = true;
     };
@@ -46,11 +47,15 @@
       "xrandr --output HDMI-0 --mode 1920x1200 --rotate left --rate 60 --pos 0x0"
       "xrandr --output DP-4 --mode 1920x1080 --rate 144 --pos 1200x200 --primary"
       "xrandr --output DP-2 --mode 1920x1200 --rotate right --rate 60 --pos 3120x0"
-      "feh --bg-fill ~/.config/wallpaper-primary.jpg ~/.config/wallpaper-secondary.jpg ~/.config/wallpaper-secondary.jpg &"
+    ];
+    wallpaperPaths = [
+      "~/.config/wallpaper-primary.jpg"
+      "~/.config/wallpaper-secondary.jpg"
+      "~/.config/wallpaper-secondary.jpg"
     ];
   };
 
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" ];
   programs.steam.enable = true;
   nixpkgs.config.allowUnfree = true;
 
@@ -64,8 +69,13 @@
       daemon.enable = true;
     };
   };
- 
-  services.jack.jackd.extraOptions = [ "-d" "alsa" "-d" "hw:1" ];
+
+  services.jack.jackd.extraOptions = [
+    "-d"
+    "alsa"
+    "-d"
+    "hw:1"
+  ];
 
   environment.systemPackages =
     (with pkgs; [

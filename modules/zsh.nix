@@ -2,9 +2,11 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.zsh;
-in {
+in
+{
   options.site.modules.zsh = {
     enable = lib.mkEnableOption "zsh + omz";
   };

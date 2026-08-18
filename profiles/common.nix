@@ -4,18 +4,9 @@
   pkgs,
   inputs,
   ...
-}: let
-  cfg = config.site.profiles.common;
-in {
-  options.site.profiles.common = {
-    enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Enable common system profile (base settings for all hosts)";
-    };
-  };
-
-  config = lib.mkIf cfg.enable {
+}:
+{
+  config = {
     nix = {
       settings = {
         experimental-features = "nix-command flakes";
@@ -35,7 +26,7 @@ in {
         yubico = {
           enable = true;
           mode = "challenge-response";
-          id = ["24483552"];
+          id = [ "24483552" ];
         };
         u2f = {
           enable = true;
@@ -50,7 +41,7 @@ in {
     services = {
       udisks2.enable = true;
       pcscd.enable = true;
-      udev.packages = [pkgs.yubikey-personalization];
+      udev.packages = [ pkgs.yubikey-personalization ];
     };
 
     programs.gnupg.agent = {
@@ -60,8 +51,6 @@ in {
 
     environment = {
       systemPackages = with pkgs; [
-        inputs.agenix.packages.x86_64-linux.default
-
         tmux
         cryptsetup
         mailutils
@@ -82,7 +71,10 @@ in {
 
     i18n = {
       defaultLocale = "en_US.UTF-8";
-      supportedLocales = ["en_US.UTF-8/UTF-8" "ja_JP.UTF-8/UTF-8"];
+      supportedLocales = [
+        "en_US.UTF-8/UTF-8"
+        "ja_JP.UTF-8/UTF-8"
+      ];
       extraLocaleSettings = {
         LC_ADDRESS = "en_US.UTF-8";
         LC_IDENTIFICATION = "en_US.UTF-8";

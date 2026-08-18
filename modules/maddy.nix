@@ -3,11 +3,12 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.maddy;
   stsCfg = cfg.mtaSts;
 
-  stsPolicyDir = pkgs.runCommand "mta-sts-policy" {} ''
+  stsPolicyDir = pkgs.runCommand "mta-sts-policy" { } ''
     mkdir -p $out/.well-known
     cat > $out/.well-known/mta-sts.txt <<EOF
     version: STSv1
@@ -16,7 +17,8 @@
     max_age: ${toString stsCfg.maxAge}
     EOF
   '';
-in {
+in
+{
   options.site.modules.maddy = {
     enable = lib.mkEnableOption "maddy mail server";
 
@@ -43,7 +45,11 @@ in {
       };
 
       mode = lib.mkOption {
-        type = lib.types.enum ["testing" "enforce" "none"];
+        type = lib.types.enum [
+          "testing"
+          "enforce"
+          "none"
+        ];
         default = "enforce";
         description = ''
           MTA-STS policy mode.
@@ -66,7 +72,7 @@ in {
       services.maddy = {
         enable = true;
         inherit (cfg) hostname primaryDomain;
-        localDomains = [cfg.primaryDomain];
+        localDomains = [ cfg.primaryDomain ];
         openFirewall = true;
         tls = {
           loader = "file";
@@ -233,14 +239,17 @@ in {
         postRun = "systemctl reload nginx.service; systemctl restart maddy.service";
       };
 
-      users.users.maddy.extraGroups = ["nginx"];
+      users.users.maddy.extraGroups = [ "nginx" ];
 
       systemd.services.maddy = {
-        after = ["acme-${cfg.hostname}.service"];
-        wants = ["acme-${cfg.hostname}.service"];
+        after = [ "acme-${cfg.hostname}.service" ];
+        wants = [ "acme-${cfg.hostname}.service" ];
       };
 
-      networking.firewall.allowedTCPPorts = [80 443];
+      networking.firewall.allowedTCPPorts = [
+        80
+        443
+      ];
     })
 
     (lib.mkIf (cfg.enable && stsCfg.enable) {

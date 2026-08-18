@@ -4,17 +4,17 @@
   pkgs,
   pkgs-unstable,
   ...
-}: let
+}:
+let
   cfg = config.site.users.sana;
   packages = import ../../packages;
 
   c = config.site.colorScheme;
-  termColors = c.termColors;
 
   xinitrcText = ''
     ${lib.concatStringsSep "\n" cfg.additionalXinitrcCommands}
     slstatus &
-    feh --bg-fill ~/.wallpaper.jpg &
+    ${lib.concatStringsSep " " (map (p: "feh --bg-fill ${p} &") cfg.wallpaperPaths)}
     exec dwm
   '';
 
@@ -70,16 +70,20 @@
     fi
 
     alias ssh="gpg-connect-agent updatestartuptty /bye >/dev/null && ssh"
+    alias mdv='${pkgs.glow}/bin/glow -pw $(tput cols)'
   '';
 
   vimrc = ''
-    autocmd VimEnter * call timer_start(8, {-> execute('set t_Co=16')})
-    autocmd VimEnter * call timer_start(12, {-> execute('colorscheme zaibatsu')})
+    set t_Co=16
+    colorscheme zaibatsu
     set mouse=a
     syntax on
     filetype plugin on
     filetype indent on
     let mapleader = " "
+    let g:limelight_conceal_ctermfg = 'gray'
+    autocmd! User GoyoEnter Limelight
+    autocmd! User GoyoLeave Limelight!
     func! AsciiMode()
       syntax off
       setlocal virtualedit=all
@@ -116,7 +120,8 @@
     autocmd FileType markdown setlocal spell
     autocmd FileType markdown call ToggleWrap()
   '';
-in {
+in
+{
   options.site.users.sana = {
     enable = lib.mkOption {
       type = lib.types.bool;
@@ -126,8 +131,14 @@ in {
 
     additionalXinitrcCommands = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [];
+      default = [ ];
       description = "Additional commands in ~/.xinitrc before exec dwm";
+    };
+
+    wallpaperPaths = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Wallpaper file paths feh --bg-fill applies on X start";
     };
   };
 
@@ -137,7 +148,13 @@ in {
         isNormalUser = true;
         createHome = true;
         description = "二葉さな";
-        extraGroups = ["wheel" "networkmanager" "slskd" "input" "jackaudio"];
+        extraGroups = [
+          "wheel"
+          "networkmanager"
+          "slskd"
+          "input"
+          "jackaudio"
+        ];
         hashedPassword = "$y$j9T$aqLJPq7sjoh7G60UN.4dd1$Deb/3ODxhVw.Qd2uN.A0.QvOH8Oel9BF.ukD/aXnNd8";
         shell = pkgs.zsh;
         openssh.authorizedKeys.keys = [
@@ -156,6 +173,8 @@ in {
           ".config/git/config".text = gitConfigText;
           ".zshrc".text = zshConfigText;
           ".vimrc".text = vimrc;
+          ".vim/pack/plugins/start/goyo".source = pkgs.vimPlugins.goyo-vim;
+          ".vim/pack/plugins/start/limelight".source = pkgs.vimPlugins.limelight-vim;
         };
       };
     })

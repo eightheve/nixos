@@ -1,11 +1,12 @@
 {
   config,
   lib,
-  inputs,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.sanaWebsite;
-in {
+in
+{
   options.site.modules.sanaWebsite = {
     enable = lib.mkEnableOption "sana's website";
 
@@ -21,10 +22,6 @@ in {
       };
     };
   };
-
-  imports = [
-    inputs.sana-website.nixosModules.default
-  ];
 
   config = lib.mkIf cfg.enable {
     services.sana-moe = {

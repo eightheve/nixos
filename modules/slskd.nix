@@ -2,10 +2,13 @@
   config,
   lib,
   pkgs,
+  site,
   ...
-}: let
+}:
+let
   cfg = config.site.modules.slskd;
-in {
+in
+{
   options.site.modules.slskd = {
     enable = lib.mkEnableOption "web based soulseek client";
 
@@ -31,7 +34,7 @@ in {
 
       shareFolders = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = ["[SHARE]/var/lib/slskd/shares"];
+        default = [ "[SHARE]/var/lib/slskd/shares" ];
         description = "a label can be added in square brackets before the first / in the file path";
       };
 
@@ -61,8 +64,11 @@ in {
         homeMode = "774";
       };
 
-      networking.firewall.allowedTCPPorts = [cfg.settings.soulseekListeningPort cfg.settings.localPort];
-      networking.firewall.allowedUDPPorts = [cfg.settings.soulseekListeningPort];
+      networking.firewall.allowedTCPPorts = [
+        cfg.settings.soulseekListeningPort
+        cfg.settings.localPort
+      ];
+      networking.firewall.allowedUDPPorts = [ cfg.settings.soulseekListeningPort ];
 
       systemd.services.slskd.serviceConfig = {
         UMask = "0003";
@@ -123,7 +129,11 @@ in {
                   queue_strategy = "firstinfirstout";
                   slots = 20;
                 };
-                members = ["ZippyZappy" "hi im casper" "kevinshieldsfunnymoments"];
+                members = [
+                  "ZippyZappy"
+                  "hi im casper"
+                  "kevinshieldsfunnymoments"
+                ];
               };
             };
           };
@@ -156,22 +166,13 @@ in {
       };
     })
 
-    (lib.mkIf cfg.nginx.enable {
-      services.nginx = {
-        enable = true;
-        recommendedProxySettings = true;
-        recommendedTlsSettings = true;
-        virtualHosts."${cfg.nginx.domainName}" = {
-          forceSSL = true;
-          enableACME = lib.mkForce true;
-          locations."/" = {
-            proxyPass = cfg.nginx.upstream;
-            proxyWebsockets = true;
-          };
-        };
-      };
-
-      networking.firewall.allowedTCPPorts = [80 443];
-    })
+    (lib.mkIf cfg.nginx.enable (
+      site.lib.mkProxyVhost {
+        domain = cfg.nginx.domainName;
+        upstream = cfg.nginx.upstream;
+        enableACME = lib.mkForce true;
+        proxyWebsockets = true;
+      }
+    ))
   ];
 }

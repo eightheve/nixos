@@ -246,6 +246,26 @@ in
       systemd.services.maddy = {
         after = [ "acme-${cfg.hostname}.service" ];
         wants = [ "acme-${cfg.hostname}.service" ];
+        serviceConfig = {
+          # Hardening. Port binding uses systemd-granted capabilities from the
+          # package unit, which NoNewPrivileges does not block.
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateTmp = true;
+          PrivateDevices = true;
+          NoNewPrivileges = true;
+          RestrictAddressFamilies = [
+            "AF_INET"
+            "AF_INET6"
+            "AF_UNIX"
+          ];
+          # Mail state under /var/lib/maddy is auto-writable via the module's
+          # StateDirectory; ACME certs and /etc/maddy aliases stay readable.
+          ReadOnlyPaths = [
+            "/var/lib/acme"
+            "/etc/maddy"
+          ];
+        };
       };
 
       networking.firewall.allowedTCPPorts = [

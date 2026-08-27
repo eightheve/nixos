@@ -221,7 +221,7 @@ in
             }
           }
 
-          imaps tls://0.0.0.0:993 {
+          imap tls://0.0.0.0:993 {
             auth &local_authdb
             storage &local_mailboxes
           }

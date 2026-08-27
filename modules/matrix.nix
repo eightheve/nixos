@@ -126,6 +126,9 @@ in
           services.mautrix-discord = {
             enable = true;
             registerToSynapse = true;
+            # DB password is substituted from $MAUTRIX_DISCORD_DB_PASSWORD in this
+            # env file at service start; the real password must be rotated on deploy.
+            environmentFile = "/etc/mautrix-discord.env";
             settings = {
               homeserver = {
                 address = "https://matrix.doppel.moe";
@@ -135,7 +138,7 @@ in
                 id = "_mautrix_discord";
                 database = {
                   type = "postgres";
-                  uri = "postgres://mautrix-discord:password@127.0.0.1/mautrix-discord?sslmode=disable";
+                  uri = "postgres://mautrix-discord:$MAUTRIX_DISCORD_DB_PASSWORD@127.0.0.1/mautrix-discord?sslmode=disable";
                 };
                 bot = {
                   username = "_mautrix_bridge";

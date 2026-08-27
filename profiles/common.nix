@@ -52,22 +52,26 @@
     programs.fuse.userAllowOther = true;
 
     environment = {
-      systemPackages = with pkgs; [
-        tmux
-        cryptsetup
-        mailutils
-        fastfetch
-        btop
-        wget
-        curl
-        git
-        sshfs
+      systemPackages =
+        with pkgs;
+        [
+          tmux
+          cryptsetup
+          mailutils
+          fastfetch
+          wget
+          curl
+          git
+          sshfs
 
-        yubioath-flutter
-        yubikey-personalization
-        yubico-piv-tool
-        yubikey-manager
-      ];
+          yubioath-flutter
+          yubikey-personalization
+          yubico-piv-tool
+          yubikey-manager
+        ]
+        ++ [
+          (pkgs.btop.override { cudaSupport = true; })
+        ];
     };
 
     time.timeZone = lib.mkDefault "America/New_York";

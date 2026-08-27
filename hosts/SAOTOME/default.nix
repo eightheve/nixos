@@ -58,22 +58,7 @@
         environmentFilePath = "/var/lib/navidrome/.env";
       };
     };
-
-    remoteBuilds.user = {
-      enable = false;
-      hosts = {
-        HAMUKO-NIXREMOTE = {
-          hostName = "192.168.1.20";
-        };
-        NYANKO-NIXREMOTE = {
-          hostName = "192.168.1.30";
-        };
-        HIME-NIXREMOTE = {
-          hostName = "192.168.1.40";
-        };
-      };
-    };
-
+    remoteBuilds.builder.enable = true;
     wokeforum.server.enable = true;
   };
 

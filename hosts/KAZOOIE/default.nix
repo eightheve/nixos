@@ -75,6 +75,13 @@
       enable = true;
       upstream = "http://10.100.0.2:5030";
     };
+    remoteBuilds.user = {
+      enable = true;
+      hosts = {
+        PASSENGER.hostName = "10.100.1.1";
+        SAOTOME.hostName = "10.100.0.2";
+      };
+    };
     mcWhitelist.nginx.enable = true;
     sanaWebsite.enable = true;
     matrix.synapse.enable = true;

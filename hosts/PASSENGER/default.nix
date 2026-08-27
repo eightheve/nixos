@@ -29,6 +29,7 @@
       enable = true;
       openFirewall = true;
     };
+    remoteBuilds.builder.enable = true;
   };
 
   site.colorScheme = {

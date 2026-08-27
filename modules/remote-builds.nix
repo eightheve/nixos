@@ -75,9 +75,7 @@ in
       authorizedRootKeys = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAThaVtAb1QhxVxYuORHd71O58Y5bLOLdkUr8A9N4yIl root@SAOTOME"
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICkb4O78MsBxBrHc/VFtDcO35/G26kYiRWVYBbN/f5Iz root@PASSENGER"
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICJqV32/iYDW1tcuygcv33rXIJ/6o8hLhupP+Miie+Zl root@SATELLITE"
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN1DaE9ZrWokmAD8/4n+RQ8mgyXRwyzys2LNE8KJmNKK root@KAZOOIE"
         ];
       };
 

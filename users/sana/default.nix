@@ -7,7 +7,6 @@
 }:
 let
   cfg = config.site.users.sana;
-  packages = import ../../packages;
 
   janetVim = pkgs.fetchFromGitHub {
     owner = "janet-lang";
@@ -15,8 +14,6 @@ let
     rev = "28135b2418d7da0fa4bea48db5ec112cf3fbf58d";
     hash = "sha256-e/AUuTQgjmXzN8IKGmmurkIuW4oPHj7rYr6MmXcDW7c=";
   };
-
-  c = config.site.colorScheme;
 
   xinitrcText = ''
     ${lib.concatStringsSep "\n" cfg.additionalXinitrcCommands}
@@ -138,24 +135,6 @@ in
           ".config/mimeapps.list".text = xdgMimeAppsText;
           ".xinitrc".text = xinitrcText;
         };
-      };
-
-      environment.systemPackages = [
-        (packages.dwm {
-          inherit pkgs lib;
-          colorscheme = if c.enable then c.colors else null;
-          isLaptop = config.site.profiles.laptop.enable;
-          refreshRate = if config.site.profiles.laptop.enable then 120 else 144;
-        })
-        (packages.slstatus {
-          inherit pkgs lib;
-          isLaptop = config.site.profiles.laptop.enable;
-        })
-      ];
-
-      environment.sessionVariables = {
-        XCURSOR_SIZE = "24";
-        XCURSOR_THEME = "Bibata-Original-Classic";
       };
     })
 

@@ -6,6 +6,8 @@
 }:
 let
   cfg = config.site.profiles.graphics;
+  packages = import ../packages;
+  c = config.site.colorScheme;
 in
 {
   options.site.profiles.graphics = {
@@ -24,9 +26,24 @@ in
     };
 
     environment.systemPackages = with pkgs; [
+      (packages.dwm {
+        inherit pkgs lib;
+        colorscheme = if c.enable then c.colors else null;
+        isLaptop = config.site.profiles.laptop.enable;
+        refreshRate = if config.site.profiles.laptop.enable then 120 else 144;
+      })
+      (packages.slstatus {
+        inherit pkgs lib;
+        isLaptop = config.site.profiles.laptop.enable;
+      })
       xorg.xinit
       pavucontrol
     ];
+
+    environment.sessionVariables = {
+      XCURSOR_SIZE = "24";
+      XCURSOR_THEME = "Bibata-Original-Classic";
+    };
 
     nixpkgs.config.permittedInsecurePackages = [
       "librewolf-152.0.2-1"

@@ -38,13 +38,11 @@ in
         (site.lib.mkProxyVhost {
           domain = "matrix.doppel.moe";
           upstream = "http://127.0.0.1:8008";
-          recommendedSettings = false;
           openFirewall = false;
         })
         (site.lib.mkProxyVhost {
           domain = "mautrix-media.doppel.moe";
           upstream = "http://127.0.0.1:29334";
-          recommendedSettings = false;
           openFirewall = false;
         })
         {
@@ -56,7 +54,6 @@ in
             80
             443
             8448
-            8008
           ];
 
           services = {
@@ -91,7 +88,7 @@ in
                   }
                   {
                     # client
-                    bind_addresses = [ "0.0.0.0" ];
+                    bind_addresses = [ "127.0.0.1" ];
                     port = 8008;
                     resources = [
                       {

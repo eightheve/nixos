@@ -87,6 +87,25 @@ in
       default = 5;
       description = "Number of dated snapshots to keep alongside the latest symlink.";
     };
+
+    serve = {
+      enable = lib.mkEnableOption "kiwix-serve for the latest wikipedia zim";
+
+      bindAddress = lib.mkOption {
+        type = lib.types.str;
+        default = "127.0.0.1";
+        description = ''
+          Address kiwix-serve binds to. Use the host's WireGuard IP to make it
+          reachable for other hosts in the mesh (firewall then only allows the
+          port on wg0).
+        '';
+      };
+
+      port = lib.mkOption {
+        type = lib.types.int;
+        default = 8081;
+      };
+    };
   };
 
   config = lib.mkMerge [
@@ -138,6 +157,36 @@ in
       };
 
       networking.firewall.interfaces.wg0.allowedTCPPorts = [ 2049 ];
+    })
+
+    (lib.mkIf cfg.serve.enable {
+      # Serves ${baseDir}/latest/ which is a relative symlink to the newest
+      # dated snapshot; kiwix-serve follows it on restart. Full-text search
+      # uses the index embedded in the zim, no extra setup.
+      systemd.services.kiwix-serve = {
+        description = "Serve wikipedia zim via kiwix-serve";
+        after = [ "local-fs.target" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          User = "wikipedia";
+          Group = "wikipedia";
+          Restart = "on-failure";
+          NoNewPrivileges = true;
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateTmp = true;
+          PrivateDevices = true;
+          ReadOnlyPaths = [ baseDir ];
+        };
+        script = ''
+          exec ${pkgs.kiwix-tools}/bin/kiwix-serve \
+            --address=${cfg.serve.bindAddress} \
+            --port=${toString cfg.serve.port} \
+            ${baseDir}/latest/*.zim
+        '';
+      };
+
+      networking.firewall.interfaces.wg0.allowedTCPPorts = [ cfg.serve.port ];
     })
 
     (lib.mkIf cfg.client.enable {

@@ -64,7 +64,14 @@
     };
     remoteBuilds.builder.enable = true;
     wokeforum.server.enable = true;
-    wikipediaMirror.server.enable = true;
+    wikipediaMirror = {
+      server.enable = true;
+      # Reachable over wg0 only; Wayfinder uses this from KAZOOIE.
+      serve = {
+        enable = true;
+        bindAddress = "10.100.0.2";
+      };
+    };
     searxng = {
       enable = true;
       # Reachable over wg0 only; Wayfinder will use this from KAZOOIE.

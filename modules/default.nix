@@ -11,6 +11,7 @@
     ./remote-builds.nix
     ./sana-website.nix
     ./slskd.nix
+    ./wikipedia-mirror.nix
     ./ssh.nix
     ./wokeforum.nix
     ./zsh.nix

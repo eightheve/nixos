@@ -64,6 +64,7 @@
     };
     remoteBuilds.builder.enable = true;
     wokeforum.server.enable = true;
+    wikipediaMirror.server.enable = true;
   };
 
   site.users.sana.enable = true;

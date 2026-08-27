@@ -15,13 +15,6 @@ let
     hash = "sha256-e/AUuTQgjmXzN8IKGmmurkIuW4oPHj7rYr6MmXcDW7c=";
   };
 
-  xinitrcText = ''
-    ${lib.concatStringsSep "\n" cfg.additionalXinitrcCommands}
-    slstatus &
-    ${lib.concatStringsSep " " (map (p: "feh --bg-fill ${p} &") cfg.wallpaperPaths)}
-    exec dwm
-  '';
-
   gitConfigText = ''
     [user]
       name = doppelsana
@@ -62,18 +55,6 @@ in
       default = true;
       description = "Whether to enable and manage the 'sana' user";
     };
-
-    additionalXinitrcCommands = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = "Additional commands in ~/.xinitrc before exec dwm";
-    };
-
-    wallpaperPaths = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = "Wallpaper file paths feh --bg-fill applies on X start";
-    };
   };
 
   config = lib.mkMerge [
@@ -101,7 +82,7 @@ in
 
         files = {
           ".config/git/config".text = gitConfigText;
-          ".zshrc".text = pkgs.callPackage ./zshrc.nix { };
+          ".zshrc".text = import ./zshrc.nix pkgs;
           ".vimrc".text = builtins.readFile ./vimrc;
           ".vim/pack/plugins/start/goyo".source = pkgs.vimPlugins.goyo-vim;
           ".vim/pack/plugins/start/limelight".source = pkgs.vimPlugins.limelight-vim;
@@ -133,7 +114,7 @@ in
 
         files = {
           ".config/mimeapps.list".text = xdgMimeAppsText;
-          ".xinitrc".text = xinitrcText;
+          ".xinitrc".text = ". /etc/x11/xinitrc\n";
         };
       };
     })

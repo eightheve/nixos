@@ -12,6 +12,18 @@ in
 {
   options.site.profiles.graphics = {
     enable = lib.mkEnableOption "graphics profile (GUI and display settings)";
+
+    xinitCommands = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Extra shell commands in the system xinitrc before exec dwm";
+    };
+
+    wallpapers = lib.mkOption {
+      type = lib.types.listOf lib.types.path;
+      default = [ ];
+      description = "Wallpaper images (store paths) applied by feh --bg-fill on X start, one per invocation";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -24,6 +36,13 @@ in
       enable = true;
       displayManager.startx.enable = true;
     };
+
+    environment.etc."x11/xinitrc".text = ''
+      ${lib.concatStringsSep "\n" cfg.xinitCommands}
+      slstatus &
+      ${lib.concatStringsSep " " (map (p: "feh --bg-fill ${p} &") cfg.wallpapers)}
+      exec dwm
+    '';
 
     environment.systemPackages = with pkgs; [
       (packages.dwm {

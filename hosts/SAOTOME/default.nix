@@ -48,6 +48,8 @@
         useSlskdn = false;
         shareFolders = [ "[RAID]/srv/data/music" ];
         environmentFilePath = "/var/lib/slskd/.env";
+        # KAZOOIE's nginx vhost proxies in over wg0 (10.100.0.2).
+        webAddress = "10.100.0.2";
       };
     };
 

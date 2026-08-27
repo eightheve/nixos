@@ -43,6 +43,16 @@ in
         default = 5030;
       };
 
+      webAddress = lib.mkOption {
+        type = lib.types.str;
+        default = "127.0.0.1";
+        description = ''
+          Address the slskd web UI binds to. Use the host's WireGuard IP when
+          the nginx vhost lives on another host in the mesh (firewall then only
+          allows the port on wg0).
+        '';
+      };
+
       environmentFilePath = lib.mkOption {
         type = lib.types.str;
         default = "/etc/slskd.env";
@@ -61,23 +71,27 @@ in
         group = "slskd";
         home = "/var/lib/slskd";
         createHome = true;
-        homeMode = "774";
+        homeMode = "750";
       };
 
       networking.firewall.allowedTCPPorts = [
         cfg.settings.soulseekListeningPort
-        cfg.settings.localPort
       ];
       networking.firewall.allowedUDPPorts = [ cfg.settings.soulseekListeningPort ];
+      # Web UI only reachable through the WireGuard mesh (nginx proxies in from
+      # another host); never open to WAN.
+      networking.firewall.interfaces.wg0.allowedTCPPorts = [ cfg.settings.localPort ];
 
       systemd.services.slskd.serviceConfig = {
-        UMask = "0003";
+        UMask = "0027";
       };
 
       services.slskd = {
         enable = true;
         domain = "slskd.home.doppel.moe";
-        openFirewall = true;
+        # Firewall rules are declared explicitly above (TCP+UDP soulseek port,
+        # wg0-scoped web UI); do not let the nixpkgs module add its own.
+        openFirewall = false;
         environmentFile = cfg.settings.environmentFilePath;
         group = "slskd";
         user = "slskd";
@@ -151,7 +165,7 @@ in
           };
 
           web = {
-            address = "*";
+            address = cfg.settings.webAddress;
             https = {
               disabled = false;
               port = 5031;

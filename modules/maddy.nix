@@ -73,7 +73,9 @@ in
         enable = true;
         inherit (cfg) hostname primaryDomain;
         localDomains = [ cfg.primaryDomain ];
-        openFirewall = true;
+        # Do not use the module's openFirewall: it opens legacy plaintext IMAP
+        # 143. Open only smtp/submission/imaps explicitly below.
+        openFirewall = false;
         tls = {
           loader = "file";
           certificates = [
@@ -219,7 +221,7 @@ in
             }
           }
 
-          imap tcp://0.0.0.0:143 {
+          imaps tls://0.0.0.0:993 {
             auth &local_authdb
             storage &local_mailboxes
           }
@@ -249,6 +251,9 @@ in
       networking.firewall.allowedTCPPorts = [
         80
         443
+        25
+        587
+        993
       ];
     })
 

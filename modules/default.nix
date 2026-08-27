@@ -10,6 +10,7 @@
     ./network-topology.nix
     ./remote-builds.nix
     ./sana-website.nix
+    ./searxng.nix
     ./slskd.nix
     ./wikipedia-mirror.nix
     ./ssh.nix

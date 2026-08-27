@@ -58,6 +58,8 @@
       settings = {
         musicFolder = "/srv/data/music";
         environmentFilePath = "/var/lib/navidrome/.env";
+        # KAZOOIE's nginx vhost proxies in over wg0 (10.100.0.2).
+        address = "10.100.0.2";
       };
     };
     remoteBuilds.builder.enable = true;

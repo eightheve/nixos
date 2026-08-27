@@ -49,6 +49,8 @@
       enableSSHSupport = true;
     };
 
+    programs.fuse.userAllowOther = true;
+
     environment = {
       systemPackages = with pkgs; [
         tmux
@@ -59,6 +61,7 @@
         wget
         curl
         git
+        sshfs
 
         yubioath-flutter
         yubikey-personalization

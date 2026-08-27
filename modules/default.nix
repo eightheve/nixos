@@ -6,6 +6,7 @@
     ./matrix.nix
     ./mc-whitelist.nix
     ./navidrome.nix
+    ./netmount.nix
     ./networking.nix
     ./network-topology.nix
     ./remote-builds.nix

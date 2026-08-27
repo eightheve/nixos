@@ -27,6 +27,7 @@ let
       lib.makeBinPath [
         pkgs.curl
         pkgs.coreutils
+        pkgs.gawk
         pkgs.gnugrep
       ]
     }"

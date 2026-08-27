@@ -317,11 +317,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1785136132,
-        "narHash": "sha256-0Uuqmd9UcsaTyWPffzc6AV4HlU8MCWVnqVGoSomHAXw=",
+        "lastModified": 1787835527,
+        "narHash": "sha256-N+7tcEqCOyGkaXYohgxP/mMm64QmgenKzuGz4xmQQT4=",
         "owner": "eightheve",
         "repo": "wayfinder",
-        "rev": "1d4c49bea05308439baf2f7f202cc8afc6ea5536",
+        "rev": "ae77c5ca51d2ec1c34e9c477146837a79ad3b285",
         "type": "github"
       },
       "original": {

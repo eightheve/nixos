@@ -6,10 +6,10 @@
 # VALUES (host selection is done with mkIf guards instead).
 #
 # Access control is export-scope (single /32 peer over wg0), not file mode:
-# NFS numeric uids pass through and the server directory is permissive
-# (mode 0777) so the client service writes with its own uid, no uid pinning
-# across machines. Anyone who can reach the export can rewrite it; the export
-# is restricted to one trusted host in the mesh.
+# NFS numeric uids pass through unsquashed (no_root_squash included, so the
+# client's root keeps uid 0 for migrations and file management) and the
+# server directory is permissive (mode 0777). Anyone who can reach the export
+# can rewrite it; the export is restricted to one trusted host in the mesh.
 {
   config,
   lib,
@@ -43,7 +43,7 @@ let
         exports = ''
           ${d.server.path} ${wgIpOf d.client.host}/32(${
             if d.readonly or false then "ro" else "rw"
-          },sync,no_subtree_check)
+          },sync,no_subtree_check,no_root_squash)
         '';
       };
 

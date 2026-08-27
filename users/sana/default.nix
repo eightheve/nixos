@@ -9,6 +9,13 @@ let
   cfg = config.site.users.sana;
   packages = import ../../packages;
 
+  janetVim = pkgs.fetchFromGitHub {
+    owner = "janet-lang";
+    repo = "janet.vim";
+    rev = "28135b2418d7da0fa4bea48db5ec112cf3fbf58d";
+    hash = "sha256-e/AUuTQgjmXzN8IKGmmurkIuW4oPHj7rYr6MmXcDW7c=";
+  };
+
   c = config.site.colorScheme;
 
   xinitrcText = ''
@@ -175,6 +182,7 @@ in
           ".vimrc".text = vimrc;
           ".vim/pack/plugins/start/goyo".source = pkgs.vimPlugins.goyo-vim;
           ".vim/pack/plugins/start/limelight".source = pkgs.vimPlugins.limelight-vim;
+          ".vim/pack/plugins/start/janet-vim".source = janetVim;
         };
       };
     })

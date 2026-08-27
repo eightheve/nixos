@@ -57,76 +57,6 @@ let
     application/json=librewolf.desktop
     application/pdf=mupdf.desktop
   '';
-
-  zshConfigText = ''
-    autoload -U colors && colors
-
-    HISTSIZE=10000
-    SAVEHIST=10000
-    setopt SHARE_HISTORY
-    setopt HIST_IGNORE_DUPS
-    unsetopt BEEP
-
-    bindkey -e
-
-    ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-    EDITOR=vim
-
-    if [ -n "$IN_NIX_SHELL" ]; then
-      PROMPT="%{$fg[cyan]%}(nix)%{$reset_color%} $PROMPT"
-    fi
-
-    alias ssh="gpg-connect-agent updatestartuptty /bye >/dev/null && ssh"
-    alias mdv='${pkgs.glow}/bin/glow -pw $(tput cols)'
-  '';
-
-  vimrc = ''
-    set t_Co=16
-    colorscheme zaibatsu
-    set mouse=a
-    syntax on
-    filetype plugin on
-    filetype indent on
-    let mapleader = " "
-    let g:limelight_conceal_ctermfg = 'gray'
-    autocmd! User GoyoEnter Limelight
-    autocmd! User GoyoLeave Limelight!
-    func! AsciiMode()
-      syntax off
-      setlocal virtualedit=all
-      autocmd BufWritePre * :%s/\s\+$//e
-    endfu
-    com! AC call AsciiMode()
-    let s:wrapenabled = 0
-    function ToggleWrap()
-      set wrap nolist
-      if s:wrapenabled
-        set nolinebreak
-        unmap j
-        unmap k
-        unmap $
-        unmap 0
-        unmap ^
-        let s:wrapenabled = 0
-      else
-        set linebreak
-        nnoremap j gj
-        nnoremap k gk
-        nnoremap $ g$
-        nnoremap 0 g0
-        nnoremap ^ g^
-        vnoremap j gj
-        vnoremap k gk
-        vnoremap $ g$
-        vnoremap 0 g0
-        vnoremap ^ g^
-        let s:wrapenabled = 1
-      endif
-    endfu
-    map <leader>w :call ToggleWrap()<CR>
-    autocmd FileType markdown setlocal spell
-    autocmd FileType markdown call ToggleWrap()
-  '';
 in
 {
   options.site.users.sana = {
@@ -177,8 +107,8 @@ in
 
         files = {
           ".config/git/config".text = gitConfigText;
-          ".zshrc".text = zshConfigText;
-          ".vimrc".text = vimrc;
+          ".zshrc".text = pkgs.callPackage ./zshrc.nix { };
+          ".vimrc".text = builtins.readFile ./vimrc;
           ".vim/pack/plugins/start/goyo".source = pkgs.vimPlugins.goyo-vim;
           ".vim/pack/plugins/start/limelight".source = pkgs.vimPlugins.limelight-vim;
           ".vim/pack/plugins/start/janet-vim".source = janetVim;

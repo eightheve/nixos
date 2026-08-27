@@ -88,9 +88,6 @@ in
         extraGroups = [
           "wheel"
           "networkmanager"
-          "slskd"
-          "input"
-          "jackaudio"
         ];
         shell = pkgs.zsh;
         openssh.authorizedKeys.keys = [
@@ -117,6 +114,11 @@ in
     })
 
     (lib.mkIf (cfg.enable && config.site.profiles.graphics.enable) {
+      users.users.sana.extraGroups = [
+        "input"
+        "jackaudio"
+      ];
+
       hjem.users.sana = {
         packages = with pkgs; [
           librewolf
@@ -155,6 +157,12 @@ in
         XCURSOR_SIZE = "24";
         XCURSOR_THEME = "Bibata-Original-Classic";
       };
+    })
+
+    (lib.mkIf (cfg.enable && config.site.modules.slskd.enable) {
+      users.users.sana.extraGroups = [
+        "slskd"
+      ];
     })
 
     (lib.mkIf (cfg.enable && config.site.profiles.laptop.enable) {

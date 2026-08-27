@@ -69,10 +69,10 @@
   site.users.sana.enable = true;
 
   networking.firewall = {
+    # Vintage Story is UDP-only on 42420.
     allowedUDPPorts = [ 42420 ];
     allowedTCPPorts = [
       80
-      42420
       25565
     ];
   };

@@ -57,6 +57,26 @@
     SystemMaxUse=500M
   '';
 
+  systemd.tmpfiles.rules = [
+    "d /srv/kazooie 0755 sana users - -"
+    "d /srv/kazooie/www 0755 sana users - -"
+  ];
+
+  services.nginx = {
+    enable = true;
+    virtualHosts."kazooie.doppel.moe" = {
+      forceSSL = true;
+      enableACME = true;
+      root = "/srv/kazooie/www";
+      locations."/" = {
+        tryFiles = "$uri $uri/ =404";
+        extraConfig = ''
+          autoindex on;
+        '';
+      };
+    };
+  };
+
   site.modules = {
     networking = {
       enable = true;

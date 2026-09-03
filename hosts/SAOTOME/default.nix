@@ -77,6 +77,7 @@
       # Reachable over wg0 only; Wayfinder will use this from KAZOOIE.
       bindAddress = "10.100.0.2";
     };
+    osdev.enable = true;
   };
 
   site.users.sana.enable = true;
@@ -91,7 +92,6 @@
   };
 
   users.users.sana.extraGroups = [ "libvirtd" ];
-  systemd.tmpfiles.rules = [ "d /var/lib/wayfinder-vm 0755 wayfinder wayfinder -" ];
 
   system.stateVersion = "25.11";
 }

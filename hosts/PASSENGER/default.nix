@@ -8,6 +8,14 @@
     ./hardware.nix
   ];
 
+  users.users.helper = {
+    isNormalUser = true;
+    createHome = true;
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII/4Px183MxvWJXrGM8iTUe/O44cltInzDPf4aQvcKmH sana@KAZOOIE"
+    ];
+  };
+
   boot.loader = {
     efi.canTouchEfiVariables = true;
     grub = {

@@ -21,5 +21,21 @@ in
       enable = true;
       openFirewall = true;
     };
+
+    # mDNS stays local on headless servers: keep the daemon for .local lookups
+    # (e.g. slskd.home.doppel.moe) but do not open its firewall ports.
+    services.avahi.openFirewall = lib.mkDefault false;
+
+    # sshd jail with escalating bans for repeat offenders. The sshd jail is
+    # enabled by default in the NixOS fail2ban module.
+    services.fail2ban = {
+      enable = true;
+      maxretry = 5;
+      bantime = "1h";
+      bantime-increment = {
+        enable = true;
+        maxtime = "168h";
+      };
+    };
   };
 }

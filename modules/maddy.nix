@@ -73,7 +73,9 @@ in
         enable = true;
         inherit (cfg) hostname primaryDomain;
         localDomains = [ cfg.primaryDomain ];
-        openFirewall = true;
+        # Do not use the module's openFirewall: it opens legacy plaintext IMAP
+        # 143. Open only smtp/submission/imaps explicitly below.
+        openFirewall = false;
         tls = {
           loader = "file";
           certificates = [
@@ -219,7 +221,7 @@ in
             }
           }
 
-          imap tcp://0.0.0.0:143 {
+          imap tls://0.0.0.0:993 {
             auth &local_authdb
             storage &local_mailboxes
           }
@@ -244,11 +246,34 @@ in
       systemd.services.maddy = {
         after = [ "acme-${cfg.hostname}.service" ];
         wants = [ "acme-${cfg.hostname}.service" ];
+        serviceConfig = {
+          # Hardening. Port binding uses systemd-granted capabilities from the
+          # package unit, which NoNewPrivileges does not block.
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateTmp = true;
+          PrivateDevices = true;
+          NoNewPrivileges = true;
+          RestrictAddressFamilies = [
+            "AF_INET"
+            "AF_INET6"
+            "AF_UNIX"
+          ];
+          # Mail state under /var/lib/maddy is auto-writable via the module's
+          # StateDirectory; ACME certs and /etc/maddy aliases stay readable.
+          ReadOnlyPaths = [
+            "/var/lib/acme"
+            "/etc/maddy"
+          ];
+        };
       };
 
       networking.firewall.allowedTCPPorts = [
         80
         443
+        25
+        587
+        993
       ];
     })
 

@@ -7,7 +7,6 @@
 }:
 let
   cfg = config.site.users.sana;
-  packages = import ../../packages;
 
   janetVim = pkgs.fetchFromGitHub {
     owner = "janet-lang";
@@ -15,15 +14,6 @@ let
     rev = "28135b2418d7da0fa4bea48db5ec112cf3fbf58d";
     hash = "sha256-e/AUuTQgjmXzN8IKGmmurkIuW4oPHj7rYr6MmXcDW7c=";
   };
-
-  c = config.site.colorScheme;
-
-  xinitrcText = ''
-    ${lib.concatStringsSep "\n" cfg.additionalXinitrcCommands}
-    slstatus &
-    ${lib.concatStringsSep " " (map (p: "feh --bg-fill ${p} &") cfg.wallpaperPaths)}
-    exec dwm
-  '';
 
   gitConfigText = ''
     [user]
@@ -57,76 +47,6 @@ let
     application/json=librewolf.desktop
     application/pdf=mupdf.desktop
   '';
-
-  zshConfigText = ''
-    autoload -U colors && colors
-
-    HISTSIZE=10000
-    SAVEHIST=10000
-    setopt SHARE_HISTORY
-    setopt HIST_IGNORE_DUPS
-    unsetopt BEEP
-
-    bindkey -e
-
-    ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-    EDITOR=vim
-
-    if [ -n "$IN_NIX_SHELL" ]; then
-      PROMPT="%{$fg[cyan]%}(nix)%{$reset_color%} $PROMPT"
-    fi
-
-    alias ssh="gpg-connect-agent updatestartuptty /bye >/dev/null && ssh"
-    alias mdv='${pkgs.glow}/bin/glow -pw $(tput cols)'
-  '';
-
-  vimrc = ''
-    set t_Co=16
-    colorscheme zaibatsu
-    set mouse=a
-    syntax on
-    filetype plugin on
-    filetype indent on
-    let mapleader = " "
-    let g:limelight_conceal_ctermfg = 'gray'
-    autocmd! User GoyoEnter Limelight
-    autocmd! User GoyoLeave Limelight!
-    func! AsciiMode()
-      syntax off
-      setlocal virtualedit=all
-      autocmd BufWritePre * :%s/\s\+$//e
-    endfu
-    com! AC call AsciiMode()
-    let s:wrapenabled = 0
-    function ToggleWrap()
-      set wrap nolist
-      if s:wrapenabled
-        set nolinebreak
-        unmap j
-        unmap k
-        unmap $
-        unmap 0
-        unmap ^
-        let s:wrapenabled = 0
-      else
-        set linebreak
-        nnoremap j gj
-        nnoremap k gk
-        nnoremap $ g$
-        nnoremap 0 g0
-        nnoremap ^ g^
-        vnoremap j gj
-        vnoremap k gk
-        vnoremap $ g$
-        vnoremap 0 g0
-        vnoremap ^ g^
-        let s:wrapenabled = 1
-      endif
-    endfu
-    map <leader>w :call ToggleWrap()<CR>
-    autocmd FileType markdown setlocal spell
-    autocmd FileType markdown call ToggleWrap()
-  '';
 in
 {
   options.site.users.sana = {
@@ -134,18 +54,6 @@ in
       type = lib.types.bool;
       default = true;
       description = "Whether to enable and manage the 'sana' user";
-    };
-
-    additionalXinitrcCommands = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = "Additional commands in ~/.xinitrc before exec dwm";
-    };
-
-    wallpaperPaths = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = "Wallpaper file paths feh --bg-fill applies on X start";
     };
   };
 
@@ -158,11 +66,7 @@ in
         extraGroups = [
           "wheel"
           "networkmanager"
-          "slskd"
-          "input"
-          "jackaudio"
         ];
-        hashedPassword = "$y$j9T$aqLJPq7sjoh7G60UN.4dd1$Deb/3ODxhVw.Qd2uN.A0.QvOH8Oel9BF.ukD/aXnNd8";
         shell = pkgs.zsh;
         openssh.authorizedKeys.keys = [
           "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC1Mbo28yG2Oln+KLKYp84MI/4t8ImUBPtEN1sym9OVz0pRGtBAhjaF5DYVpLUm0D7+cyuA4G/yKmjN7AEtvxDsr7t9aZaGII16p1WX5KU+A9o8aldRJPZEqCKTNY/+mYpHOEj9p1L8PE7AymXMlPGhfL1xpwrApaO9gk9eIQkO2mbe9xE8HZKeJ/WPLDhoVI/yOn1Ulof2k2QvvrqHc78e28ieqk5lcmBn1apZe4IMVBfhK9Gtc4Wtmaga1Dya2YP7j5qc0I0vFXERI9Lr2wMHDHRy85nS5qzLFBMSc+OYVW1s0xn2u3XMeldyWcWWrCbOsY/W/V7Ojv0pwEAVfUTCjxEExjerGj9r78LZA9ICy+0j3+hTzn1D+b3LZkKPl1AXq4MI320YAo4M4nHtvpaaUsI/+6g0YBq+zpga8AoESyIyCtouY8nnTBraEcHBmoUK0ly1VBrBKMUB/sGe8xjOMmfxNwHSNEY6CqhGtf3UTXLq7NWuIHkKVmjIYtVbbsc0YWiovVT2hHsfLGVG5JYrTH/+vN7fDVq7VwMQnVQBXtzBmmntwmdSpeWU0w1x8mLWgMiGbLQxDJn2ee3p4C5ub0NPgCXsMbxEbsjC2eeRUMaKcyJS0LuSPkDlzk5Z9P05HkemaPfBNvnV1JwQ9kaT7Otvj7Ynr1OoXFZTgokPHw== cardno:24_483_552"
@@ -178,8 +82,8 @@ in
 
         files = {
           ".config/git/config".text = gitConfigText;
-          ".zshrc".text = zshConfigText;
-          ".vimrc".text = vimrc;
+          ".zshrc".text = import ./zshrc.nix pkgs;
+          ".vimrc".text = builtins.readFile ./vimrc;
           ".vim/pack/plugins/start/goyo".source = pkgs.vimPlugins.goyo-vim;
           ".vim/pack/plugins/start/limelight".source = pkgs.vimPlugins.limelight-vim;
           ".vim/pack/plugins/start/janet-vim".source = janetVim;
@@ -188,6 +92,11 @@ in
     })
 
     (lib.mkIf (cfg.enable && config.site.profiles.graphics.enable) {
+      users.users.sana.extraGroups = [
+        "input"
+        "jackaudio"
+      ];
+
       hjem.users.sana = {
         packages = with pkgs; [
           librewolf
@@ -205,27 +114,15 @@ in
 
         files = {
           ".config/mimeapps.list".text = xdgMimeAppsText;
-          ".xinitrc".text = xinitrcText;
+          ".xinitrc".text = ". /etc/x11/xinitrc\n";
         };
       };
+    })
 
-      environment.systemPackages = [
-        (packages.dwm {
-          inherit pkgs lib;
-          colorscheme = if c.enable then c.colors else null;
-          isLaptop = config.site.profiles.laptop.enable;
-          refreshRate = if config.site.profiles.laptop.enable then 120 else 144;
-        })
-        (packages.slstatus {
-          inherit pkgs lib;
-          isLaptop = config.site.profiles.laptop.enable;
-        })
+    (lib.mkIf (cfg.enable && config.site.modules.slskd.enable) {
+      users.users.sana.extraGroups = [
+        "slskd"
       ];
-
-      environment.sessionVariables = {
-        XCURSOR_SIZE = "24";
-        XCURSOR_THEME = "Bibata-Original-Classic";
-      };
     })
 
     (lib.mkIf (cfg.enable && config.site.profiles.laptop.enable) {

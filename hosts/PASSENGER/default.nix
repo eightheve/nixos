@@ -45,24 +45,19 @@
     path = ../../colors/madoka.nix;
   };
 
-  hjem.users.sana.files = {
-    ".config/wallpaper-primary.jpg".source = ../../assets/wallpapers/madoka.jpg;
-    ".config/wallpaper-secondary.jpg".source = ../../assets/wallpapers/madoka-solid.jpg;
-  };
+  site.users.sana.enable = true;
 
-  site.users.sana = {
-    enable = true;
-    additionalXinitrcCommands = [
-      "xrandr --output HDMI-0 --mode 1920x1200 --rotate left --rate 60 --pos 0x0"
-      "xrandr --output DP-4 --mode 1920x1080 --rate 144 --pos 1200x200 --primary"
-      "xrandr --output DP-2 --mode 1920x1200 --rotate right --rate 60 --pos 3120x0"
-    ];
-    wallpaperPaths = [
-      "~/.config/wallpaper-primary.jpg"
-      "~/.config/wallpaper-secondary.jpg"
-      "~/.config/wallpaper-secondary.jpg"
-    ];
-  };
+  site.profiles.graphics.xinitCommands = [
+    "xrandr --output HDMI-0 --mode 1920x1200 --rotate left --rate 60 --pos 0x0"
+    "xrandr --output DP-4 --mode 1920x1080 --rate 144 --pos 1200x200 --primary"
+    "xrandr --output DP-2 --mode 1920x1200 --rotate right --rate 60 --pos 3120x0"
+  ];
+
+  site.profiles.graphics.wallpapers = [
+    ../../assets/wallpapers/madoka.jpg
+    ../../assets/wallpapers/madoka-solid.jpg
+    ../../assets/wallpapers/madoka-solid.jpg
+  ];
 
   services.xserver.videoDrivers = [ "nvidia" ];
   programs.steam.enable = true;

@@ -1,0 +1,45 @@
+set t_Co=16
+colorscheme zaibatsu
+set mouse=a
+syntax on
+filetype plugin on
+filetype indent on
+let mapleader = " "
+let g:limelight_conceal_ctermfg = 'gray'
+autocmd! User GoyoEnter Limelight
+autocmd! User GoyoLeave Limelight!
+func! AsciiMode()
+  syntax off
+  setlocal virtualedit=all
+  autocmd BufWritePre * :%s/\s\+$//e
+endfu
+com! AC call AsciiMode()
+let s:wrapenabled = 0
+function ToggleWrap()
+  set wrap nolist
+  if s:wrapenabled
+    set nolinebreak
+    unmap j
+    unmap k
+    unmap $
+    unmap 0
+    unmap ^
+    let s:wrapenabled = 0
+  else
+    set linebreak
+    nnoremap j gj
+    nnoremap k gk
+    nnoremap $ g$
+    nnoremap 0 g0
+    nnoremap ^ g^
+    vnoremap j gj
+    vnoremap k gk
+    vnoremap $ g$
+    vnoremap 0 g0
+    vnoremap ^ g^
+    let s:wrapenabled = 1
+  endif
+endfu
+map <leader>w :call ToggleWrap()<CR>
+autocmd FileType markdown setlocal spell
+autocmd FileType markdown call ToggleWrap()

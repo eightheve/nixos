@@ -48,6 +48,8 @@
         useSlskdn = false;
         shareFolders = [ "[RAID]/srv/data/music" ];
         environmentFilePath = "/var/lib/slskd/.env";
+        # KAZOOIE's nginx vhost proxies in over wg0 (10.100.0.2).
+        webAddress = "10.100.0.2";
       };
     };
 
@@ -56,19 +58,34 @@
       settings = {
         musicFolder = "/srv/data/music";
         environmentFilePath = "/var/lib/navidrome/.env";
+        # KAZOOIE's nginx vhost proxies in over wg0 (10.100.0.2).
+        address = "10.100.0.2";
       };
     };
     remoteBuilds.builder.enable = true;
     wokeforum.server.enable = true;
+    wikipediaMirror = {
+      server.enable = true;
+      # Reachable over wg0 only; Wayfinder uses this from KAZOOIE.
+      serve = {
+        enable = true;
+        bindAddress = "10.100.0.2";
+      };
+    };
+    searxng = {
+      enable = true;
+      # Reachable over wg0 only; Wayfinder will use this from KAZOOIE.
+      bindAddress = "10.100.0.2";
+    };
   };
 
   site.users.sana.enable = true;
 
   networking.firewall = {
+    # Vintage Story is UDP-only on 42420.
     allowedUDPPorts = [ 42420 ];
     allowedTCPPorts = [
       80
-      42420
       25565
     ];
   };

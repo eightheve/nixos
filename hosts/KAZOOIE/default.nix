@@ -88,6 +88,7 @@
     maddy.enable = true;
     wokeforum.client.enable = true;
     wokeforum.forum.enable = true;
+    wikipediaMirror.client.enable = true;
   };
 
   site.users.benjamin.enable = true;

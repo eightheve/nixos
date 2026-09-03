@@ -6,10 +6,24 @@
 }:
 let
   cfg = config.site.profiles.graphics;
+  packages = import ../packages;
+  c = config.site.colorScheme;
 in
 {
   options.site.profiles.graphics = {
     enable = lib.mkEnableOption "graphics profile (GUI and display settings)";
+
+    xinitCommands = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Extra shell commands in the system xinitrc before exec dwm";
+    };
+
+    wallpapers = lib.mkOption {
+      type = lib.types.listOf lib.types.path;
+      default = [ ];
+      description = "Wallpaper images (store paths) applied by feh --bg-fill on X start, one per invocation";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -23,10 +37,32 @@ in
       displayManager.startx.enable = true;
     };
 
+    environment.etc."x11/xinitrc".text = ''
+      ${lib.concatStringsSep "\n" cfg.xinitCommands}
+      slstatus &
+      ${lib.concatStringsSep " " (map (p: "feh --bg-fill ${p} &") cfg.wallpapers)}
+      exec dwm
+    '';
+
     environment.systemPackages = with pkgs; [
+      (packages.dwm {
+        inherit pkgs lib;
+        colorscheme = if c.enable then c.colors else null;
+        isLaptop = config.site.profiles.laptop.enable;
+        refreshRate = if config.site.profiles.laptop.enable then 120 else 144;
+      })
+      (packages.slstatus {
+        inherit pkgs lib;
+        isLaptop = config.site.profiles.laptop.enable;
+      })
       xorg.xinit
       pavucontrol
     ];
+
+    environment.sessionVariables = {
+      XCURSOR_SIZE = "24";
+      XCURSOR_THEME = "Bibata-Original-Classic";
+    };
 
     nixpkgs.config.permittedInsecurePackages = [
       "librewolf-152.0.2-1"

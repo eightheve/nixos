@@ -19,8 +19,8 @@ in
 
   config = lib.mkIf cfg.enable {
     networking.firewall.trustedInterfaces = [
+      "docker0"
       "br-+"
-      "docker*"
     ];
 
     virtualisation.docker.enable = true;
@@ -34,7 +34,6 @@ in
         url = "https://codeberg.org/";
         labels = [
           "ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-22.04"
-          "native:host"
         ];
         hostPackages =
           with pkgs;

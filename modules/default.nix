@@ -9,6 +9,7 @@
     ./netmount.nix
     ./networking.nix
     ./network-topology.nix
+    ./osdev.nix
     ./remote-builds.nix
     ./sana-website.nix
     ./searxng.nix

@@ -32,6 +32,10 @@
   };
 
   services.vintagestory.enable = true;
+  users.users.vintagestory.openssh.authorizedKeys.keys = [
+    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCyisOZgUpYQfX8lIxBpm6WYYwz15iWb+8KUMMV9C38qy6VLm7YBBR1uJt2IAhssPS1faAMrZ9jZiMm80+fLN60foNMNE9jpLP3BQvbesdMDPFDMPFTHC9SOwCG3N95ivMzYaBvBN5iyBGd4I20SpKvH+Lojtw2OxK9SUzcruzhm6oihsiIdJwyevlAZg9I5+gfHMVVbTQQluqv51iRttaKWxD2yLbhAqObyzsiF6L/FrxN3RuyuQfRm8C6+er73kv9ejrm+Q98UtkCnNB8/sg04sWN55lVGHRVnzia9ESjDJ6/VBEzxDoy9EyTHEzDQ6joOTVCFuKZZS14l36flXzPex/g24BP+5OBcbAQqODCiZIIagl779Z6DkVwhF9tK2oAtmjWZN1NX8OmAlBaAzYSVIAGMtwRV5uOXnzoOgaLJ9dGoEIp99wgIGx82SMW2K/aXm7blwGSxMPrZSpCDhqdGR/nGtWT2T6H+6C9hP5wMUIcvUmIRUAxbCtBe+QSZF8= artemis@artemis-Surface-Pro"
+    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCl0efGKxYqYOtO7jjo15OelNVthIkB/TZDCJIEZqOPi3g7ixgk3bQpPokKSBgeCAtcCvPIjrV/7QdywYOitjpG2VO3J5CzJ1nQ3luPrD52fip5YAEVlddYB1X2K2fwP6Fag4VzCPV5Jjl7ZJa1CkiwZcod1ElVaATPuDmmWKMf01Z6iEMHZ7+t3PwhHGb4A27E3MKWt+1guhbQtCKHFxW7AAbRryonbDLwVpfWCQidfBFZT0ccRiS4iWdkpCP+EHmAwHSaftUOnWX1wJQv+dJ/nqbAo3iwcjvkKii4RocPUjtO0z34793yC1w5Z5EfCv2xgcFWny+W8cq75qL/IkUT rsa-key-20260904"
+  ];
   site.modules.mcWhitelist.enable = true;
 
   site.modules = {

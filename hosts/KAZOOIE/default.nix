@@ -50,10 +50,10 @@
       externalInterface = "enp1s0";
       internalInterfaces = [ "wg0" ];
       forwardPorts = ports;
-      extraCommands = lib.concatMapStringsSep "\n" (
-        p:
-        "iptables -t nat -A POSTROUTING -o wg0 -d ${p.destination} -p ${p.proto} --dport ${toString p.sourcePort} -j MASQUERADE"
-      ) ports;
+      extraCommands = ''
+        iptables -t nat -D POSTROUTING -o wg0 -d 10.100.0.2 -j MASQUERADE 2>/dev/null || true
+        iptables -t nat -A POSTROUTING -o wg0 -d 10.100.0.2 -j MASQUERADE
+      '';
     };
 
   services.fathom-releases.enable = true;

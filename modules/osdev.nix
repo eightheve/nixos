@@ -32,8 +32,12 @@ in
       "d ${cfg.root}/images 0755 ${cfg.user} users - -"
       "d ${cfg.root}/isos 0755 ${cfg.user} users - -"
       "d ${cfg.root}/mount 0755 ${cfg.user} users - -"
+
+      "L+ /var/lib/libvirt/qemu/networks/autostart/default.xml - - - - /var/lib/libvirt/qemu/networks/default.xml"
     ];
 
+    networking.firewall.trustedInterfaces = [ "virbr0" ];
+    boot.kernel.sysctl."net.ipv4.ip_forward" = true;
     boot.kernelModules = [ "nbd" ];
     boot.extraModprobeConfig = "options nbd max_part=16";
 

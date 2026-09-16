@@ -3,6 +3,7 @@
   lib,
   pkgs,
   pkgs-unstable,
+  inputs,
   ...
 }:
 let
@@ -78,6 +79,7 @@ in
         packages = [
           pkgs.vim
           pkgs-unstable.pi-coding-agent
+          inputs.maki.packages.${pkgs.system}.default
         ];
 
         files = {

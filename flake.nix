@@ -12,6 +12,8 @@
     vintagestory-server.url = "github:eightheve/vs-nix-bot";
     mc-whitelist.url = "github:eightheve/mc-whitelist";
     wayfinder.url = "github:eightheve/wayfinder";
+    maki.url = "github:tontinton/maki";
+    maki.inputs.nixpkgs.follows = "nixpkgs";
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -25,6 +27,7 @@
       wayfinder,
       vintagestory-server,
       mc-whitelist,
+      maki,
       git-hooks,
       sana-website,
       ...
@@ -75,6 +78,8 @@
         };
     in
     {
+      packages.${system}.maki = maki.packages.${system}.default;
+
       nixosConfigurations = builtins.listToAttrs (
         map (name: {
           inherit name;

@@ -9,7 +9,7 @@
     ./hardware.nix
   ];
 
-  services.wayfinder.enable = true;
+  services.wayfinder.enable = false;
 
   boot.loader.grub = {
     enable = true;

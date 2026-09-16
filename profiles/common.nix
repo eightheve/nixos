@@ -63,6 +63,7 @@
           curl
           git
           sshfs
+          file
 
           yubioath-flutter
           yubikey-personalization

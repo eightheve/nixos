@@ -67,7 +67,6 @@ in
                 public_baseurl = "https://matrix.doppel.moe:8448";
                 tls_certificate_path = "/var/lib/acme/matrix.doppel.moe/fullchain.pem";
                 tls_private_key_path = "/var/lib/acme/matrix.doppel.moe/key.pem";
-                app_service_config_files = [ "/var/lib/matrix-synapse/discord-registration.yaml" ];
                 listeners = [
                   {
                     bind_addresses = [ "" ];
@@ -121,7 +120,10 @@ in
               postRun = "systemctl reload nginx.service; systemctl restart matrix-synapse.service";
             };
           };
-          users.users.matrix-synapse.extraGroups = [ "nginx" ];
+          users.users.matrix-synapse.extraGroups = [
+            "nginx"
+            "mautrix-discord"
+          ];
 
           services.mautrix-discord = {
             enable = true;

@@ -79,7 +79,7 @@ in
         packages = [
           pkgs.vim
           pkgs-unstable.pi-coding-agent
-          inputs.maki.packages.${pkgs.system}.default
+          inputs.maki.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
 
         files = {

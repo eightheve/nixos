@@ -51,6 +51,7 @@ let
 in
 {
   imports = [
+    ./agent.nix
     ./maki.nix
   ];
 

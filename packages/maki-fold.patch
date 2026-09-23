@@ -1,0 +1,828 @@
+diff --git a/maki-lua/src/api/session.rs b/maki-lua/src/api/session.rs
+index 22a4b79..ca88e23 100644
+--- a/maki-lua/src/api/session.rs
++++ b/maki-lua/src/api/session.rs
+@@ -251,6 +251,54 @@ async fn set_title(
+     roundtrip(lua, tx, req).await
+ }
+ 
++/// Folds the conversation back to the most recent {tool_name} call carrying
++/// {task}: the call stays, its result becomes {receipt}, everything after it
++/// leaves the context and is archived for `restore_tag`. Call while the
++/// session is idle, e.g. from a TurnEnd handler.///
++/// @param opts table tool_name (string), task (string), receipt (string).
++/// @return (table|nil, string|nil) `{ archived = seq }`, or nil and an error.
++/// @example
++/// maki.session.fold_tag({ tool_name = "set_tag", task = "research", receipt = "..." })
++#[lua_fn]
++async fn fold_tag(
++    lua: Lua,
++    #[ctx] tx: Option<flume::Sender<UiAction>>,
++    opts: Table,
++) -> LuaResult<Pair<Value>> {
++    let req = SessionRequest::FoldTag {
++        tool_name: opts.get("tool_name")?,
++        task: opts.get("task")?,
++        receipt: opts.get("receipt")?,
++    };
++    roundtrip(lua, tx, req).await
++}
++
++/// Restores what `fold_tag` archived: the full transcript through the
++/// tangent returns to context, the {fold_tool_name} call's result becomes an
++/// undo notice, and the replaced transcript is archived first. Follow with
++/// `maki.session.notify(prompt, { wake = true })` to continue there.
++///
++/// @param opts table tool_name (string), task (string), fold_tool_name
++///   (string); archive (number?) sequence from `fold_tag`, else the newest
++///   matching archive is used.
++/// @return (boolean|nil, string|nil) true, or nil and an error.
++/// @example
++/// maki.session.restore_tag({ tool_name = "set_tag", task = "research", fold_tool_name = "fold" })
++#[lua_fn]
++async fn restore_tag(
++    lua: Lua,
++    #[ctx] tx: Option<flume::Sender<UiAction>>,
++    opts: Table,
++) -> LuaResult<Pair<Value>> {
++    let req = SessionRequest::RestoreTag {
++        archive: opts.get("archive")?,
++        tool_name: opts.get("tool_name")?,
++        task: opts.get("task")?,
++        fold_tool_name: opts.get("fold_tool_name")?,
++    };
++    roundtrip(lua, tx, req).await
++}
++
+ lua_table! {
+     /// Host session primitives. The interactive UI can run several sessions
+     /// at once; these functions let plugins list, create, focus, rename, and
+@@ -258,7 +306,7 @@ lua_table! {
+     /// attached"` without a UI. `notify` instead targets a live agent mailbox
+     /// directly, so it also works under ACP and SDK frontends.
+     "maki.session" => pub(crate) fn create_session_table(tx: Option<flume::Sender<UiAction>>),
+-    DOCS [list(tx), live(tx), current(tx), read(tx), focus(tx), delete(tx), new(tx), prompt(tx), notify(), set_title(tx)]
++    DOCS [list(tx), live(tx), current(tx), read(tx), focus(tx), delete(tx), new(tx), prompt(tx), notify(), set_title(tx), fold_tag(tx), restore_tag(tx)]
+ }
+ 
+ #[cfg(test)]
+diff --git a/maki-lua/src/api/util/command.rs b/maki-lua/src/api/util/command.rs
+index ff30db5..f91dcc8 100644
+--- a/maki-lua/src/api/util/command.rs
++++ b/maki-lua/src/api/util/command.rs
+@@ -438,6 +438,21 @@ pub enum SessionRequest {
+         id: String,
+         title: String,
+     },
++    /// Folds back to the {tool_name} call carrying {task}; its result becomes
++    /// {receipt}, the dropped transcript is archived (reply field `archived`).
++    FoldTag {
++        tool_name: String,
++        task: String,
++        receipt: String,
++    },
++    /// Restores a `FoldTag` archive and turns the {fold_tool_name} call's
++    /// result into an undo notice.
++    RestoreTag {
++        archive: Option<u64>,
++        tool_name: String,
++        task: String,
++        fold_tool_name: String,
++    },
+ }
+ 
+ pub enum TaskRequest {
+diff --git a/maki-storage/src/sessions.rs b/maki-storage/src/sessions.rs
+index 987b961..f18db8c 100644
+--- a/maki-storage/src/sessions.rs
++++ b/maki-storage/src/sessions.rs
+@@ -46,7 +46,7 @@ const LOG_BLOATED: &str = "too many stale meta records";
+ /// read. Past this many, the log is rewritten and they all go away at once.
+ const MAX_APPENDS: usize = 512;
+ /// Where a shrink rewrite parks the log it is about to drop, as `archive/<id>/`.
+-const ARCHIVE_DIR: &str = "archive";
++pub const ARCHIVE_DIR: &str = "archive";
+ /// Archives kept per session. The extra ones go on the next archive, not on a
+ /// timer.
+ const ARCHIVE_KEEP: usize = 3;
+@@ -565,6 +565,31 @@ fn archive_if_shrinking<M, U, T>(dir: &Path, session: &Session<M, U, T>) {
+     );
+ }
+ 
++/// Unconditionally archives the session's current log, returning the archive
++/// sequence. Restore-style surgery swaps in a history that is not a prefix of
++/// the current one, so what it replaces is a branch, not a shrink: without
++/// this the replaced tail would leave no archive to ever return to.
++pub fn force_archive<M, U, T>(
++    dir: &Path,
++    session: &Session<M, U, T>,
++) -> Result<u64, StorageError> {
++    let path = jsonl_path(dir, session.id);
++    let archive_dir = dir.join(ARCHIVE_DIR).join(session.id.to_string());
++    fs::create_dir_all(&archive_dir)?;
++    let existing = archives_newest_first(&archive_dir);
++    let next = existing.first().map_or(0, |a| a.seq) + 1;
++    let archive_path = archive_dir.join(format!("{next}.jsonl"));
++    let bytes = link_archive(&path, &archive_path)?;
++    prune_archives(existing, bytes);
++    crate::sync_parent_dir(&archive_path);
++    info!(
++        session_id = %session.id,
++        archive = %archive_path.display(),
++        "archived session log before restore rewrite"
++    );
++    Ok(next)
++}
++
+ /// Whether the log holds more than `limit` messages, which is the whole
+ /// question a shrink asks, so the scan stops at the first line past it. A
+ /// growing log never trips that, so this still walks to EOF once per rewrite:
+@@ -614,14 +639,14 @@ fn link_archive(from: &Path, to: &Path) -> Result<u64, std::io::Error> {
+ /// `<seq>.jsonl`, counting up. A number cannot step back the way a clock does
+ /// after an NTP fix or a suspend, so the order is always the truth and pruning
+ /// can never mistake the newest archive for the oldest. The mtime says when.
+-struct Archive {
+-    seq: u64,
+-    size: u64,
+-    path: PathBuf,
++pub struct Archive {
++    pub seq: u64,
++    pub size: u64,
++    pub path: PathBuf,
+ }
+ 
+ /// Newest first: the next name comes off the front, pruning walks to the back.
+-fn archives_newest_first(archive_dir: &Path) -> Vec<Archive> {
++pub fn archives_newest_first(archive_dir: &Path) -> Vec<Archive> {
+     let Ok(entries) = fs::read_dir(archive_dir) else {
+         return Vec::new();
+     };
+@@ -1376,7 +1401,7 @@ fn locate_session_file(dir: &Path, id: MakiId) -> Option<PathBuf> {
+         .cloned()
+ }
+ 
+-fn load_session_at<M, U, T>(path: &Path) -> Result<Session<M, U, T>, SessionError>
++pub fn load_session_at<M, U, T>(path: &Path) -> Result<Session<M, U, T>, SessionError>
+ where
+     M: DeserializeOwned,
+     U: DeserializeOwned + Default,
+diff --git a/maki-ui/src/app/session.rs b/maki-ui/src/app/session.rs
+index 29f2ba4..1e2b4c0 100644
+--- a/maki-ui/src/app/session.rs
++++ b/maki-ui/src/app/session.rs
+@@ -1,15 +1,23 @@
+ use std::sync::Arc;
+ use std::sync::atomic::AtomicBool;
++use std::path::PathBuf;
+ use std::time::{Duration, Instant};
+ 
+ use crate::app::tasks::TaskOutcome;
+ use crate::chat::{Chat, DONE_TEXT, history_to_display};
+ use crate::components::rewind_picker::RewindEntry;
+ use crate::components::{Action, LoadedSession};
++use maki_agent::ToolOutput;
+ use maki_lua::SessionEndReason;
+-use maki_providers::{Model, RequestOptions, TokenUsage, estimate_message_tokens};
++use maki_providers::{
++    ContentBlock, Message, MessageKind, Model, RequestOptions, Role, TokenUsage,
++    estimate_message_tokens,
++};
+ use maki_storage::id::MakiId;
+-use maki_storage::sessions::{SessionMeta, StoredSubagent};
++use maki_storage::sessions::{
++    ARCHIVE_DIR, SESSIONS_DIR, SessionMeta, StoredSubagent, archives_newest_first,
++    force_archive, load_session_at,
++};
+ 
+ use crate::AppSession;
+ 
+@@ -385,6 +393,322 @@ impl App {
+         vec![Action::LoadSession(Box::new(self.install_local_history()))]
+     }
+ 
++    // -- fold surgery: rewind_to anchored on a tool call --
++
++    const UNDO_NOTICE: &'static str =
++        "[fold undone] The fold that closed this tangent has been reversed; \
++         the full transcript of the tangent is back in context.";
++
++    fn fold_gate(&self) -> Result<(), String> {
++        if self.awaiting_input() {
++            return Err("session is waiting for input".into());
++        }
++        if self.status == Status::Streaming {
++            return Err("session is streaming; retry when idle".into());
++        }
++        Ok(())
++    }
++
++    /// The `(message index, tool use id)` of the last {tool_name} call whose
++    /// input `task` field is {task}; empty {task} matches any call.
++    fn last_tag_call(
++        messages: &[Message],
++        tool_name: &str,
++        task: &str,
++    ) -> Option<(usize, String)> {
++        for (i, m) in messages.iter().enumerate().rev() {
++            if !matches!(m.role, Role::Assistant) {
++                continue;
++            }
++            for block in &m.content {
++                if let ContentBlock::ToolUse { id, name, input, .. } = block
++                    && name == tool_name
++                    && (task.is_empty()
++                        || input.get("task").and_then(|t| t.as_str()) == Some(task))
++                {
++                    return Some((i, id.clone()));
++                }
++            }
++        }
++        None
++    }
++
++    /// Folds the conversation back to the tag call: the call keeps its place,
++    /// its result becomes {receipt}, and everything after it leaves the
++    /// context. Sibling tool results in the tag's result message ride along,
++    /// so the assistant message stays API-valid.
++    pub(crate) fn fold_tag(
++        &mut self,
++        tool_name: &str,
++        task: &str,
++        receipt: &str,
++    ) -> Result<(Vec<Action>, Option<u64>), String> {
++        self.fold_gate()?;
++        let messages = self.state.session.messages().to_vec();
++        let Some((ai, tag_id)) = Self::last_tag_call(&messages, tool_name, task) else {
++            return Err(format!("no {tool_name} call found for task \"{task}\""));
++        };
++
++        let mut sibling_ids: Vec<String> = messages[ai]
++            .content
++            .iter()
++            .filter_map(|b| match b {
++                ContentBlock::ToolUse { id, .. } if *id != tag_id => Some(id.clone()),
++                _ => None,
++            })
++            .collect();
++        let mut tag_result_found = false;
++        let mut carried: Vec<ContentBlock> = Vec::new();
++        for m in messages.iter().skip(ai + 1) {
++            if !matches!(m.role, Role::User) {
++                break;
++            }
++            for block in &m.content {
++                if let ContentBlock::ToolResult {
++                    tool_use_id,
++                    content: _,
++                    is_error: _,
++                } = block
++                {
++                    if *tool_use_id == tag_id {
++                        tag_result_found = true;
++                    } else if let Some(pos) =
++                        sibling_ids.iter().position(|id| id == tool_use_id)
++                    {
++                        carried.push(block.clone());
++                        sibling_ids.swap_remove(pos);
++                    }
++                }
++            }
++        }
++        if !tag_result_found {
++            return Err(
++                "the tag call has no result yet; fold once the tangent has answered it".into(),
++            );
++        }
++        for id in &sibling_ids {
++            carried.push(ContentBlock::ToolResult {
++                tool_use_id: id.clone(),
++                content: "[no result recorded]".into(),
++                is_error: false,
++            });
++        }
++        carried.push(ContentBlock::ToolResult {
++            tool_use_id: tag_id.clone(),
++            content: receipt.to_string(),
++            is_error: false,
++        });
++
++        // Second-person receipt with excision counts, so the folded context
++        // can tell spliced-out work from work that never happened.
++        let folded = messages.len() - (ai + 1);
++        let user_folded = messages[ai + 1..]
++            .iter()
++            .filter(|m| matches!(m.role, Role::User) && !m.is_observation())
++            .count();
++        let user_note = if user_folded > 0 {
++            format!(
++                "Also folded: {user_folded} user message(s) that landed mid-tangent — \
++                 their words are on the archive, restorable with the fold plugin's \
++                 return tool."
++            )
++        } else {
++            String::new()
++        };
++        let receipt_text = format!(
++            "[fold] TAG FOLD COMPLETE — the tangent folded into this marker.\n\
++             Task: {task}\n\
++             Folded away: {folded} conversation entries that followed this marker. \
++             You DID that work before the fold — you won't remember doing it, and \
++             that is expected, not an error. Treat the summary below as your own \
++             notes; re-verify anything critical against the world before asserting \
++             it.\n\
++             {user_note}\n\n\
++             Summary and notes (yours, written at fold time):\n{receipt}\n\n\
++             The full transcript is preserved in the session archive. Restore it \
++             with your fold plugin's return tool instead of re-doing the work. \
++             Now continue the main conversation."
++        );
++        let last = carried.len() - 1;
++        carried[last] = ContentBlock::ToolResult {
++            tool_use_id: tag_id.clone(),
++            content: receipt_text.clone(),
++            is_error: false,
++        };
++        let receipt_msg = Message {
++            role: Role::User,
++            content: carried,
++            display_text: None,
++            // Observation: the model reads it, user views do not paint it
++            // (the tag's tool bubble shows the receipt).
++            kind: MessageKind::Observation,
++        };
++
++        // Same accounting rewind_to uses.
++        let baseline = self
++            .state
++            .context_size
++            .saturating_sub(estimate_message_tokens(&messages));
++        let mut kept_messages = messages[..=ai].to_vec();
++        kept_messages.push(receipt_msg);
++        let kept = estimate_message_tokens(&kept_messages);
++        self.state.context_size = if kept == 0 { 0 } else { baseline + kept };
++
++        {
++            let session = self.state.session_mut();
++            session.truncate_messages(ai + 1);
++            session.push_message(kept_messages.pop().expect("receipt just pushed"));
++            session.insert_tool_output(tag_id, Arc::new(ToolOutput::Plain(receipt_text.into())));
++            session.prune_orphans(|m| m.tool_uses().map(|(id, _, _)| id.to_owned()).collect());
++        }
++        self.reset_ui_chrome();
++        self.restore_display();
++        let archived = if folded > 0 {
++            Some(self.next_archive_seq())
++        } else {
++            None
++        };
++        // No checkpoint: shared_history still mirrors the agent's
++        // pre-surgery transcript and would clobber the surgery. The next
++        // frame's checkpoint persists, after install_local_history clears
++        // the mirror.
++        Ok((
++            vec![Action::LoadSession(Box::new(self.install_local_history()))],
++            archived,
++        ))
++    }
++
++    /// The archive sequence the next shrink-rewrite will pick.
++    pub(crate) fn next_archive_seq(&self) -> u64 {
++        let Ok(sessions_dir) = self.storage.ensure_subdir(SESSIONS_DIR) else {
++            return 0;
++        };
++        let archive_dir = sessions_dir
++            .join(ARCHIVE_DIR)
++            .join(self.state.session.id.to_string());
++        archives_newest_first(&archive_dir)
++            .first()
++            .map_or(0, |a| a.seq)
++            + 1
++    }
++
++    /// The archive for a restore: {seq} if given, else a newest-first scan.
++    fn locate_archive(
++        &self,
++        seq: Option<u64>,
++        tool_name: &str,
++        task: &str,
++    ) -> Result<PathBuf, String> {
++        let sessions_dir = self
++            .storage
++            .ensure_subdir(SESSIONS_DIR)
++            .map_err(|e| e.to_string())?;
++        let archive_dir = sessions_dir
++            .join(ARCHIVE_DIR)
++            .join(self.state.session.id.to_string());
++        if let Some(seq) = seq {
++            let path = archive_dir.join(format!("{seq}.jsonl"));
++            if path.exists() {
++                return Ok(path);
++            }
++        }
++        for archive in archives_newest_first(&archive_dir) {
++            if let Ok(session) =
++                load_session_at::<Message, TokenUsage, ToolOutput>(&archive.path)
++                && Self::last_tag_call(session.messages(), tool_name, task).is_some()
++            {
++                return Ok(archive.path);
++            }
++        }
++        Err("no fold archive found for this tag".into())
++    }
++
++    /// Restores a folded transcript, with the fold call's result replaced by
++    /// an undo notice.
++    pub(crate) fn restore_tag(
++        &mut self,
++        archive_seq: Option<u64>,
++        tool_name: &str,
++        task: &str,
++        fold_tool_name: &str,
++    ) -> Result<(Vec<Action>, Option<u64>), String> {
++        self.fold_gate()?;
++        let path = self.locate_archive(archive_seq, tool_name, task)?;
++        let archived = load_session_at::<Message, TokenUsage, ToolOutput>(&path)
++            .map_err(|e| format!("fold archive unreadable: {e}"))?;
++        let archived_messages = archived.messages().to_vec();
++        let Some((ai, _)) = Self::last_tag_call(&archived_messages, tool_name, task) else {
++            return Err(format!("no {tool_name} call for task \"{task}\" in the fold archive"));
++        };
++        let Some((fi, fold_id)) = Self::last_tag_call(&archived_messages, fold_tool_name, "")
++        else {
++            return Err(format!("no {fold_tool_name} call in the fold archive"));
++        };
++        if fi <= ai {
++            return Err("the fold archive does not contain this tag's fold".into());
++        }
++
++        let mut restored = archived_messages;
++        let mut undone = false;
++        for m in restored[fi + 1..].iter_mut() {
++            if !matches!(m.role, Role::User) {
++                break;
++            }
++            for b in m.content.iter_mut() {
++                if let ContentBlock::ToolResult { tool_use_id, content, .. } = b
++                    && tool_use_id == &fold_id
++                {
++                    *content = Self::UNDO_NOTICE.into();
++                    undone = true;
++                }
++            }
++            if undone {
++                break;
++            }
++        }
++        if !undone {
++            return Err("the archived fold call has no result to undo".into());
++        }
++
++        let baseline = self
++            .state
++            .context_size
++            .saturating_sub(estimate_message_tokens(self.state.session.messages()));
++        let kept = estimate_message_tokens(&restored);
++        self.state.context_size = if kept == 0 { 0 } else { baseline + kept };
++
++        // What the restore replaces is a branch, not a shrink: archive it
++        // first or it is gone.
++        let sessions_dir = self
++            .storage
++            .ensure_subdir(SESSIONS_DIR)
++            .map_err(|e| e.to_string())?;
++        let replaced = force_archive(&sessions_dir, self.state.session.as_ref())
++            .map_err(|e| format!("could not archive the replaced transcript: {e}"))?
++            .to_string();
++
++        {
++            let session = self.state.session_mut();
++            session.replace_messages(restored);
++            for (id, output) in archived.tool_outputs() {
++                session.insert_tool_output(id.clone(), Arc::clone(output));
++            }
++            session.insert_tool_output(
++                fold_id,
++                Arc::new(ToolOutput::Plain(Self::UNDO_NOTICE.into())),
++            );
++            session.prune_orphans(|m| m.tool_uses().map(|(id, _, _)| id.to_owned()).collect());
++        }
++        self.reset_ui_chrome();
++        self.restore_display();
++        // No checkpoint here either — same stale-mirror hazard as fold_tag.
++        let archived = replaced.parse::<u64>().ok();
++        Ok((
++            vec![Action::LoadSession(Box::new(self.install_local_history()))],
++            archived,
++        ))
++    }
++
+     pub(crate) fn apply_loaded_session(
+         &mut self,
+         session: AppSession,
+diff --git a/maki-ui/src/app/tests.rs b/maki-ui/src/app/tests.rs
+index 2630f7b..a2fd1e5 100644
+--- a/maki-ui/src/app/tests.rs
++++ b/maki-ui/src/app/tests.rs
+@@ -5568,3 +5568,247 @@ fn alt_m_opens_model_picker() {
+     app.update(Msg::Key(key));
+     assert!(app.model_picker.is_open());
+ }
++
++// -- fold surgery (maki.session.fold_tag / restore_tag) --
++
++fn build_fold_app() -> App {
++    let mut app = test_app();
++    app.state.session_mut().replace_messages(vec![
++        Message::user("start the project".into()),
++        Message {
++            role: Role::Assistant,
++            content: vec![
++                ContentBlock::Text {
++                    text: "on it".into(),
++                },
++                ContentBlock::tool_use("tag-1", "set_tag", serde_json::json!({"task": "research"})),
++            ],
++            ..Default::default()
++        },
++        Message {
++            role: Role::User,
++            content: vec![ContentBlock::ToolResult {
++                tool_use_id: "tag-1".into(),
++                content: "Tag set".into(),
++                is_error: false,
++            }],
++            ..Default::default()
++        },
++        Message {
++            role: Role::Assistant,
++            content: vec![ContentBlock::tool_use(
++                "dig-1",
++                "webfetch",
++                serde_json::json!({}),
++            )],
++            ..Default::default()
++        },
++        Message {
++            role: Role::User,
++            content: vec![ContentBlock::ToolResult {
++                tool_use_id: "dig-1".into(),
++                content: "huge page contents".into(),
++                is_error: false,
++            }],
++            ..Default::default()
++        },
++        Message {
++            role: Role::Assistant,
++            content: vec![ContentBlock::Text {
++                text: "found it".into(),
++            }],
++            ..Default::default()
++        },
++        Message {
++            role: Role::Assistant,
++            content: vec![ContentBlock::tool_use(
++                "fold-1",
++                "fold",
++                serde_json::json!({"summary": "researched"}),
++            )],
++            ..Default::default()
++        },
++        Message {
++            role: Role::User,
++            content: vec![ContentBlock::ToolResult {
++                tool_use_id: "fold-1".into(),
++                content: "fold queued".into(),
++                is_error: false,
++            }],
++            ..Default::default()
++        },
++    ]);
++    for (id, text) in [
++        ("tag-1", "Tag set"),
++        ("dig-1", "huge page contents"),
++        ("fold-1", "fold queued"),
++    ] {
++        app.state
++            .session_mut()
++            .insert_tool_output(id.into(), Arc::new(ToolOutput::Plain(text.into())));
++    }
++    app
++}
++
++#[test]
++fn fold_collapses_tangent_into_tag_receipt() {
++    let mut app = build_fold_app();
++    let (actions, archived) = match app.fold_tag("set_tag", "research", "findings: X uses Y") {
++        Ok(result) => result,
++        Err(e) => panic!("fold failed: {e}"),
++    };
++
++    let msgs = app.state.session.messages();
++    assert_eq!(msgs.len(), 3);
++    let ContentBlock::ToolUse { id, name, input, .. } = &msgs[1].content[1] else {
++        panic!("expected the tag tool_use to survive");
++    };
++    assert_eq!((id.as_str(), name.as_str()), ("tag-1", "set_tag"));
++    assert_eq!(input.get("task").and_then(|t| t.as_str()), Some("research"));
++    let receipt = &msgs[2];
++    assert!(receipt.is_observation());
++    assert!(matches!(receipt.role, Role::User));
++    let ContentBlock::ToolResult { tool_use_id, content, .. } = &receipt.content[0] else {
++        panic!("expected a tool result receipt");
++    };
++    assert_eq!(tool_use_id.as_str(), "tag-1");
++    assert!(content.contains("TAG FOLD COMPLETE"));
++    assert!(content.contains("Folded away: 6"));
++    assert!(content.contains("3 user message(s)"));
++    assert!(content.contains("findings: X uses Y"));
++    let stored = app.state.session.tool_outputs().get("tag-1").unwrap();
++    assert!(stored.as_text().contains("TAG FOLD COMPLETE"));
++
++    let Action::LoadSession(loaded) = &actions[0] else {
++        panic!("expected LoadSession");
++    };
++    assert_eq!(loaded.messages.len(), 3);
++    assert_eq!(archived, Some(1));
++}
++
++#[test]
++fn fold_refuses_a_tag_without_a_result() {
++    let mut app = build_fold_app();
++    // Drop everything after the tag call: no result, nothing to fold yet.
++    app.state.session_mut().truncate_messages(2);
++    let err = match app.fold_tag("set_tag", "research", "findings") {
++        Err(e) => e,
++        Ok(_) => panic!("expected the fold to be refused"),
++    };
++    assert!(err.contains("no result yet"), "got: {err}");
++}
++
++#[test]
++fn fold_targets_the_named_task_not_the_last_set_tag() {
++    let mut app = build_fold_app();
++    // A second, newer tag (nested): folding the OUTER one must splice at the
++    // outer call even though a different set_tag call is more recent.
++    app.state.session.messages(); // touch
++    let mut messages = app.state.session.messages().to_vec();
++    messages.insert(
++        2,
++        Message {
++            role: Role::Assistant,
++            content: vec![ContentBlock::tool_use(
++                "tag-0",
++                "set_tag",
++                serde_json::json!({"task": "outer"}),
++            )],
++            ..Default::default()
++        },
++    );
++    messages.insert(
++        3,
++        Message {
++            role: Role::User,
++            content: vec![ContentBlock::ToolResult {
++                tool_use_id: "tag-0".into(),
++                content: "Tag set".into(),
++                is_error: false,
++            }],
++            ..Default::default()
++        },
++    );
++    app.state.session_mut().replace_messages(messages);
++
++    let (actions, _) = match app.fold_tag("set_tag", "outer", "outer summary") {
++        Ok(result) => result,
++        Err(e) => panic!("fold failed: {e}"),
++    };
++    let msgs = app.state.session.messages();
++    assert_eq!(msgs.len(), 4); // prompt, outer tag call, outer result, receipt
++    let Action::LoadSession(loaded) = &actions[0] else {
++        panic!("expected LoadSession");
++    };
++    assert_eq!(loaded.messages.len(), 4);
++}
++
++#[test]
++fn restore_returns_archived_tangent_and_undoes_the_fold() {
++    let mut app = build_fold_app();
++    // Park the pre-fold transcript as fold archive 1, the way the writer
++    // would have when the fold committed.
++    let sessions_dir = app.storage.ensure_subdir(maki_storage::sessions::SESSIONS_DIR).unwrap();
++    Arc::make_mut(&mut app.state.session)
++        .save_to(&sessions_dir)
++        .unwrap();
++    let archive_dir = sessions_dir
++        .join(maki_storage::sessions::ARCHIVE_DIR)
++        .join(app.state.session.id.to_string());
++    fs::create_dir_all(&archive_dir).unwrap();
++    fs::hard_link(
++        sessions_dir.join(app.state.session.id.to_string()).with_extension("jsonl"),
++        archive_dir.join("1.jsonl"),
++    )
++    .unwrap();
++
++    match app.fold_tag("set_tag", "research", "findings: X uses Y") {
++        Ok(_) => {}
++        Err(e) => panic!("pre-fold failed: {e}"),
++    }
++    assert_eq!(app.state.session.messages().len(), 3);
++
++    let (actions, replaced) = match app.restore_tag(Some(1), "set_tag", "research", "fold") {
++        Ok(result) => result,
++        Err(e) => panic!("restore failed: {e}"),
++    };
++    let msgs = app.state.session.messages();
++    assert_eq!(msgs.len(), 8);
++    let last = &msgs[7];
++    let ContentBlock::ToolResult { tool_use_id, content, .. } = &last.content[0] else {
++        panic!("expected the fold result");
++    };
++    assert_eq!(tool_use_id.as_str(), "fold-1");
++    assert!(content.contains("[fold undone]"));
++    assert!(!content.contains("queued"));
++    let stored = app.state.session.tool_outputs().get("fold-1").unwrap();
++    assert!(stored.as_text().contains("[fold undone]"));
++
++    let Action::LoadSession(loaded) = &actions[0] else {
++        panic!("expected LoadSession");
++    };
++    assert_eq!(loaded.messages.len(), 8);
++    // The replaced branch got its own archive.
++    assert_eq!(replaced, Some(2));
++    assert!(archive_dir.join("2.jsonl").exists());
++}
++
++/// Regression: the in-surgery checkpoint applied the agent's stale pre-fold
++/// mirror over the fold. rewind_to dodges this by never checkpointing.
++#[test]
++fn fold_survives_a_stale_agent_mirror() {
++    let mut app = build_fold_app();
++    let pre_fold = app.state.session.messages().to_vec();
++    app.shared_history = Some(Arc::new(ArcSwap::from_pointee(
++        maki_storage::sessions::HistorySnapshot::new(pre_fold),
++    )));
++
++    app.fold_tag("set_tag", "research", "findings: X uses Y").unwrap();
++
++    let msgs = app.state.session.messages();
++    assert_eq!(msgs.len(), 3, "the stale mirror must not restore the tangent");
++    let last = &msgs[2];
++    assert!(last.is_observation(), "receipt must survive the checkpoint path");
++    // The mirror is gone, so the next frame's checkpoint persists the fold.
++    assert!(app.shared_history.is_none());
++}
+diff --git a/maki-ui/src/event_loop.rs b/maki-ui/src/event_loop.rs
+index 66a9a5d..469a0a8 100644
+--- a/maki-ui/src/event_loop.rs
++++ b/maki-ui/src/event_loop.rs
+@@ -1237,6 +1237,50 @@ impl<'t> EventLoop<'t> {
+                 })();
+                 let _ = reply_tx.send(reply);
+             }
++            SessionRequest::FoldTag {
++                tool_name,
++                task,
++                receipt,
++            } => {
++                let idx = self.focused;
++                let reply = match self.sessions[idx].app.fold_tag(&tool_name, &task, &receipt) {
++                    Ok((actions, archived)) => {
++                        self.dispatch(idx, actions);
++                        let mut payload = json!({});
++                        if let Some(archived) = archived {
++                            payload["archived"] = json!(archived);
++                        }
++                        Ok(payload)
++                    }
++                    Err(e) => Err(e),
++                };
++                let _ = reply_tx.send(reply);
++            }
++            SessionRequest::RestoreTag {
++                archive,
++                tool_name,
++                task,
++                fold_tool_name,
++            } => {
++                let idx = self.focused;
++                let reply = match self.sessions[idx].app.restore_tag(
++                    archive,
++                    &tool_name,
++                    &task,
++                    &fold_tool_name,
++                ) {
++                    Ok((actions, replaced)) => {
++                        self.dispatch(idx, actions);
++                        let mut payload = json!({ "restored": true });
++                        if let Some(replaced) = replaced {
++                            payload["archived"] = json!(replaced);
++                        }
++                        Ok(payload)
++                    }
++                    Err(e) => Err(e),
++                };
++                let _ = reply_tx.send(reply);
++            }
+         }
+     }
+ 

@@ -50,6 +50,10 @@ let
   '';
 in
 {
+  imports = [
+    ./maki.nix
+  ];
+
   options.site.users.sana = {
     enable = lib.mkOption {
       type = lib.types.bool;
@@ -79,7 +83,6 @@ in
         packages = [
           pkgs.vim
           pkgs-unstable.pi-coding-agent
-          inputs.maki.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
 
         files = {

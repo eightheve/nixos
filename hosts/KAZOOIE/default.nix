@@ -9,7 +9,8 @@
     ./hardware.nix
   ];
 
-  services.wayfinder.enable = false;
+  services.wayfinder.enable = true;
+  systemd.services.wayfinder.wantedBy = lib.mkForce [ ];
 
   boot.loader.grub = {
     enable = true;

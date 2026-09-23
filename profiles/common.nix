@@ -5,6 +5,12 @@
   inputs,
   ...
 }:
+let
+  doasSetEnv = [
+    "-SSH_AUTH_SOCK"
+    "LANG"
+  ];
+in
 {
   config = {
     nix = {
@@ -19,7 +25,20 @@
     };
 
     security = {
-      sudo.wheelNeedsPassword = false;
+      sudo.enable = false;
+
+      doas = {
+        enable = true;
+        wheelNeedsPassword = false;
+
+        extraRules = [
+          {
+            groups = [ "wheel" ];
+            noPass = !config.security.doas.wheelNeedsPassword;
+            setEnv = doasSetEnv;
+          }
+        ];
+      };
 
       pam = {
         services.login.u2fAuth = true;
@@ -50,6 +69,11 @@
     };
 
     programs.fuse.userAllowOther = true;
+
+    environment.etc."gitconfig".text = ''
+      [safe]
+        directory = /etc/nixos
+    '';
 
     environment = {
       systemPackages =

@@ -25,6 +25,8 @@ in
         PermitRootLogin = "no";
         PasswordAuthentication = false;
         KbdInteractiveAuthentication = false;
+        # lets a RemoteForward replace an existing socket (gpg-agent forwarding)
+        StreamLocalBindUnlink = true;
       };
     };
 

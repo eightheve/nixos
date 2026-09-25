@@ -27,6 +27,8 @@ in
   config = lib.mkIf cfg.enable {
     virtualisation.libvirtd.enable = true;
 
+    environment.sessionVariables.LIBVIRT_DEFAULT_URI = "qemu:///system";
+    
     systemd.tmpfiles.rules = [
       "d ${cfg.root} 0755 ${cfg.user} users - -"
       "d ${cfg.root}/images 0755 ${cfg.user} users - -"

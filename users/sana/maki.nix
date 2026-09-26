@@ -11,7 +11,7 @@
 let
   cfg = config.site.users.sana;
 
-  makiPatched = import ../../packages/maki.nix {
+  makiPatched = import ../../packages/maki {
     inherit pkgs lib;
     maki = inputs.maki.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };

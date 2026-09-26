@@ -1,0 +1,64 @@
+diff --git a/maki-lua/src/api/agent.rs b/maki-lua/src/api/agent.rs
+index 0808eb21..d76cc2b8 100644
+--- a/maki-lua/src/api/agent.rs
++++ b/maki-lua/src/api/agent.rs
+@@ -50,18 +50,23 @@ fn resolve_model_from_ctx(ctx: &AgentContext, tier: Option<&str>) -> Result<Mode
+         return Ok(Model::clone(&ctx.model));
+     };
+     let requested: ModelTier = tier_str.parse().map_err(|e: ModelError| e.to_string())?;
+-    let effective = requested.capped_at(ctx.model.tier);
+-    if effective == ctx.model.tier {
++    // Strict: a tier assignment from the /model picker (model-tiers) wins
++    // over every other resolution path, across providers. Subagents may ask
++    // up: the tier is not capped by the parent model's own tier.
++    if let Some(spec) = maki_providers::model_registry::override_for_tier(requested) {
++        return Model::from_spec_with_policy(&spec, &ctx.model_policy).map_err(|e| e.to_string());
++    }
++    if requested == ctx.model.tier {
+         return Ok(Model::clone(&ctx.model));
+     }
+     let slug = &ctx.model.provider;
+-    maki_providers::model_registry::spec_for_tier(slug, effective)
+-        .or_else(|| maki_providers::model_registry::spec_for_tier_any(effective))
++    maki_providers::model_registry::spec_for_tier(slug, requested)
++        .or_else(|| maki_providers::model_registry::spec_for_tier_any(requested))
+         .filter(|spec| ctx.model_policy.allows(spec))
+         .and_then(|s| Model::from_spec(&s).ok())
+         .map(Ok)
+         .unwrap_or_else(|| {
+-            Model::from_tier_with_policy(slug, effective, &ctx.model_policy)
++            Model::from_tier_with_policy(slug, requested, &ctx.model_policy)
+                 .map_err(|e| e.to_string())
+         })
+ }
+diff --git a/maki-providers/src/model_registry.rs b/maki-providers/src/model_registry.rs
+index 032cf070..9f851064 100644
+--- a/maki-providers/src/model_registry.rs
++++ b/maki-providers/src/model_registry.rs
+@@ -47,6 +47,13 @@ pub fn spec_for_tier_any(tier: ModelTier) -> Option<String> {
+     read().spec_for_tier_any(tier)
+ }
+ 
++/// The persisted tier assignment exactly as the /model picker wrote it, or
++/// `None` when that tier has no override. Strict resolution asks for this
++/// first; the guessing in `spec_for_tier*` only fills unassigned tiers.
++pub fn override_for_tier(tier: ModelTier) -> Option<String> {
++    read().overrides.get(&tier).cloned()
++}
++
+ pub fn discovered(provider: &str, model_id: &str) -> Option<ModelInfo> {
+     read().discovered(provider, model_id).cloned()
+ }
+diff --git a/plugins/task/init.lua b/plugins/task/init.lua
+index 6c596a8c..8db3c8c8 100644
+--- a/plugins/task/init.lua
++++ b/plugins/task/init.lua
+@@ -74,7 +74,7 @@ local schema = {
+     },
+     model_tier = {
+       type = "string",
+-      description = 'Model tier (optional, omit to use current model, capped at current tier):\n- "strong" (e.g. Opus): Deep reasoning, complex architecture, subtle bugs, most critical sections. ~5x cost of medium.\n- "medium" (e.g. Sonnet): Balanced. Refactors, features, multi-file changes.\n- "weak" (e.g. Haiku): Fast/cheap. Search, summarize, boilerplate, simple edits.',
++      description = 'Model tier (optional, omit to use current model; not capped by the current model tier, so you may ask up to a stronger tier):\n- "strong" (e.g. Opus): Deep reasoning, complex architecture, subtle bugs, most critical sections. ~5x cost of medium.\n- "medium" (e.g. Sonnet): Balanced. Refactors, features, multi-file changes.\n- "weak" (e.g. Haiku): Fast/cheap. Search, summarize, boilerplate, simple edits.',
+     },
+     thinking = {
+       description = "Thinking: off|adaptive|minimal|low|medium|high|xhigh|max|int budget. Omit to inherit parent; capped at parent.",

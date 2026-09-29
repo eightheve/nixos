@@ -124,6 +124,26 @@
         "type": "github"
       }
     },
+    "katydid": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790692143,
+        "narHash": "sha256-4f0WNnXMS8z7Ob8WtuiqEhwduZTXT4xHbi/ZNgtcRmM=",
+        "owner": "cnwnc",
+        "repo": "katydid",
+        "rev": "f04741fde353b0dada1bfb5f79dae41d665d62a8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cnwnc",
+        "repo": "katydid",
+        "type": "github"
+      }
+    },
     "maki": {
       "inputs": {
         "crane": "crane",
@@ -286,6 +306,7 @@
         "fathom": "fathom",
         "git-hooks": "git-hooks",
         "hjem": "hjem",
+        "katydid": "katydid",
         "maki": "maki",
         "mc-whitelist": "mc-whitelist",
         "nixpkgs": "nixpkgs_3",

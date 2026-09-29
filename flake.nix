@@ -16,6 +16,10 @@
     maki.inputs.nixpkgs.follows = "nixpkgs";
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
+    katydid = {
+      url = "github:cnwnc/katydid";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

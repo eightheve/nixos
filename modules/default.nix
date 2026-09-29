@@ -15,6 +15,7 @@
     ./sana-website.nix
     ./searxng.nix
     ./slskd.nix
+    ./katydid.nix
     ./wikipedia-mirror.nix
     ./ssh.nix
     ./wokeforum.nix

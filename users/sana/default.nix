@@ -131,6 +131,16 @@ in
       ];
     })
 
+    (lib.mkIf (cfg.enable && config.site.modules.katydid.enable) {
+      # The katyd socket (/run/katyd/katyd.sock, 0660 katydid:katydid)
+      # requires group membership to reach, and the fetchd socket likewise.
+      users.users.sana.extraGroups = [ "katydid" ];
+
+      hjem.users.sana.packages = [
+        inputs.katydid.packages.${pkgs.stdenv.hostPlatform.system}.default
+      ];
+    })
+
     (lib.mkIf (cfg.enable && config.site.profiles.laptop.enable) {
       hjem.users.sana = {
         packages = with pkgs; [

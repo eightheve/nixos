@@ -26,6 +26,7 @@ in
 
     settings = {
       useSlskdn = lib.mkEnableOption "use the slskdn fork instead of the primary package";
+      tmpfsDownloads = lib.mkEnableOption "mount tmpfs to downloads directory";
 
       soulseekListeningPort = lib.mkOption {
         type = lib.types.int;
@@ -72,6 +73,12 @@ in
         home = "/var/lib/slskd";
         createHome = true;
         homeMode = "750";
+      };
+     
+      fileSystems."/var/lib/slskd/downloads" = lib.mkIf cfg.settings.tmpfsDownloads {
+        device = "tmpfs";
+        fsType = "tmpfs";
+        options = [ "size=32G" "mode=0775" "uid=slskd" "gid=slskd" ];
       };
 
       networking.firewall.allowedTCPPorts = [

@@ -23,4 +23,14 @@
       path = "/var/lib/matrix-synapse/media_store";
     };
   };
+  "music" = {
+    server = {
+      host = "SAOTOME";
+      path = "/srv/data/katydid";
+    };
+    client = {
+      host = "PASSENGER";
+      path = "/srv/music";
+    };
+  };
 }

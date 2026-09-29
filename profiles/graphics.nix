@@ -22,7 +22,7 @@ in
     wallpapers = lib.mkOption {
       type = lib.types.listOf lib.types.path;
       default = [ ];
-      description = "Wallpaper images (store paths) applied by feh --bg-fill on X start, one per invocation";
+      description = "Wallpaper images (store paths) applied by feh --bg-fill on X start";
     };
   };
 
@@ -40,7 +40,7 @@ in
     environment.etc."x11/xinitrc".text = ''
       ${lib.concatStringsSep "\n" cfg.xinitCommands}
       slstatus &
-      ${lib.concatStringsSep " " (map (p: "feh --bg-fill ${p} &") cfg.wallpapers)}
+      feh --bg-fill ${lib.concatStringsSep " " cfg.wallpapers}
       exec dwm
     '';
 
@@ -55,7 +55,7 @@ in
         inherit pkgs lib;
         isLaptop = config.site.profiles.laptop.enable;
       })
-      xorg.xinit
+      xinit
       pavucontrol
     ];
 

@@ -131,11 +131,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790692143,
-        "narHash": "sha256-4f0WNnXMS8z7Ob8WtuiqEhwduZTXT4xHbi/ZNgtcRmM=",
+        "lastModified": 1790698792,
+        "narHash": "sha256-lWFA2NVj6DK/DMsfKrf3Hvf1zRaBGbGJmwDa51Yh1Dc=",
         "owner": "cnwnc",
         "repo": "katydid",
-        "rev": "f04741fde353b0dada1bfb5f79dae41d665d62a8",
+        "rev": "f87700cb31082bfa5c6d12c2349e4a9684fa60bc",
         "type": "github"
       },
       "original": {

@@ -1,12 +1,19 @@
 {
   pkgs,
   pkgs-unstable,
+  inputs,
   ...
 }:
 {
   imports = [
     ./hardware.nix
+    inputs.essentia-tagger.nixosModules.classifier
   ];
+
+  services.tagger-classifier = {
+    enable = true;
+    bind = "10.100.1.1";
+  };
 
   users.users.helper = {
     isNormalUser = true;

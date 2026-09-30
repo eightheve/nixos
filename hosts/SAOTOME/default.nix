@@ -1,11 +1,20 @@
 {
   pkgs,
+  inputs,
   ...
 }:
 {
   imports = [
     ./hardware.nix
+    inputs.essentia-tagger.nixosModules.index
   ];
+
+  services.tagger-index = {
+    enable = true;
+    classifierUrl = "10.100.1.1:9478";
+    musicDir = "/srv/data/katydid";
+    schedule = "*-*-* 18:00:00";
+  };
 
   nixpkgs.config.allowUnfree = true;
 

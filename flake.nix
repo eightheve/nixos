@@ -20,6 +20,7 @@
       url = "github:cnwnc/katydid";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    essentia-tagger.url = "github:cnwnc/essentia-tagger";
   };
 
   outputs =

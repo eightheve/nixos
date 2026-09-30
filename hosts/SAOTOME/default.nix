@@ -11,7 +11,7 @@
 
   services.tagger-index = {
     enable = true;
-    classifierUrl = "10.100.1.1:9478";
+    classifierUrl = "http://192.168.1.3:9478";
     musicDir = "/srv/data/katydid";
     schedule = "*-*-* 18:00:00";
   };

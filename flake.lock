@@ -20,11 +20,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1790756629,
-        "narHash": "sha256-vIF0m9EQ8gOgQ0aCz6qgdEAH0+Fs8YYgXOQNoBN4gDw=",
+        "lastModified": 1790762896,
+        "narHash": "sha256-ZUKJQuFyU0SYJJ02XVMhBl2/uEIoUBQ7ypsvOC6sdT4=",
         "owner": "cnwnc",
         "repo": "essentia-tagger",
-        "rev": "64e90259fa8d964c1df115b9af70835e80a6adef",
+        "rev": "a07908b6e790e9e46cd34649fbc3b5dccf0cab99",
         "type": "github"
       },
       "original": {

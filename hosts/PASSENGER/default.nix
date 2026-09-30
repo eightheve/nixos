@@ -12,7 +12,7 @@
 
   services.tagger-classifier = {
     enable = true;
-    bind = "10.100.1.1";
+    bind = "192.168.1.3";
   };
 
   users.users.helper = {

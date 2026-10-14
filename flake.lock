@@ -381,11 +381,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784199457,
-        "narHash": "sha256-SzCnYkRqEE1CZRul/PRcng+QLYrGDA5DOO/a4KAC9PI=",
+        "lastModified": 1790877209,
+        "narHash": "sha256-6VmJkwLQg3Z63QPpBkUyJNltd1va1BNLCSkF6j+D+fY=",
         "owner": "eightheve",
         "repo": "sana-website",
-        "rev": "d26390f26ac38ad1b66c3fe05504074aad0a6ba9",
+        "rev": "8136a44747dee5ae8f6a98cb055a46c785a22d74",
         "type": "github"
       },
       "original": {

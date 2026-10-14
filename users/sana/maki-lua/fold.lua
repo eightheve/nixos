@@ -52,48 +52,60 @@ local function short(s, max)
 end
 
 -- Fold records survive /reload (the Lua host rebuilds and drops `state`)
--- through a file in the config dir, keyed by session id. Best-effort: losing
+-- through one file per session under the state dir, named by session id, so
+-- concurrent agents never rewrite each other's records. Best-effort: losing
 -- it only costs precise archive targeting, restore falls back to a scan.
-local function state_path()
-  local dir, err = maki.env.config_dir()
+local function fold_state_dir()
+  local dir, err = maki.env.state_dir()
   if not dir then
     return nil, err
   end
-  return dir .. "/fold-state.json"
+  return dir .. "/fold-state"
 end
 
-local function save_state()
-  local path, err = state_path()
+local function state_path(sid)
+  local dir, err = fold_state_dir()
+  if not dir then
+    return nil, err
+  end
+  return dir .. "/" .. sid .. ".json"
+end
+
+local function save_state(sid)
+  local path, err = state_path(sid)
   if not path then
     maki.log.debug("fold: no state path: " .. tostring(err))
     return
   end
-  local out = {}
-  for sid, s in pairs(state) do
-    out[sid] = { tags = s.tags, folds = s.folds }
-  end
-  local ok, werr = maki.fs.write(path, maki.json.encode(out))
+  maki.fs.mkdir(fold_state_dir(), { parents = true })
+  local s = session_state(sid)
+  local ok, werr = maki.fs.write(path, maki.json.encode({ tags = s.tags, folds = s.folds }))
   if not ok then
     maki.log.debug("fold: could not persist state: " .. tostring(werr))
   end
 end
 
 local function load_state()
-  local path = state_path()
-  if not path then
+  local dir = fold_state_dir()
+  if not dir then
     return
   end
-  local text = maki.fs.read(path)
-  if not text then
+  local entries = maki.fs.dir(dir)
+  if not entries then
     return
   end
-  local ok, decoded = pcall(maki.json.decode, text)
-  if not ok or type(decoded) ~= "table" then
-    return
-  end
-  for sid, s in pairs(decoded) do
-    if type(s) == "table" and type(s.tags) == "table" and type(s.folds) == "table" then
-      state[sid] = { tags = s.tags, folds = s.folds }
+  for _, e in ipairs(entries) do
+    local name, typ = e[1], e[2]
+    if typ == "file" and name:sub(-5) == ".json" then
+      local text = maki.fs.read(dir .. "/" .. name)
+      if text then
+        local ok, decoded = pcall(maki.json.decode, text)
+        if ok and type(decoded) == "table" then
+          if type(decoded.tags) == "table" and type(decoded.folds) == "table" then
+            state[name:sub(1, -6)] = { tags = decoded.tags, folds = decoded.folds }
+          end
+        end
+      end
     end
   end
 end
@@ -137,7 +149,7 @@ maki.api.register_tool({
     end
     local s = session_state(sid)
     table.insert(s.tags, task)
-    save_state()
+    save_state(sid)
     return string.format(
       'Tag set: "%s". Work on this tangent now. When it is done, call fold with a '
         .. "self-contained summary of what you did, tried, decided, and produced — "
@@ -355,7 +367,7 @@ local function commit_fold(sid, job)
         break
       end
     end
-    save_state()
+    save_state(sid)
     notify_model(
       sid,
       string.format(
@@ -408,7 +420,7 @@ local function commit_return(sid, job)
       end
     end
     table.insert(s.tags, job.task)
-    save_state()
+    save_state(sid)
     notify_model(
       sid,
       string.format(

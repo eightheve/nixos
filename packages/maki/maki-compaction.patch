@@ -1,0 +1,618 @@
+diff --git a/maki-agent/src/agent/compaction.rs b/maki-agent/src/agent/compaction.rs
+index 9abf2125..a4ec9851 100644
+--- a/maki-agent/src/agent/compaction.rs
++++ b/maki-agent/src/agent/compaction.rs
+@@ -4,11 +4,12 @@ use maki_config::AgentConfig;
+ use maki_providers::retry::RetryPolicy;
+ use maki_providers::{
+     ContentBlock, ContextGauge, IMAGE_PLACEHOLDER, Message, Model, RequestOptions, Role,
+-    StreamResponse, TokenUsage,
++    StopReason, StreamResponse, TokenUsage, estimate_message_tokens,
+ };
+ use maki_storage::id::SessionRef;
+ use serde_json::Value;
+-use tracing::info;
++use std::collections::HashSet;
++use tracing::{info, warn};
+ 
+ use super::history::{History, remove_orphaned_tool_results};
+ use super::streaming::{StreamError, StreamRequest, min_output, stream_with_retry};
+@@ -17,12 +18,27 @@ use crate::prompt::COMPACTION_USER;
+ use crate::{AgentError, AgentEvent, DoneReason, EventSender, TurnCompleteEvent};
+ 
+ const CONTINUE_AFTER_COMPACT: &str = "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed. If the summary contains a todo list, restore it with todo_write and keep it updated. If you learned important project context during this session, consider saving it to memory before it's lost.";
++/// The prompt a compaction writes ahead of its summary. Its presence at the
++/// front of a transcript marks an already-compacted session: the pair is
++/// updated in place on the next compaction, never re-summarized.
++const SUMMARY_MARKER: &str = "What did we do so far?";
+ const TOOL_RESULT_PLACEHOLDER: &str = "[tool result]";
+ /// How much of the newest tool output survives a compaction verbatim. This
+ /// used to be a count, which kept three huge results and threw away thirty
+ /// cheap ones, so one giant MCP dump could sit in the protected tail and blow
+ /// the window on every retry.
+ const RECENT_TOOL_RESULT_BUDGET: usize = 64 * 1024;
++/// How many characters of a tool result outside the verbatim tail still reach
++/// the summariser: the head is where errors, paths, and key output lines
++/// live, so an old result contributes its beginning instead of vanishing.
++const TOOL_RESULT_HEAD_CHARS: usize = 2_000;
++const TRUNCATION_MARKER: &str = "\n\n[... more characters truncated]";
++/// How many tokens of the newest answered work stay in context verbatim after
++/// a compaction, cut on a round boundary. Recent decisions, paths, and output
++/// stay quotable instead of summary-only. The walk self-limits on small
++/// sessions: a history that fits the budget keeps nothing (everything is
++/// summarized), and one smaller than the window never crosses it.
++const KEEP_RECENT_TOKEN_BUDGET: u32 = 20_000;
+ /// A summary runs to a few thousand tokens. Giving compaction the full turn
+ /// budget would reserve tens of thousands it cannot use, on the one request
+ /// already sent under the most context pressure a session ever sees.
+@@ -47,7 +63,14 @@ fn normalize(text: Option<&str>) -> Option<&str> {
+ 
+ /// Config instructions steer every compaction, `request` only the one the user
+ /// asked for with `/compact <guidance>`, so both are kept and neither wins.
+-fn summary_prompt(config: &AgentConfig, request: Option<&str>) -> String {
++/// With a previous summary the prompt becomes an update: the model merges the
++/// new work into it instead of regenerating from scratch, so information
++/// survives successive compactions instead of decaying through each one.
++fn summary_prompt(
++    config: &AgentConfig,
++    request: Option<&str>,
++    previous_summary: Option<&str>,
++) -> String {
+     let extras = [
+         normalize(config.compaction_instructions.as_deref()),
+         normalize(request),
+@@ -56,10 +79,22 @@ fn summary_prompt(config: &AgentConfig, request: Option<&str>) -> String {
+     .flatten()
+     .collect::<Vec<_>>()
+     .join("\n");
+-    if extras.is_empty() {
+-        return COMPACTION_USER.to_string();
++    let base = if extras.is_empty() {
++        COMPACTION_USER.to_string()
++    } else {
++        format!("{COMPACTION_USER}\n\nAdditional instructions:\n{extras}")
++    };
++    match previous_summary {
++        None => base,
++        Some(previous) => format!(
++            "{base}\n\nAn earlier summary of this conversation follows in <previous-summary>, \
++             and the conversation above contains only the work done since it. Update that \
++             summary with the new work: preserve all existing information unless it is \
++             resolved or no longer relevant, add new progress, decisions, and context, and \
++             output the complete updated summary in the same template. Do not restart from \
++             scratch.\n\n<previous-summary>\n{previous}\n</previous-summary>"
++        ),
+     }
+-    format!("{COMPACTION_USER}\n\nAdditional instructions:\n{extras}")
+ }
+ 
+ pub(super) fn continue_message(config: &AgentConfig) -> String {
+@@ -91,12 +126,35 @@ pub(super) async fn compact_history(
+ ) -> Result<TokenUsage, AgentError> {
+     let compact_start = std::time::Instant::now();
+     let summarized = history.len().saturating_sub(carry_len);
+-    let mut compaction_history: Vec<Message> = history.as_slice()[..summarized].to_vec();
++    let (summarize_start, previous_summary) =
++        previous_summary_range(history.as_slice(), summarized);
++    // The newest answered rounds that fit the keep-recent budget stay verbatim;
++    // the summariser reads only what is older than the kept tail.
++    let tail_start = keep_recent_from(history.as_slice(), summarized, summarize_start);
++    let summarize_end = if tail_start > summarize_start {
++        tail_start
++    } else {
++        summarized
++    };
++    let mut compaction_history: Vec<Message> =
++        history.as_slice()[summarize_start..summarize_end].to_vec();
+     remove_orphaned_tool_results(&mut compaction_history);
+     strip_images(&mut compaction_history);
+     strip_thinking(&mut compaction_history);
+     collapse_tool_results(&mut compaction_history, RECENT_TOOL_RESULT_BUDGET);
+-    compaction_history.push(Message::user(summary_prompt(config, instructions)));
++    let inventory = file_inventory(&compaction_history);
++    // `tail_start == summarize_start` means nothing was kept, so only the
++    // carry tail survives verbatim.
++    let tail_from = if tail_start > summarize_start {
++        tail_start
++    } else {
++        summarized
++    };
++    compaction_history.push(Message::user(summary_prompt(
++        config,
++        instructions,
++        previous_summary,
++    )));
+ 
+     let empty_tools = serde_json::json!([]);
+     let max_attempts = 3;
+@@ -132,7 +190,8 @@ pub(super) async fn compact_history(
+                 return finish_compact(
+                     response,
+                     history,
+-                    summarized,
++                    tail_from,
++                    inventory,
+                     event_tx,
+                     compact_start,
+                     model,
+@@ -155,10 +214,12 @@ pub(super) async fn compact_history(
+     Err(last_error.unwrap())
+ }
+ 
++#[allow(clippy::too_many_arguments)]
+ fn finish_compact(
+     response: StreamResponse,
+     history: &mut History,
+-    summarized: usize,
++    tail_from: usize,
++    inventory: Option<String>,
+     event_tx: &EventSender,
+     compact_start: std::time::Instant,
+     model: &Model,
+@@ -172,17 +233,26 @@ fn finish_compact(
+         context_window: model.context_window,
+     })));
+ 
++    // A length stop means the summary was cut off mid-generation; persisting
++    // it would silently drop everything after the output cap. Failing leaves
++    // the transcript untouched, exactly like an empty summary.
++    if response.stop_reason == Some(StopReason::MaxTokens) {
++        warn!(model = %model.id, "compaction summary hit the output cap");
++        return Err(AgentError::EmptySummary);
++    }
++
+     // Swapping the history for a summary the model never wrote would throw the
+     // session away for nothing.
+-    if response.message.first_text_content().is_none() {
++    let mut message = response.message;
++    if message.first_text_content().is_none() {
+         return Err(AgentError::EmptySummary);
+     }
++    if let Some(suffix) = inventory {
++        append_to_first_text(&mut message, &suffix);
++    }
+ 
+-    let mut new_history = vec![
+-        Message::user("What did we do so far?".into()),
+-        response.message,
+-    ];
+-    new_history.extend_from_slice(&history.as_slice()[summarized..]);
++    let mut new_history = vec![Message::user(SUMMARY_MARKER.into()), message];
++    new_history.extend_from_slice(&history.as_slice()[tail_from..]);
+     history.replace(new_history);
+     info!(
+         model = %model.id,
+@@ -319,12 +389,129 @@ fn strip_thinking(messages: &mut [Message]) {
+     }
+ }
+ 
++/// `(summarize start, previous summary)` for the range to summarize. An
++/// already-compacted session carries the summary pair at `[0..2]`; that pair
++/// is replaced by the updated summary rather than re-summarized, and the old
++/// summary text rides in the prompt so the model merges instead of
++/// regenerating.
++fn previous_summary_range(history: &[Message], summarized: usize) -> (usize, Option<&str>) {
++    let marker_pair = history.len() >= 2
++        && summarized >= 2
++        && history[0].user_text() == Some(SUMMARY_MARKER)
++        && matches!(history[1].role, Role::Assistant)
++        && history[1].first_text_content().is_some();
++    if marker_pair {
++        (2, history[1].first_text_content())
++    } else {
++        (0, None)
++    }
++}
++
++/// Where a raw kept tail may start: a transcript may resume at a user message
++/// carrying no tool results. Tool results must follow their calls, and an
++/// assistant message cannot open a transcript.
++fn is_safe_cut_start(message: &Message) -> bool {
++    matches!(message.role, Role::User)
++        && !message
++            .content
++            .iter()
++            .any(|block| matches!(block, ContentBlock::ToolResult { .. }))
++}
++
++/// The index a kept raw tail starts at: the newest contiguous run of
++/// answered messages whose estimate fits [`KEEP_RECENT_TOKEN_BUDGET`], cut at
++/// the nearest legal start. A history the budget never cuts keeps nothing —
++/// everything is summarized, as before the tail existed.
++fn keep_recent_from(messages: &[Message], end: usize, floor: usize) -> usize {
++    if end <= floor {
++        return floor;
++    }
++    let mut accumulated: u32 = 0;
++    let mut start = end;
++    let mut budget_cut = false;
++    for index in (floor..end).rev() {
++        let tokens = estimate_message_tokens(std::slice::from_ref(&messages[index]));
++        if accumulated.saturating_add(tokens) > KEEP_RECENT_TOKEN_BUDGET {
++            budget_cut = true;
++            break;
++        }
++        accumulated += tokens;
++        start = index;
++    }
++    if !budget_cut {
++        return floor;
++    }
++    while start < end && !is_safe_cut_start(&messages[start]) {
++        start += 1;
++    }
++    if start >= end || start <= floor {
++        return floor;
++    }
++    start
++}
++
++const FILE_INVENTORY_TOOLS_READ: &[&str] = &["read"];
++const FILE_INVENTORY_TOOLS_MODIFIED: &[&str] = &["write", "edit"];
++
++/// Deterministic read/modified file lists extracted from the summarized
++/// range's own tool calls. Appended to the summary verbatim, they survive no
++/// matter what the summariser model chooses to mention.
++fn file_inventory(messages: &[Message]) -> Option<String> {
++    let mut read: Vec<&str> = Vec::new();
++    let mut modified: Vec<&str> = Vec::new();
++    let mut seen: HashSet<&str> = HashSet::new();
++    for msg in messages {
++        if !matches!(msg.role, Role::Assistant) {
++            continue;
++        }
++        for (_, name, input) in msg.tool_uses() {
++            let Some(path) = input.get("path").and_then(Value::as_str) else {
++                continue;
++            };
++            if !seen.insert(path) {
++                continue;
++            }
++            if FILE_INVENTORY_TOOLS_READ.contains(&name) {
++                read.push(path);
++            } else if FILE_INVENTORY_TOOLS_MODIFIED.contains(&name) {
++                modified.push(path);
++            }
++        }
++    }
++    if read.is_empty() && modified.is_empty() {
++        return None;
++    }
++    let mut sections: Vec<String> = Vec::new();
++    if !read.is_empty() {
++        sections.push(format!("<read-files>\n{}\n</read-files>", read.join("\n")));
++    }
++    if !modified.is_empty() {
++        sections.push(format!(
++            "<modified-files>\n{}\n</modified-files>",
++            modified.join("\n")
++        ));
++    }
++    Some(format!("\n\n{}", sections.join("\n\n")))
++}
++
++fn append_to_first_text(message: &mut Message, suffix: &str) {
++    for block in &mut message.content {
++        if let ContentBlock::Text { text } = block {
++            text.push_str(suffix);
++            return;
++        }
++    }
++}
++
+ /// Walks newest first and collapses every tool result that does not fit in
+-/// what is left of `budget`. One oversized result is collapsed on its own and
+-/// leaves the budget to the older ones, which is the whole point: charging it
+-/// would spend the tail on a block that is no longer there. Returns whether
+-/// anything actually shrank, so a caller retrying on overflow can tell
+-/// progress from a no-op.
++/// what is left of `budget`. A collapsed result keeps its first characters
++/// when it is long enough to have a useful head, and becomes the bare
++/// placeholder once already truncated or too short to bother. One oversized
++/// result is collapsed on its own and leaves the budget to the older ones,
++/// which is the whole point: charging it would spend the tail on a block
++/// that is no longer there. Returns whether anything actually shrank, so a
++/// caller retrying on overflow can tell progress from a no-op: truncate,
++/// then placeholder, then drop rounds.
+ fn collapse_tool_results(messages: &mut [Message], mut budget: usize) -> bool {
+     let mut collapsed = false;
+     for block in messages
+@@ -336,8 +523,22 @@ fn collapse_tool_results(messages: &mut [Message], mut budget: usize) -> bool {
+             match budget.checked_sub(content.len()) {
+                 Some(rest) => budget = rest,
+                 None => {
+-                    collapsed |= content != TOOL_RESULT_PLACEHOLDER;
+-                    *content = TOOL_RESULT_PLACEHOLDER.into();
++                    let replacement = if content.len() > TOOL_RESULT_HEAD_CHARS
++                        && !content.ends_with(TRUNCATION_MARKER)
++                    {
++                        let mut end = TOOL_RESULT_HEAD_CHARS;
++                        while !content.is_char_boundary(end) {
++                            end -= 1;
++                        }
++                        let mut head = String::with_capacity(end + TRUNCATION_MARKER.len());
++                        head.push_str(&content[..end]);
++                        head.push_str(TRUNCATION_MARKER);
++                        head
++                    } else {
++                        TOOL_RESULT_PLACEHOLDER.to_string()
++                    };
++                    collapsed |= *content != replacement;
++                    *content = replacement;
+                 }
+             }
+         }
+@@ -763,7 +964,7 @@ mod tests {
+             compaction_instructions: config_extra.map(str::to_string),
+             ..Default::default()
+         };
+-        let prompt = summary_prompt(&config, request);
++        let prompt = summary_prompt(&config, request, None);
+ 
+         assert!(prompt.starts_with(COMPACTION_USER));
+         assert_eq!(
+@@ -1254,4 +1455,233 @@ mod tests {
+             matches!(&messages[0].content[..], [ContentBlock::Text { text }] if text == "keep me")
+         );
+     }
++
++    const OLD_SUMMARY: &str = "old summary";
++    const NEW_WORK: &str = "the work done since the last summary";
++    const PREVIOUS_SUMMARY_PROMPT_MSG: &str =
++        "a re-compaction must merge into the old summary, never regenerate from scratch";
++
++    fn marker_pair() -> [Message; 2] {
++        [
++            Message::user(SUMMARY_MARKER.into()),
++            Message {
++                role: Role::Assistant,
++                content: vec![ContentBlock::Text {
++                    text: OLD_SUMMARY.into(),
++                }],
++                ..Default::default()
++            },
++        ]
++    }
++
++    fn summary_text(messages: &[Message]) -> String {
++        messages
++            .iter()
++            .filter(|m| matches!(m.role, Role::Assistant))
++            .filter_map(Message::first_text_content)
++            .map(str::to_owned)
++            .collect::<Vec<_>>()
++            .join("\n")
++    }
++
++    /// An already-compacted session starts with the summary pair: those two
++    /// messages are replaced by the updated summary, never re-sent as input,
++    /// and the old text rides in the prompt for the merge.
++    #[test]
++    fn re_compaction_updates_the_previous_summary() {
++        smol::block_on(async {
++            let provider = MockProvider::new(vec![Ok(text_response(StopReason::EndTurn))]);
++            let mut messages = marker_pair().to_vec();
++            messages.push(Message::user(NEW_WORK.into()));
++            let mut history = History::new(messages);
++
++            summarize_history(&provider, &mut history, 0, None).await;
++
++            let requests = provider.requests.lock().unwrap();
++            let request = &requests[0];
++            assert_eq!(
++                request.first().unwrap().user_text(),
++                Some(NEW_WORK),
++                "the summarize range begins exactly at the work since the last summary"
++            );
++            assert!(
++                !request
++                    .iter()
++                    .any(|m| m.first_text_content() == Some(OLD_SUMMARY)),
++                "the old summary must not be re-sent as transcript input: {PREVIOUS_SUMMARY_PROMPT_MSG}"
++            );
++            let prompt = request.last().unwrap().first_text_content().unwrap();
++            assert!(
++                prompt.contains("<previous-summary>") && prompt.contains(OLD_SUMMARY),
++                "{PREVIOUS_SUMMARY_PROMPT_MSG}"
++            );
++
++            let messages = history.as_slice();
++            assert_eq!(messages.len(), 2);
++            assert_eq!(messages[0].user_text(), Some(SUMMARY_MARKER));
++            assert!(matches!(messages[1].role, Role::Assistant));
++        });
++    }
++
++    /// The newest answered rounds that fit the budget stay in context
++    /// verbatim, cut on a user-message boundary; only what is older is
++    /// summarized away.
++    #[test]
++    fn compaction_keeps_a_raw_recent_tail() {
++        const BIG_OLD_TEXT: &str = "old large content ";
++        smol::block_on(async {
++            let provider = MockProvider::new(vec![Ok(text_response(StopReason::EndTurn))]);
++            let big = BIG_OLD_TEXT.repeat(5_000);
++            let mut history = History::new(vec![
++                Message::user(big),
++                Message {
++                    role: Role::Assistant,
++                    content: vec![ContentBlock::Text {
++                        text: "old reply".into(),
++                    }],
++                    ..Default::default()
++                },
++                Message::user("recent question".into()),
++                Message {
++                    role: Role::Assistant,
++                    content: vec![ContentBlock::Text {
++                        text: "recent answer".into(),
++                    }],
++                    ..Default::default()
++                },
++            ]);
++
++            summarize_history(&provider, &mut history, 0, None).await;
++
++            let requests = provider.requests.lock().unwrap();
++            assert!(
++                requests[0]
++                    .iter()
++                    .flat_map(|m| &m.content)
++                    .any(|block| matches!(block, ContentBlock::Text { text }
++                        if text.starts_with(BIG_OLD_TEXT))),
++                "the big old round is older than the tail, so the summariser reads it"
++            );
++            assert!(
++                !requests[0]
++                    .iter()
++                    .any(|m| m.user_text() == Some("recent question")),
++                "the kept tail must not be summarized"
++            );
++
++            let messages = history.as_slice();
++            assert_eq!(messages.len(), 4);
++            assert_eq!(messages[0].user_text(), Some(SUMMARY_MARKER));
++            assert!(matches!(messages[1].role, Role::Assistant));
++            assert_eq!(messages[2].user_text(), Some("recent question"));
++            assert!(
++                matches!(&messages[3].content[0], ContentBlock::Text { text } if text == "recent answer"),
++                "the raw tail must survive verbatim"
++            );
++            assert!(
++                !messages
++                    .iter()
++                    .any(|m| m.user_text().is_some_and(|t| t.starts_with(BIG_OLD_TEXT))),
++                "the summarized prefix must leave the context"
++            );
++        });
++    }
++
++    /// File lists extracted from the transcript's own tool calls are appended
++    /// to the summary whatever the summariser model chooses to mention.
++    #[test]
++    fn summary_carries_the_deterministic_file_inventory() {
++        smol::block_on(async {
++            let provider = MockProvider::new(vec![Ok(text_response(StopReason::EndTurn))]);
++            let mut history = History::new(vec![
++                Message {
++                    role: Role::Assistant,
++                    content: vec![
++                        ContentBlock::tool_use(
++                            "r1",
++                            "read",
++                            serde_json::json!({ "path": "src/lib.rs" }),
++                        ),
++                        ContentBlock::tool_use(
++                            "e1",
++                            "edit",
++                            serde_json::json!({ "path": "src/main.rs" }),
++                        ),
++                    ],
++                    ..Default::default()
++                },
++                Message {
++                    role: Role::User,
++                    content: vec![tool_result("r1"), tool_result("e1")],
++                    ..Default::default()
++                },
++            ]);
++
++            summarize_history(&provider, &mut history, 0, None).await;
++
++            let summary = summary_text(history.as_slice());
++            assert!(summary.contains("<read-files>\nsrc/lib.rs\n</read-files>"));
++            assert!(summary.contains("<modified-files>\nsrc/main.rs\n</modified-files>"));
++        });
++    }
++
++    /// A tool result too big for the verbatim tail still hands the summariser
++    /// its head, where errors and key output live, instead of erasing it.
++    #[test]
++    fn oversized_result_keeps_its_head_for_the_summariser() {
++        let big = "x".repeat(TOOL_RESULT_HEAD_CHARS + 3_000);
++        let mut messages = vec![Message {
++            role: Role::User,
++            content: vec![ContentBlock::ToolResult {
++                tool_use_id: "t1".into(),
++                content: big.clone(),
++                is_error: false,
++            }],
++            ..Default::default()
++        }];
++        assert!(collapse_tool_results(&mut messages, 0));
++
++        let ContentBlock::ToolResult { content, .. } = &messages[0].content[0] else {
++            panic!("the only block is a tool result");
++        };
++        assert!(content.ends_with(TRUNCATION_MARKER));
++        assert!(content.starts_with(&big[..TOOL_RESULT_HEAD_CHARS]));
++        assert!(content.len() < TOOL_RESULT_HEAD_CHARS + 100);
++        assert_ne!(content, TOOL_RESULT_PLACEHOLDER);
++
++        // A second pass with nothing left to truncate converts the head to the
++        // placeholder; a third pass is a no-op, so retries eventually prune.
++        assert!(collapse_tool_results(&mut messages, 0));
++        assert!(matches!(
++            &messages[0].content[0],
++            ContentBlock::ToolResult { content, .. } if content == TOOL_RESULT_PLACEHOLDER
++        ));
++        assert!(!collapse_tool_results(&mut messages, 0));
++    }
++
++    /// A summary cut off by the output cap is incomplete; persisting it would
++    /// silently drop everything past the cap, so the compaction fails with
++    /// the transcript untouched.
++    #[test]
++    fn length_capped_summary_is_rejected() {
++        smol::block_on(async {
++            let provider = MockProvider::new(vec![Ok(text_response(StopReason::MaxTokens))]);
++            let mut history = History::new(vec![Message::user(KEPT_TEXT.into())]);
++
++            let err = summarize(
++                &provider,
++                &mut history,
++                &mut ContextGauge::default(),
++                &AgentConfig::default(),
++                None,
++                &CancelToken::none(),
++            )
++            .await
++            .expect_err("a capped summary must fail");
++
++            assert!(matches!(err, AgentError::EmptySummary));
++            assert_eq!(history.len(), 1);
++            assert_eq!(history.as_slice()[0].user_text(), Some(KEPT_TEXT));
++        });
++    }
+ }
+diff --git a/maki-agent/src/prompts/compaction_user.md b/maki-agent/src/prompts/compaction_user.md
+index 48e718b7..da819e11 100644
+--- a/maki-agent/src/prompts/compaction_user.md
++++ b/maki-agent/src/prompts/compaction_user.md
+@@ -1,6 +1,8 @@
+ Provide a detailed summary for continuing our conversation above.
+ Focus on information that would be helpful for continuing the conversation, including what we did, what we're doing, which files we're working on, and what we're going to do next.
+ 
++Preserve exact file paths, function names, and error messages verbatim; they are the details continuation depends on most.
++
+ Stick to this template:
+ ---
+ ## Goal
+@@ -13,8 +15,15 @@ Stick to this template:
+ ## Discoveries
+ [Notable things learned during this conversation]
+ 
+-## Accomplished
+-[What work has been completed, what is still in progress, what is left?]
++## Progress
++### Done
++- [Work that has been completed]
++
++### In progress
++- [Work currently underway]
++
++### Blocked
++- [Issues preventing progress, if any]
+ 
+ ## Relevant files / directories
+ [Structured list of relevant files that have been read, edited, or created]

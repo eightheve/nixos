@@ -14,9 +14,17 @@
 # - maki-tiers.patch: strict subagent tier routing — a tier assignment from
 #   the /model picker (~/.local/state/maki/model-tiers) always wins over the
 #   provider-scoped guessing in the task tool's model resolution.
+# - maki-compaction.patch: compaction retains more project context per
+#   summary token — re-compaction merges into the previous summary instead of
+#   regenerating it, file read/modified lists are extracted from tool calls
+#   and appended deterministically, oversized tool results keep a truncated
+#   head for the summariser, the newest ~20k tokens of answered work stay
+#   verbatim past the cut, and a length-capped summary is rejected rather
+#   than silently persisted.
 maki.overrideAttrs (oldAttrs: {
   patches = (oldAttrs.patches or [ ]) ++ [
     ./maki-fold.patch
     ./maki-tiers.patch
+    ./maki-compaction.patch
   ];
 })

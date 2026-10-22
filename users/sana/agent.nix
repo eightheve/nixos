@@ -59,16 +59,6 @@ in
           exec find /tmp /var/tmp -mindepth 1 -maxdepth 1 -user "$(id -un)" -exec rm -rf {} \;
         '')
       ];
-
-      files.".config/git/config".text = ''
-        [user]
-          name = doppelsana
-          email = agent@doppel.moe
-        [init]
-          defaultBranch = main
-        [safe]
-          directory = *
-      '';
     };
 
     hjem.users.sana.packages = [

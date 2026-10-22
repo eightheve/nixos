@@ -52,6 +52,8 @@ in
       packages = with pkgs; [
         git
         gh
+        python3
+        jq
         (writeShellScriptBin "clean-temp" ''
           cd "$HOME"
           exec find /tmp /var/tmp -mindepth 1 -maxdepth 1 -user "$(id -un)" -exec rm -rf {} \;

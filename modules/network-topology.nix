@@ -112,6 +112,11 @@
       };
     };
 
+    SILFA = {
+      networkManager = false;
+      interfaces.enp1s0.dhcp = true;
+    };
+
     SAOTOME = {
       networkManager = false;
       interfaces = {

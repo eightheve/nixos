@@ -4,6 +4,9 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     hjem.url = "github:feel-co/hjem";
     hjem.inputs.nixpkgs.follows = "nixpkgs";
+    impermanence.url = "github:nix-community/impermanence";
+    impermanence.inputs.nixpkgs.follows = "";
+    impermanence.inputs.home-manager.follows = "";
     sana-website = {
       url = "github:eightheve/sana-website";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -49,6 +52,7 @@
         KAZOOIE = "x86_64-linux";
         PASSENGER = "x86_64-linux";
         SAOTOME = "x86_64-linux";
+        SILFA = "aarch64-linux";
       };
 
       mkHost =

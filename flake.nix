@@ -40,27 +40,28 @@
     let
       hostNames = builtins.attrNames (builtins.readDir ./hosts);
 
-      system = "x86_64-linux";
-      pkgs-unstable = import nixpkgs-unstable {
-        inherit system;
-        config.allowUnfree = true;
-        config.cudaSupport = true;
-      };
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
 
-      pkgs = nixpkgs.legacyPackages.${system};
-
-      preCommit = git-hooks.lib.${system}.run {
-        src = ./.;
-        hooks.nixfmt = {
-          enable = true;
-          args = [ "--check" ];
-        };
+      hostSystems = {
+        KAZOOIE = "x86_64-linux";
+        PASSENGER = "x86_64-linux";
+        SAOTOME = "x86_64-linux";
       };
 
       mkHost =
         hostname:
+        let
+          system = hostSystems.${hostname} or "x86_64-linux";
+          pkgs-unstable = import nixpkgs-unstable {
+            inherit system;
+            config.allowUnfree = true;
+            config.cudaSupport = system == "x86_64-linux";
+          };
+        in
         nixpkgs.lib.nixosSystem {
-          inherit system;
           specialArgs = {
             inherit inputs;
             inherit pkgs-unstable;
@@ -69,6 +70,9 @@
             };
           };
           modules = [
+            {
+              nixpkgs.hostPlatform = nixpkgs.lib.mkDefault system;
+            }
             ./profiles
             ./modules
             ./users
@@ -83,8 +87,6 @@
         };
     in
     {
-      packages.${system}.maki = maki.packages.${system}.default;
-
       nixosConfigurations = builtins.listToAttrs (
         map (name: {
           inherit name;
@@ -94,9 +96,24 @@
 
       # Enter once with `nix develop` to install the git pre-commit hook.
       # The hook then checks formatting of staged .nix files on commit.
-      devShells.${system}.default = pkgs.mkShell {
-        inherit (preCommit) shellHook;
-        buildInputs = [ pkgs.git ] ++ preCommit.enabledPackages;
-      };
+      devShells = nixpkgs.lib.genAttrs supportedSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          preCommit = git-hooks.lib.${system}.run {
+            src = ./.;
+            hooks.nixfmt = {
+              enable = true;
+              args = [ "--check" ];
+            };
+          };
+        in
+        {
+          default = pkgs.mkShell {
+            inherit (preCommit) shellHook;
+            buildInputs = [ pkgs.git ] ++ preCommit.enabledPackages;
+          };
+        }
+      );
     };
 }

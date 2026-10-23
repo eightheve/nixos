@@ -13,7 +13,7 @@
     mc-whitelist.url = "github:eightheve/mc-whitelist";
     wayfinder.url = "github:eightheve/wayfinder";
     maki.url = "github:tontinton/maki";
-    maki.inputs.nixpkgs.follows = "nixpkgs";
+    maki.inputs.nixpkgs.url = "github:nixos/nixpkgs/2f5a153c270b70cb0f8c11f46d96d6d3bc39f4e3";
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
     katydid = {

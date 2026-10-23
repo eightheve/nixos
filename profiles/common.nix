@@ -64,7 +64,7 @@ in
     };
 
     programs.gnupg.agent = {
-      enable = true;
+      enable = !config.site.profiles.server.enable;
       enableSSHSupport = true;
     };
 
@@ -88,6 +88,7 @@ in
           git
           sshfs
           file
+          gnupg
 
           yubioath-flutter
           yubikey-personalization

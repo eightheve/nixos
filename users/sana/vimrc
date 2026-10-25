@@ -1,6 +1,6 @@
 set t_Co=16
-colorscheme zaibatsu
 set mouse=a
+set belloff=all
 syntax on
 filetype plugin on
 filetype indent on
@@ -43,3 +43,4 @@ endfu
 map <leader>w :call ToggleWrap()<CR>
 autocmd FileType markdown setlocal spell
 autocmd FileType markdown call ToggleWrap()
+colorscheme zaibatsu

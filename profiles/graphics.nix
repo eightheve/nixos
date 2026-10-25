@@ -8,6 +8,12 @@ let
   cfg = config.site.profiles.graphics;
   packages = import ../packages;
   c = config.site.colorScheme;
+
+  filepicker = pkgs.writeShellScript "filepicker" ''
+    export PATH=${lib.makeBinPath [ pkgs.nnn pkgs.coreutils ]}:$PATH
+    export TERMCMD="${pkgs.kitty}/bin/kitty --class=filepicker}"
+    exec ${pkgs.xdg-desktop-portal-termfilechooser}/share/xdg-desktop-portal-termfilechooser/nnn-wrapper.sh "$@"
+  '';
 in
 {
   options.site.profiles.graphics = {
@@ -39,6 +45,7 @@ in
 
     environment.etc."x11/xinitrc".text = ''
       ${lib.concatStringsSep "\n" cfg.xinitCommands}
+      dbus-update-activation-environment -- systemd DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP=dwm
       slstatus &
       feh --bg-fill ${lib.concatStringsSep " " cfg.wallpapers}
       exec dwm
@@ -57,6 +64,8 @@ in
       })
       xinit
       pavucontrol
+
+      gsettings-desktop-schemas
     ];
 
     environment.sessionVariables = {
@@ -114,18 +123,26 @@ in
 
     xdg.portal = {
       enable = true;
-      extraPortals = with pkgs; [
-        xdg-desktop-portal
-        xdg-desktop-portal-gtk
-      ];
+      extraPortals = [ pkgs.xdg-desktop-portal-termfilechooser ];
       config = {
         common = {
-          default = [
-            "gtk"
-          ];
+          default = [ "termfilechooser" ];
+          "org.freedesktop.impl.portal.FileChooser" = [ "termfilechooser" ];
         };
       };
     };
+
+    environment.etc."xdg/xdg-desktop-portal-termfilechooser/config".text = ''
+      [filechooser]
+      cmd=${filepicker}
+      default_dir=$HOME
+    '';
+
+    programs = {
+      dconf.enable = true;
+    };
+
+    environment.sessionVariables.GTK_USE_PORTAL = "1";
 
     services.jack = {
       jackd.enable = true;

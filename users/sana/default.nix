@@ -93,6 +93,9 @@ in
           ".vim/pack/plugins/start/goyo".source = pkgs.vimPlugins.goyo-vim;
           ".vim/pack/plugins/start/limelight".source = pkgs.vimPlugins.limelight-vim;
           ".vim/pack/plugins/start/janet-vim".source = janetVim;
+          ".librewolf/librewolf.overrides.cfg".text = ''
+            defaultPref("widget.use-xdg-desktop-portal.file-picker", 1);
+          '';
         };
       };
     })

@@ -104,9 +104,6 @@
       prismlauncher
       ckan
       renoise
-    ])
-    ++ (with pkgs-unstable; [
-      claude-code
     ]);
 
   system.stateVersion = "25.05";

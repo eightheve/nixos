@@ -101,7 +101,6 @@
       enable = true;
       upstream = "http://10.100.0.2:5030";
     };
-    synthProxy.enable = true;
     remoteBuilds.user = {
       enable = true;
       hosts = {

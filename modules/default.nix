@@ -2,7 +2,6 @@
   imports = [
     ./colorscheme.nix
     ./forgejo-runner.nix
-    ./synth-proxy.nix
     ./maddy.nix
     ./matrix.nix
     ./mc-whitelist.nix

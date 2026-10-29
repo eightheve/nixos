@@ -83,7 +83,6 @@ in
         enable = true;
         packages = [
           pkgs.vim
-          pkgs-unstable.pi-coding-agent
         ];
 
         files = {

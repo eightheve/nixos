@@ -81,14 +81,25 @@ in
 
       hjem.users.sana = {
         enable = true;
-        packages = [
-          pkgs.vim
+        packages = with pkgs; [
+          vim
+          neomutt
         ];
 
         files = {
           ".config/git/config".text = gitConfigText;
           ".zshrc".text = import ./zshrc.nix pkgs;
           ".vimrc".text = builtins.readFile ./vimrc;
+          ".neomuttrc".text =
+            let
+              getSecret = pkgs.writeShellScript "get-mail-secret" "${pkgs.gnupg}/bin/gpg -qd ${./mailsecret.gpg}";
+            in
+            lib.strings.join "\n" [
+              "set imap_pass = \"`${getSecret}`\""
+              "set smtp_pass = \"`${getSecret}`\""
+              "set mailcap_path = ${pkgs.writeText "mailcap" "text/html; ${pkgs.w3m}/bin/w3m -dump -T text/html %s; copiousoutput"}"
+              (builtins.readFile ./neomuttrc)
+            ];
           ".vim/pack/plugins/start/goyo".source = pkgs.vimPlugins.goyo-vim;
           ".vim/pack/plugins/start/limelight".source = pkgs.vimPlugins.limelight-vim;
           ".vim/pack/plugins/start/janet-vim".source = janetVim;

@@ -1,0 +1,29 @@
+set from      = "sana@doppel.moe"
+set real_name = "Futaba Sana"
+set use_from  = yes
+
+set imap_user = "sana@doppel.moe"
+set folder = "imaps://imap.migadu.com:993/"
+
+set smtp_url = "smtps://smtp.migadu.com:465"
+set smtp_user = "sana@doppel.moe"
+
+set spool_file = "+INBOX"
+set record = "+Sent"
+set postponed = "+Drafts"
+set trash = "+Trash"
+
+mailboxes +INBOX +Sent +Drafts +Trash
+set imap_check_subscribed = yes
+set imap_list_subscribed = no
+
+set ssl_force_tls = yes
+set ssl_verify_host = yes
+
+set crypt_use_gpgme
+set pgp_default_key = "64E2D72FF5BA8BEE12C16A3D57096169F7C8117C"
+set pgp_sign_as     = "64E2D72FF5BA8BEE12C16A3D57096169F7C8117C"
+set pgp_self_encrypt = yes
+
+set header_cache = "~/.cache/neomutt/headers"
+set message_cache_dir = "~/.cache/neomutt/bodies"

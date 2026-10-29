@@ -104,7 +104,13 @@
       prismlauncher
       ckan
       renoise
-    ]);
+    ])
+    ++ [
+      ((import ../../packages).pulsar {
+        inherit pkgs;
+        lib = pkgs.lib;
+      })
+    ];
 
   system.stateVersion = "25.05";
 }

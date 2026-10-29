@@ -40,8 +40,6 @@ in
       site.lib.mkProxyVhost {
         domain = cfg.nginx.domainName;
         upstream = cfg.nginx.upstream;
-        # Static resource pack download; referenced by resource-pack in
-        # server.properties on SAOTOME.
         extraLocations."= /resourcepack.zip" = {
           alias = resourcePack;
           extraConfig = ''

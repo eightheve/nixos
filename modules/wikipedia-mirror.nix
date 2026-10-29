@@ -133,7 +133,6 @@ in
           Type = "oneshot";
           User = "wikipedia";
           Group = "wikipedia";
-          # ~53GB at ~13MB/s; killed runs resume on the next trigger.
           TimeoutStartSec = "90min";
         };
         script = toString mirrorScript;
@@ -160,9 +159,6 @@ in
     })
 
     (lib.mkIf cfg.serve.enable {
-      # Serves ${baseDir}/latest/ which is a relative symlink to the newest
-      # dated snapshot; kiwix-serve follows it on restart. Full-text search
-      # uses the index embedded in the zim, no extra setup.
       systemd.services.kiwix-serve = {
         description = "Serve wikipedia zim via kiwix-serve";
         after = [ "local-fs.target" ];

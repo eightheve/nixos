@@ -13,11 +13,6 @@ in
     bindAddress = lib.mkOption {
       type = lib.types.str;
       default = "127.0.0.1";
-      description = ''
-        Address SearXNG binds to. Use the host's WireGuard IP to make it
-        reachable for other hosts in the mesh (firewall then only allows the
-        port on wg0).
-      '';
     };
 
     port = lib.mkOption {
@@ -29,8 +24,7 @@ in
       type = lib.types.str;
       default = "/etc/searxng.env";
       description = ''
-        Env file containing SEARXNG_SECRET_KEY=<random string>. Per the
-        secrets-via-env-files convention.
+        Env file containing SEARXNG_SECRET_KEY
       '';
     };
   };
@@ -47,7 +41,6 @@ in
           method = "GET";
         };
         search = {
-          # Wayfinder needs the programmatic JSON API.
           formats = [
             "html"
             "json"
@@ -56,7 +49,6 @@ in
       };
     };
 
-    # Reachable only through the WireGuard mesh; never open to WAN.
     networking.firewall.interfaces.wg0.allowedTCPPorts = [ cfg.port ];
   };
 }

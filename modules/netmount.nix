@@ -1,15 +1,3 @@
-# Cross-host NFS directory orchestration.
-#
-# Entries are pure data in ./netmount-entries.nix (one export per entry).
-# Each host materializes only the roles that name it; the entry data must be
-# import-time constant, because module config SHAPE cannot depend on option
-# VALUES (host selection is done with mkIf guards instead).
-#
-# Access control is export-scope (single /32 peer over wg0), not file mode:
-# NFS numeric uids pass through unsquashed (no_root_squash included, so the
-# client's root keeps uid 0 for migrations and file management) and the
-# server directory is permissive (mode 0777). Anyone who can reach the export
-# can rewrite it; the export is restricted to one trusted host in the mesh.
 {
   config,
   lib,
